@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <main class="container">
+  <div class="row">
+      <div class="col-md-6 offset-md-4 mt-5">
+          <h1 class="text-center">Datos de {{ user.username }}</h1>
+          <form method="POST" action="{% url 'modificar_datos' %}" class="card card-body">
+          {% csrf_token %} 
+          <div class="mb-3">
+            <label for="nombre">Nombre:</label>
+            <input type="text" name="nombre" class="form-control" id="nombre" value="{{ form.nombre.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="apellido_materno">Apellido Materno:</label>
+            <input type="text" name="apellido_materno" class="form-control" id="apellido_materno" value="{{ form.apellido_materno.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="apellido_paterno">Apellido Paterno:</label>
+            <input type="text" name="apellido_paterno" class="form-control" id="apellido_paterno" value="{{ form.apellido_paterno.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="calle">Calle:</label>
+            <input type="text" name="calle" class="form-control" id="calle" value="{{ form.calle.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="numero_calle">Numero de calle:</label>
+            <input type="text" name="numero_calle" class="form-control" id="numero_calle" value="{{ form.numero_calle.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="colonia">Colonia:</label>
+            <input type="text" name="colonia" class="form-control" id="colonia" value="{{ form.colonia.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="ciudad">Ciudad:</label>
+            <input type="text" name="ciudad" class="form-control" id="ciudad" value="{{ form.ciudad.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="codigo_postal">Codigo Postal:</label>
+            <input type="text" name="codigo_postal" class="form-control" id="codigo_postal" value="{{ form.codigo_postal.value }}">
+          </div>
+          <div class="mb-3">
+            <label for="telefono">Telefono:</label>
+            <input type="text" name="telefono" class="form-control" id="telefono" value="{{ form.telefono.value }}">
+          </div>
+          <p></p>
+          <button class="submit">Guardar</button>
+          </form>
+          </div>
+  </div>
+  </main>
+{% endblock %}

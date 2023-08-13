@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <main class="container py-5">
+    <section class="card card-body text-center">
+      <h1>reporte: {{ form.nombre_maquina.value }}</h1>
+    </section>
+    <p></p>
+    {% if reporte.foto %}
+    <div class="d-flex justify-content-center align-items-center">
+      <img src="{{ reporte.foto.url }}" alt="Foto del reporte" class="img-fluid" style="max-width: 25%; max-height: 25%;">
+    </div>
+    {% endif %}
+    <p></p>
+    <section class="card card-body">
+      <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="nombre_maquina">Nombre de la máquina:</label>
+        <input type="text" name="nombre_maquina" class="form-control" id="nombre_maquina" value="{{ form.nombre_maquina.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="descripcion">Descripción:</label>
+        <input type="text" name="descripcion" class="form-control" id="descripcion" value="{{ form.descripcion.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="numero_parte">Número de parte:</label>
+        <input type="text" name="numero_parte" class="form-control" id="numero_parte" value="{{ form.numero_parte.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="piezas">Piezas:</label>
+        <input type="text" name="piezas" class="form-control" id="piezas" value="{{ form.piezas.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="costo">Costo:</label>
+        <input type="number" name="costo" step="any" class="form-control" id="costo" value="{{ form.costo.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="horas">Horas:</label>
+        <input type="number" name="horas" step="any" class="form-control" id="horas" value="{{ form.horas.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="fecha_reemplazo">Fecha de reemplazo:</label>
+        <input type="date" name="fecha_reemplazo" class="form-control" id="fecha_reemplazo" value="{{ form.fecha_reemplazo.value }}">
+      </div>
+      <div class="mb-3">
+        <label for="foto">Foto:</label>
+        <input type="file" name="foto" class="form-control" id="foto" >
+      </div>
+      <p></p>
+      <button type="submit">Guardar</button>
+      {% if form.errors %}
+      <ul class="errorlist">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+      {% endif %}
+      </form>
+    </section>
+  </main>
+{% endblock %}
+

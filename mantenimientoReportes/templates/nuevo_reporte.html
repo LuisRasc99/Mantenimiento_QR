@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <main class="container py-5">
+    <section class="card card-body text-center">
+      <h1>Nuevo reporte</h1>
+    </section>
+    <p></p>
+    <section class="card card-body">
+      <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="nombre_maquina">Nombre de la máquina:</label>
+        <input type="text" name="nombre_maquina" class="form-control" id="nombre_maquina">
+      </div>
+      <div class="mb-3">
+        <label for="descripcion">Descripción:</label>
+        <input type="text" name="descripcion" class="form-control" id="descripcion">
+      </div>
+      <div class="mb-3">
+        <label for="numero_parte">Número de parte:</label>
+        <input type="text" name="numero_parte" class="form-control" id="numero_parte">
+      </div>
+      <div class="mb-3">
+        <label for="piezas">Piezas:</label>
+        <input type="text" name="piezas" class="form-control" id="piezas">
+      </div>
+      <div class="mb-3">
+        <label for="costo">Costo:</label>
+        <input type="number" name="costo" step="any" class="form-control" id="costo">
+      </div>
+      <div class="mb-3">
+        <label for="horas">Horas:</label>
+        <input type="number" name="horas" step="any" class="form-control" id="horas">
+      </div>
+      <div class="mb-3">
+        <label for="fecha_reemplazo">Fecha de reemplazo:</label>
+        <input type="date" name="fecha_reemplazo" class="form-control" id="fecha_reemplazo">
+      </div>
+      <div class="mb-3">
+        <label for="foto">Foto:</label>
+        <input type="file" name="foto" class="form-control" id="foto">
+      </div>
+      <p></p>
+      <button type="submit">Guardar</button>
+      {% if form.errors %}
+      <ul class="errorlist">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+      {% endif %}
+      </form>
+    </section>
+  </main>
+{% endblock %}
+
+
