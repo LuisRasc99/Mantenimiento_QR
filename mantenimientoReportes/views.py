@@ -20,33 +20,16 @@ from .models import Reportes
 @login_required
 def nuevo_reporte(request):
     if request.method == 'POST':
-        nombre_maquina = request.POST.getlist('nombre_maquina[]')
-        descripcion = request.POST.getlist('descripcion[]')
-        numero_parte = request.POST.getlist('numero_parte[]')
-        piezas = request.POST.getlist('piezas[]')
-        costo = request.POST.getlist('costo[]')
-        horas = request.POST.getlist('horas[]')
-        fecha_reemplazo = request.POST.getlist('fecha_reemplazo[]')
-
-        for i in range(len(nombre_maquina)):
-            form_data = {
-                'nombre_maquina': nombre_maquina[i],
-                'descripcion': descripcion[i],
-                'numero_parte': numero_parte[i],
-                'piezas': piezas[i],
-                'costo': costo[i],
-                'horas': horas[i],
-                'fecha_reemplazo': fecha_reemplazo[i]
-            }
-            form = ReporteForm(form_data, request.FILES)
-            if form.is_valid():
-                reporte = form.save(commit=False)
-                reporte.user = request.user
-                reporte.save()
-                reporte.generar_qr()
-
-        return redirect('reportes')
-    return render(request, 'nuevo_reporte.html')
+        form = ReporteForm(request.POST, request.FILES)
+        if form.is_valid():
+            reporte = form.save(commit=False)
+            reporte.user = request.user  # Llenamos automáticamente el campo 'user' con el usuario actual
+            reporte.save()
+            reporte.generar_qr()
+            return redirect('reportes')
+    else:
+        form = ReporteForm()
+    return render(request, 'nuevo_reporte.html', {'form': form})
 
 @login_required
 def reportes(request):
