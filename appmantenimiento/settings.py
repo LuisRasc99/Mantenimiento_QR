@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'db_appmantenimieto',
         'USER': 'utpmantenimiento',
         'PASSWORD': 'utp15082023',
-        'HOST': '45.79.14.234',  # O la dirección IP del servidor de la base de datos
+        'HOST': 'localhost',  # O la dirección IP del servidor de la base de datos
         'PORT': '5432',       # El puerto por defecto de PostgreSQL
     }
 }
