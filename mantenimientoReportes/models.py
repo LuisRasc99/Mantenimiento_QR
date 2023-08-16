@@ -12,7 +12,7 @@ User = get_user_model()
 
 def reporte_image_path(instance, filename):
     # Generar la ruta de almacenamiento para la imagen del reporte
-    return f'static/reportes_img/{filename}'
+    return f'reportes_img/{filename}'
 
 class Reportes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -30,7 +30,7 @@ class Reportes(models.Model):
     def __str__(self):
         return f"{self.titulo} - {self.autor}"
 
-    def generar_qr(self):
+def generar_qr(self):
         data = f"Nombre de máquina: {self.nombre_maquina}\nDescripción: {self.descripcion}\nNúmero de parte: {self.numero_parte}\nPiezas: {self.piezas}\nCosto: {self.costo}\nHoras: {self.horas}\nFecha de reemplazo: {self.fecha_reemplazo}\nFecha de reporte: {self.fecha_reporte}"
         if self.qr:  # Verificar si hay un código QR existente
             self.qr.delete()  # Eliminar el código QR anterior

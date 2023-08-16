@@ -69,15 +69,9 @@ def generar_qr(request, id_reporte):
     qr_img = qrcode.make(data)
     qr_bytes = BytesIO()
     qr_img.save(qr_bytes, format='PNG')
-    
-    # Cambiar la ruta de guardado del código QR a la carpeta static
-    qr_path = os.path.join(settings.BASE_DIR, 'static', f'qr_{reporte.id_reporte}.png')
-    with open(qr_path, 'wb') as qr_file:
-        qr_file.write(qr_bytes.getvalue())
-    
-    reporte.qr = f'qr_{reporte.id_reporte}.png'
+    qr_file = File(qr_bytes, name=f'qr_{reporte.id_reporte}.png')
+    reporte.qr.save(f'qr_{reporte.id_reporte}.png', qr_file)
     reporte.save()
-    
     return redirect('reporte')
 
 
@@ -92,12 +86,6 @@ def imprimir_qr(request, id_reporte, formato):
     if formato == 'png':
         qr_bytes = BytesIO()
         qr_img.save(qr_bytes, format='PNG')
-        
-        # Cambiar la ruta de guardado del archivo PNG a la carpeta static
-        png_path = os.path.join(settings.BASE_DIR, 'static', f'qr_{reporte.id_reporte}.png')
-        with open(png_path, 'wb') as png_file:
-            png_file.write(qr_bytes.getvalue())
-        
         response = HttpResponse(content_type='image/png')
         response['Content-Disposition'] = f'attachment; filename=qr_{reporte.id_reporte}.png'
         response.write(qr_bytes.getvalue())
