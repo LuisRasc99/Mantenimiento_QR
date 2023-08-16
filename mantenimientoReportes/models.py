@@ -12,7 +12,7 @@ User = get_user_model()
 
 def reporte_image_path(instance, filename):
     # Generar la ruta de almacenamiento para la imagen del reporte
-    return f'reportes_img/{filename}'
+    return f'static/reportes_img/{filename}'
 
 class Reportes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
