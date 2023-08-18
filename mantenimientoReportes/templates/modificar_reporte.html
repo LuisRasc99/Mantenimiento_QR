@@ -41,11 +41,15 @@
       </div>
       <div class="mb-3">
         <label for="fecha_reemplazo">Fecha de reemplazo:</label>
-        <input type="date" name="fecha_reemplazo" class="form-control" id="fecha_reemplazo" value="{{ form.fecha_reemplazo.value }}">
+        <input type="date" name="fecha_reemplazo" class="form-control" id="fecha_reemplazo" value="{{ form.fecha_reemplazo.value|date:"Y-m-d" }}">
       </div>
       <div class="mb-3">
         <label for="foto">Foto:</label>
         <input type="file" name="foto" class="form-control" id="foto" >
+      </div>
+      <div class="mb-3">
+        <label for="foto_filtro">Foto del filtro:</label>
+        <input type="file" name="foto_filtro" class="form-control" id="foto_filtro" >
       </div>
       <p></p>
       <button type="submit">Guardar</button>

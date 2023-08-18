@@ -22,7 +22,9 @@ class ReporteForm(forms.ModelForm):
 class ReporteUpdateForm(forms.ModelForm):
     class Meta:
         model = Reportes
-        fields = ['nombre_maquina', 'descripcion', 'numero_parte', 'piezas', 'costo', 'horas', 'fecha_reemplazo', 'foto']
-        
-        
+        fields = ['nombre_maquina', 'descripcion', 'numero_parte', 'piezas', 'costo', 'horas', 'fecha_reemplazo', 'foto', 'foto_filtro']
+
+    costo = forms.DecimalField(required=False)
+    horas = forms.DecimalField(required=False)    
+    fecha_reemplazo = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))   
         

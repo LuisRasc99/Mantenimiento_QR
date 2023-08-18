@@ -14,10 +14,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ReporteSerializer
-from .models import Reportes
+from uuid import uuid4
+import shutil
 
-
-@login_required
 def nuevo_reporte(request):
     if request.method == 'POST':
         form = ReporteForm(request.POST, request.FILES)
@@ -31,6 +30,7 @@ def nuevo_reporte(request):
         form = ReporteForm()
     return render(request, 'nuevo_reporte.html', {'form': form})
 
+
 @login_required
 def reportes(request):
     user = request.user
@@ -43,6 +43,8 @@ def modificar_reporte(request, id_reporte):
     if request.method == 'POST':
         form = ReporteUpdateForm(request.POST, request.FILES, instance=reporte)
         if form.is_valid():
+            if not form.cleaned_data['fecha_reemplazo']:
+                form.cleaned_data['fecha_reemplazo'] = reporte.fecha_reemplazo
             reporte = form.save()
             reporte.generar_qr()
             return redirect('reportes')
@@ -63,9 +65,92 @@ def eliminar_reporte(request, id_reporte):
     return render(request, 'eliminar_reporte.html', {'reporte': reporte})
 
 @login_required
+def eliminar_reporte_multiple(request):
+    if request.method == 'GET':
+        reportes_ids = request.GET.get('ids', '').split(',')
+        reportes_seleccionados = Reportes.objects.filter(id_reporte__in=reportes_ids)
+        
+        # Elimina los reportes seleccionados y sus archivos asociados
+        for reporte in reportes_seleccionados:
+            if reporte.qr:
+                if os.path.isfile(reporte.qr.path):
+                    os.remove(reporte.qr.path)
+            reporte.delete()
+
+        messages.success(request, 'Los reportes seleccionados han sido eliminados exitosamente.')
+        return redirect('reportes')
+
+    return render(request, 'eliminar_reporte_multiple.html')  # Actualiza el nombre del template si es necesario
+
+def duplicar_reportes(request):
+    if request.method == 'GET':
+        reportes_ids = request.GET.get('ids', '').split(',')
+        reportes_seleccionados = Reportes.objects.filter(id_reporte__in=reportes_ids)
+        
+        # Duplica los reportes seleccionados y guárdalos en la base de datos
+        for reporte_original in reportes_seleccionados:
+            reporte_duplicado = reporte_original
+            nuevo_id = str(uuid4())[:8]  # Genera un nuevo ID único usando uuid
+            reporte_duplicado.id_reporte = nuevo_id  # Asigna el nuevo ID
+            reporte_duplicado.pk = None  # Limpia la clave primaria
+            reporte_duplicado.qr.delete()  # Elimina el código QR anterior
+            reporte_duplicado.save()
+
+            # Genera un nuevo código QR para el reporte duplicado
+            data = f"Nombre de máquina: {reporte_duplicado.nombre_maquina}\nDescripción: {reporte_duplicado.descripcion}\nNúmero de parte: {reporte_duplicado.numero_parte}\nPiezas: {reporte_duplicado.piezas}\nCosto: {reporte_duplicado.costo}\nHoras: {reporte_duplicado.horas}\nFecha de reemplazo: {reporte_duplicado.fecha_reemplazo}\nFecha de reporte: {reporte_duplicado.fecha_reporte}"
+            qr_img = qrcode.make(data)
+            qr_bytes = BytesIO()
+            qr_img.save(qr_bytes, format='PNG')
+            qr_file = File(qr_bytes, name=f'qr_{reporte_duplicado.id_reporte}.png')
+            reporte_duplicado.qr.save(f'qr_{reporte_duplicado.id_reporte}.png', qr_file)
+
+        return redirect('reportes')
+    
+def duplicar_reportes(request):
+    if request.method == 'GET':
+        reportes_ids = request.GET.get('ids', '').split(',')
+        reportes_seleccionados = Reportes.objects.filter(id_reporte__in=reportes_ids)
+        
+        # Duplica los reportes seleccionados y guárdalos en la base de datos
+        for reporte_original in reportes_seleccionados:
+            reporte_duplicado = reporte_original
+            reporte_duplicado.pk = None  # Asigna un nuevo ID para crear una copia
+            reporte_duplicado.qr = duplicate_qr(reporte_original.qr)  # Duplica el QR y asígnalo al reporte duplicado
+            reporte_duplicado.save()
+
+        return redirect('reportes')
+
+def duplicate_qr(original_qr):
+    if original_qr:  # Verifica si hay un QR original
+        original_path = original_qr.path
+        qr_filename = os.path.basename(original_path)
+        qr_directory = os.path.dirname(original_path)
+        
+        # Genera una nueva ruta para el QR duplicado en la carpeta "qr"
+        new_qr_directory = os.path.join(qr_directory, 'qr')
+        new_qr_path = os.path.join(new_qr_directory, qr_filename)
+        
+        try:
+            os.makedirs(new_qr_directory, exist_ok=True)
+            shutil.copy(original_path, new_qr_path)
+        except IOError as e:
+            print("Error copying QR:", e)
+            return None
+        
+        return new_qr_path
+    return None
+
+def get_new_qr_path(original_path):
+    original_basename = os.path.basename(original_path)
+    original_dirname = os.path.dirname(original_path)
+    new_basename = f"copy_{original_basename}"
+    new_path = os.path.join(original_dirname, "qr", new_basename)  # Cambia la ruta para reflejar la carpeta "qr"
+    return new_path
+
+@login_required
 def generar_qr(request, id_reporte):
     reporte = Reportes.objects.get(id_reporte=id_reporte)
-    data = f"Nombre de máquina: {reporte.nombre_maquina}\nDescripción: {reporte.descripcion}\nNúmero de parte: {reporte.numero_parte}\nPiezas: {reporte.piezas}\nCosto: {reporte.costo}\nHoras: {reporte.horas}\nFecha de reemplazo: {reporte.fecha_reemplazo}\nFecha de reporte: {reporte.fecha_reporte}"
+    data = f"Nombre de máquina: {reporte.nombre_maquina}\nDescripción: {reporte.descripcion}\nNúmero de parte: {reporte.numero_parte}\nPiezas: {reporte.piezas}\nCosto: {reporte.costo}\nHoras: {reporte.horas}\nFecha de reemplazo: {reporte.fecha_reemplazo()}\nFecha de reporte: {reporte.fecha_reporte}"
     qr_img = qrcode.make(data)
     qr_bytes = BytesIO()
     qr_img.save(qr_bytes, format='PNG')

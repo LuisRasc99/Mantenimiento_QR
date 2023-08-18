@@ -118,3 +118,22 @@ td {
   background-color: #707a70e1; /* Color de fondo personalizado para la barra de navegación */
   /* Puedes ajustar el color de fondo a tu preferencia */
 }
+
+.seleccion-buttons {
+  margin-top: 20px;
+  display: none;
+}
+
+.reporte-checkbox {
+  margin-right: 5px;
+}
+
+/* Estilos para los botones de acción */
+.btn-success, .btn-danger, .btn-secondary {
+  margin-right: 10px;
+}
+
+/* Estilos para mostrar las casillas de selección después de hacer clic en "Seleccionar reportes" */
+.reporte-checkbox.visible {
+  display: block;
+}

@@ -12,12 +12,17 @@
   <div class="text-start mb-3">
     <a href="{% url 'nuevo_reporte' %}" class="btn btn-primary">Añadir nuevo reporte</a>
   </div>
+  <div class="text-start mb-3">
+    <button class="btn btn-primary" id="seleccionar-reportes">Seleccionar reportes</button>
+  </div>
   <p></p>
   <section class="card card-body">
     <table>
       <thead>
         <tr> 
-          <th>Foto</th>
+          <th></th>
+          <th>Foto de la maquina</th>
+          <th>Foto del filtro</th>
           <th>Nombre de la máquina</th>
           <th>Descripción</th>
           <th>Número de parte</th>
@@ -32,20 +37,28 @@
       </thead>
       <tbody>
         {% for reporte in reportes %}
-        <tr>
+        <tr class="reporte-row">
+          <td>
+            <input type="checkbox" class="reporte-checkbox" value="{{ reporte.id_reporte }}">
+          </td>
           {% if reporte.foto %}
             <td><img src="{{ reporte.foto.url }}" alt="Foto del reporte" width="100" height="100"></td>
           {% else %}
             <td>No hay foto</td>
           {% endif %}
+          {% if reporte.foto_filtro %}
+            <td><img src="{{ reporte.foto_filtro.url }}" alt="Foto del filtro" width="100" height="100"></td>
+          {% else %}
+            <td>No hay foto de filtro</td>
+          {% endif %}
           <td>{{ reporte.nombre_maquina|default:"" }}</td>
           <td>{{ reporte.descripcion|default:"" }}</td>
           <td>{{ reporte.numero_parte|default:"" }}</td>
           <td>{{ reporte.piezas|default:"" }}</td>
-          <td>{{ reporte.costo|default:"" }}</td>
+          <td>${{ reporte.costo|floatformat:2 }}</td>
           <td>{{ reporte.horas|default:"" }}</td>
-          <td>{{ reporte.fecha_reemplazo|default:"" }}</td>
-          <td>{{ reporte.fecha_reporte|default:"" }}</td>
+          <td>{{ reporte.fecha_reemplazo|date:"d-m-Y" }}</td>
+          <td>{{ reporte.fecha_reporte|date:"d-m-Y" }}</td>
           {% if reporte.qr %}
           <td><img src="{{ reporte.qr.url }}" alt="Código QR" width="100" height="100"></td>
           {% else %}
@@ -69,6 +82,11 @@
         {% endfor %}
       </tbody>
     </table>
+    <div class="seleccion-buttons" style="display: none;">
+      <button class="btn btn-success" id="duplicar-reporte">Duplicar reporte seleccionado</button>
+      <button class="btn btn-danger" id="eliminar-reportes">Eliminar reportes seleccionados</button>
+      <button class="btn btn-secondary" id="cancelar-seleccion">Cancelar selección</button>
+    </div>
   </section>
 </main>
 
@@ -82,5 +100,49 @@
     }
   }
 </script>
-      
+
+<script>
+  const seleccionarBtn = document.getElementById('seleccionar-reportes');
+  const seleccionButtons = document.querySelector('.seleccion-buttons');
+  const reporteRows = document.querySelectorAll('.reporte-row');
+  const reporteCheckboxes = document.querySelectorAll('.reporte-checkbox');
+  const duplicarBtn = document.getElementById('duplicar-reporte');
+  const eliminarBtn = document.getElementById('eliminar-reportes');
+  const cancelarBtn = document.getElementById('cancelar-seleccion');
+
+  seleccionarBtn.addEventListener('click', function() {
+    reporteRows.forEach(row => row.classList.add('seleccionable'));
+    seleccionButtons.style.display = 'block';
+  });
+
+  duplicarBtn.addEventListener('click', function() {
+    const reportesSeleccionados = Array.from(reporteCheckboxes).filter(checkbox => checkbox.checked);
+    const ids = reportesSeleccionados.map(checkbox => checkbox.value).join(',');
+    if (ids) {
+      window.location.href = `{% url 'duplicar_reportes' %}?ids=${ids}`;
+    } else {
+      alert('Por favor, selecciona al menos un reporte para duplicar.');
+    }
+  });
+
+  eliminarBtn.addEventListener('click', function() {
+    const reportesSeleccionados = Array.from(reporteCheckboxes).filter(checkbox => checkbox.checked);
+    const ids = reportesSeleccionados.map(checkbox => checkbox.value).join(',');
+    if (ids) {
+      if (confirm('¿Estás seguro de que deseas eliminar los reportes seleccionados?')) {
+        window.location.href = `{% url 'eliminar_reporte_multiple' %}?ids=${ids}`;
+      }
+    } else {
+      alert('Por favor, selecciona al menos un reporte para eliminar.');
+    }
+  });
+
+  cancelarBtn.addEventListener('click', function() {
+    reporteRows.forEach(row => row.classList.remove('seleccionable'));
+    reporteCheckboxes.forEach(checkbox => checkbox.checked = false);
+    seleccionButtons.style.display = 'none';
+  });
+</script>
 {% endblock %}
+
+
