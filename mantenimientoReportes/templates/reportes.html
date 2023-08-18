@@ -9,12 +9,26 @@
     {% endif %}
   </section>
   <p></p>
-  <div class="text-start mb-3">
-    <a href="{% url 'nuevo_reporte' %}" class="btn btn-primary">Añadir nuevo reporte</a>
+  <div class="row mb-3">
+    <div class="col">
+      <!-- Botón "Buscar" -->
+      <form method="GET">
+        <div class="input-group">
+          <input type="text" class="form-control" name="search" placeholder="Buscar por nombre de máquina o descripción" value="{{ request.GET.search }}">
+          <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+      </form>
+    </div>
+    <div class="col">
+      <!-- Botón "Añadir nuevo reporte" -->
+      <a href="{% url 'nuevo_reporte' %}" class="btn btn-primary">Añadir nuevo reporte</a>
+    </div>
+    <div class="col d-flex align-items-center justify-content-end">
+      <!-- Botón "Seleccionar reportes" -->
+      <button class="btn btn-primary" id="seleccionar-reportes">Seleccionar reportes</button>
+    </div>
   </div>
-  <div class="text-start mb-3">
-    <button class="btn btn-primary" id="seleccionar-reportes">Seleccionar reportes</button>
-  </div>
+
   <p></p>
   <section class="card card-body">
     <table>
@@ -55,7 +69,13 @@
           <td>{{ reporte.descripcion|default:"" }}</td>
           <td>{{ reporte.numero_parte|default:"" }}</td>
           <td>{{ reporte.piezas|default:"" }}</td>
-          <td>${{ reporte.costo|floatformat:2 }}</td>
+          <td>
+            {% if reporte.costo %}
+              ${{ reporte.costo|floatformat:2 }}
+            {% else %}
+              {{ reporte.costo|floatformat:2 }}
+            {% endif %}
+          </td>
           <td>{{ reporte.horas|default:"" }}</td>
           <td>{{ reporte.fecha_reemplazo|date:"d-m-Y" }}</td>
           <td>{{ reporte.fecha_reporte|date:"d-m-Y" }}</td>
@@ -110,9 +130,17 @@
   const eliminarBtn = document.getElementById('eliminar-reportes');
   const cancelarBtn = document.getElementById('cancelar-seleccion');
 
+  let seleccionActiva = false; // Variable para controlar el estado de selección
+
   seleccionarBtn.addEventListener('click', function() {
-    reporteRows.forEach(row => row.classList.add('seleccionable'));
-    seleccionButtons.style.display = 'block';
+    seleccionActiva = !seleccionActiva; // Alterna el estado de selección al hacer clic
+
+    if (seleccionActiva) {
+      reporteRows.forEach(row => row.classList.add('seleccionable'));
+      seleccionButtons.style.display = 'block';
+    } else {
+      cancelarSeleccion();
+    }
   });
 
   duplicarBtn.addEventListener('click', function() {
@@ -137,12 +165,16 @@
     }
   });
 
-  cancelarBtn.addEventListener('click', function() {
+  cancelarBtn.addEventListener('click', cancelarSeleccion);
+
+  function cancelarSeleccion() {
+    seleccionActiva = false;
     reporteRows.forEach(row => row.classList.remove('seleccionable'));
     reporteCheckboxes.forEach(checkbox => checkbox.checked = false);
     seleccionButtons.style.display = 'none';
-  });
+  }
 </script>
+
 {% endblock %}
 
 
