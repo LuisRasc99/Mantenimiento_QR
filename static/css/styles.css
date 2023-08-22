@@ -137,3 +137,20 @@ td {
 .reporte-checkbox.visible {
   display: block;
 }
+
+/* Estilo para el botón de historial */
+.btn-historial {
+  background-color: #6c757d; /* Color de fondo para el botón de historial */
+  border-color: #6c757d; /* Color del borde */
+  color: #ffffff; /* Color de texto blanco */
+}
+
+.btn-historial:hover {
+  background-color: #495057; /* Color de fondo más oscuro al pasar el cursor */
+  border-color: #495057;
+}
+
+.btn-historial:active {
+  background-color: #343a40; /* Color de fondo aún más oscuro al hacer clic */
+  border-color: #343a40;
+}

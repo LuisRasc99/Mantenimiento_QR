@@ -8,6 +8,7 @@ from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 import os
 from decimal import Decimal
+from django.core.files.storage import default_storage
 User = get_user_model()
 
 def maquina_image_path(instance, filename):
@@ -45,6 +46,9 @@ class Reportes(models.Model):
         qr_img.save(qr_bytes, format='PNG')
         qr_file = File(qr_bytes, name=f'qr_{self.id_reporte}.png')
         self.qr.save(f'qr_{self.id_reporte}.png', qr_file)
+
+    
+
         
 
 @receiver(pre_delete, sender=Reportes)
@@ -84,3 +88,47 @@ def eliminar_fotos(sender, instance, **kwargs):
             foto_path = foto_field.path
             if os.path.isfile(foto_path):
                 os.remove(foto_path)
+
+class Historial(models.Model):
+    reporte = models.ForeignKey(Reportes, on_delete=models.CASCADE)
+    usuario_modificacion = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    tipo_modificacion = models.CharField(max_length=20)  # Puedes usar choices para definir opciones
+    fecha_modificacion = models.DateTimeField(auto_now_add=True)
+    nombre_maquina_anterior = models.CharField(max_length=100, null=True, blank=True)
+    descripcion_anterior = models.TextField(null=True, blank=True)
+    numero_parte_anterior = models.CharField(max_length=100, null=True, blank=True)
+    piezas_anterior = models.IntegerField(null=True, blank=True)
+    costo_anterior = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    horas_anterior = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    fecha_reemplazo_anterior = models.DateField(null=True, blank=True)
+    qr_anterior = models.ImageField(upload_to='qr/historial', blank=True, null=True)
+
+    def __str__(self):
+        return f"Historial de modificación para {self.reporte.nombre_maquina}"
+    
+    def generar_qr_anterior(self):
+        data = f"Nombre de máquina anterior: {self.nombre_maquina_anterior}\nDescripción anterior: {self.descripcion_anterior}\nNúmero de parte anterior: {self.numero_parte_anterior}\nPiezas anteriores: {self.piezas_anterior}\nCosto anterior: {self.costo_anterior}\nHoras anteriores: {self.horas_anterior}\nFecha de reemplazo anterior: {self.fecha_reemplazo_anterior}\nFecha de modificación: {self.fecha_modificacion}"
+        
+        qr_img = qrcode.make(data)
+        qr_bytes = BytesIO()
+        qr_img.save(qr_bytes, format='PNG')
+
+        # Utiliza default_storage.save() para guardar el archivo en la ubicación correcta
+        qr_filename = f'qr_anterior_{self.id}.png'
+        qr_path = os.path.join('qr', 'historial', qr_filename)
+        default_storage.save(qr_path, File(qr_bytes), max_length=None)
+
+        self.qr_anterior.name = qr_path  # Actualiza el nombre del campo en el modelo
+        self.save(update_fields=['qr_anterior'])  # Guarda el registro actualizado en la base de datos
+
+    def eliminar_archivos(self):
+        for field_name in ['foto_anterior', 'foto_filtro_anterior', 'qr_anterior']:
+            image_field = getattr(self, field_name)
+            if image_field:
+                if default_storage.exists(image_field.name):
+                    default_storage.delete(image_field.name)
+
+    def delete(self, *args, **kwargs):
+        self.eliminar_archivos()
+        super(Historial, self).delete(*args, **kwargs)
+    

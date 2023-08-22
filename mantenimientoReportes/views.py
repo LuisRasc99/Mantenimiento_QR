@@ -3,13 +3,13 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ReporteForm, ReporteUpdateForm
-from .models import Reportes
+from .models import Historial, Reportes
 from django.contrib import messages
 import qrcode
 import os
 from io import BytesIO
 from django.core.files import File
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -18,6 +18,10 @@ from uuid import uuid4
 import shutil
 import uuid
 from django.db.models import Q
+from django.http import FileResponse 
+import io
+from django.utils import timezone
+
 
 
 def nuevo_reporte(request):
@@ -48,20 +52,49 @@ def reportes(request):
 
     return render(request, 'reportes.html', {'reportes': reportes})
 
+
+
 @login_required
 def modificar_reporte(request, id_reporte):
     reporte = Reportes.objects.get(id_reporte=id_reporte)
+    
     if request.method == 'POST':
         form = ReporteUpdateForm(request.POST, request.FILES, instance=reporte)
         if form.is_valid():
-            if not form.cleaned_data['fecha_reemplazo']:
-                form.cleaned_data['fecha_reemplazo'] = reporte.fecha_reemplazo
+            # Guardar los cambios en el reporte
+            reporte = form.save()
+            
+            # Crear un objeto en la tabla de historial y copiar los valores originales
+            historial = Historial.objects.create(
+                reporte=reporte,
+                nombre_maquina_anterior=reporte.nombre_maquina,
+                descripcion_anterior=reporte.descripcion,
+                numero_parte_anterior=reporte.numero_parte,
+                piezas_anterior=reporte.piezas,
+                costo_anterior=reporte.costo,
+                horas_anterior=reporte.horas,
+                fecha_reemplazo_anterior=reporte.fecha_reemplazo,
+                usuario_modificacion=request.user,  # Asignar el usuario actual
+                tipo_modificacion="Modificación",
+                fecha_modificacion=timezone.now()
+                
+            )
+            
+            # Generar el QR en el historial
+            historial.generar_qr_anterior()
+            
+            # Guardar los cambios en el reporte
             reporte = form.save()
             reporte.generar_qr()
+
+
             return redirect('reportes')
     else:
         form = ReporteUpdateForm(instance=reporte)
+    
     return render(request, 'modificar_reporte.html', {'form': form, 'reporte': reporte})
+
+
 
 @login_required
 def eliminar_reporte(request, id_reporte):
@@ -193,3 +226,50 @@ class reporteDetail(APIView):
         reporte = Reportes.objects.get(id_reporte=id_reporte)
         serializer = ReporteSerializer(reporte)
         return Response(serializer.data)
+
+def historial_reportes(request, reporte_id):
+    reporte = get_object_or_404(Reportes, id_reporte=reporte_id)
+    historiales = Historial.objects.filter(reporte=reporte).order_by('-fecha_modificacion')
+
+    context = {
+        'reporte': reporte,
+        'historiales': historiales,
+    }
+
+    return render(request, 'historial_reportes.html', context)
+
+@login_required
+def eliminar_historial(request, id_historial):
+    historial = get_object_or_404(Historial, pk=id_historial)
+
+    if request.method == 'POST':
+        # Eliminar el historial primero para evitar que se eliminen los archivos antes de copiarlos
+        reporte_id = historial.reporte.id_reporte  # Guarda el ID del reporte antes de eliminar el historial
+        historial.delete()
+        
+        # Luego, redirige al historial del reporte después de eliminar el historial
+        messages.success(request, 'El historial ha sido eliminado exitosamente.')
+        return redirect('historial_reportes', reporte_id=reporte_id)
+
+    context = {'historial': historial}
+    return redirect('historial_reportes', reporte_id=historial.reporte.id_reporte)
+
+
+@login_required
+def imprimir_qr_anterior(request, id_historial, formato):
+    historial = Historial.objects.get(pk=id_historial)
+    data = f"Nombre de máquina anterior: {historial.nombre_maquina_anterior}\nDescripción anterior: {historial.descripcion_anterior}\nNúmero de parte anterior: {historial.numero_parte_anterior}\nPiezas anteriores: {historial.piezas_anterior}\nCosto anterior: {historial.costo_anterior}\nHoras anteriores: {historial.horas_anterior}\nFecha de reemplazo anterior: {historial.fecha_reemplazo_anterior}\nFecha de modificación: {historial.fecha_modificacion}"
+    
+    qr_img = qrcode.make(data)
+
+    # Generar archivo PNG
+    if formato == 'png':
+        qr_bytes = BytesIO()
+        qr_img.save(qr_bytes, format='PNG')
+        response = HttpResponse(content_type='image/png')
+        response['Content-Disposition'] = f'attachment; filename=qr_anterior_{historial.id}.png'
+        response.write(qr_bytes.getvalue())
+
+        return response
+
+    return redirect('historial_reporte', reporte_id=historial.reporte.id_reporte)
