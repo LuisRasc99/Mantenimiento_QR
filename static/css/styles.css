@@ -154,3 +154,12 @@ td {
   background-color: #343a40; /* Color de fondo aún más oscuro al hacer clic */
   border-color: #343a40;
 }
+
+/* Estilo personalizado para el contenedor del formulario */
+.custom-container {
+  border: 1px solid #7dc3a4; /* Borde sutil */
+  box-shadow: 0 2px 4px rgba(160, 84, 219, 0.1); /* Sombra sutil */
+  padding: 20px; /* Espaciado interno para el contenido */
+  border-radius: 5px; /* Bordes redondeados */
+  background-color: #0000a4; /* Fondo blanco */
+}

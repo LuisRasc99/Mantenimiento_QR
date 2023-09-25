@@ -21,14 +21,12 @@
             <th>Foto</th>
             <th>Nombre de la máquina</th>
             <th>Número de parte</th>
+            <th>Tareas</th>
             <th>Piezas</th>
             <th>Costo</th>
             <th>Horas</th>
             <th>Fecha de reemplazo</th>
             <th>Fecha de reporte</th>
-            <th>Personal</th>
-            <th>Datos del personal</th>
-            <th>Telefono</th>
             <th>Código QR</th> 
             <th>Acciones</th>
           </tr>
@@ -44,17 +42,13 @@
                 {% endif %}
               </td>
               <td>{{ reporte.nombre_maquina }}</td>
-              <td>{{ reporte.descripcion }}</td>
+              <td>{{ reporte.numero_parte }}</td>
+              <td></td>
               <td>{{ reporte.piezas }}</td>
               <td>{{ reporte.costo }}</td>
               <td>{{ reporte.horas }}</td>
               <td>{{ reporte.fecha_reemplazo }}</td>
               <td>{{ reporte.fecha_reporte }}</td>
-              <td>{{ reporte.user.username }}</td>
-              {% with datos_usuario=reporte.user.datosusuario %}
-              <td>{{ datos_usuario.calle }}, {{ datos_usuario.numero_calle }}, {{ datos_usuario.colonia }}, {{ datos_usuario.ciudad }}, {{ datos_usuario.codigo_postal }}</td>
-              <td>{{ datos_usuario.telefono }}</td>
-              {% endwith %}
               <td>
                 {% if reporte.qr %}
                   <img src="{{ reporte.qr.url }}" alt="Código QR" width="100" height="100">

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, DatosUsuarioForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, DatosUsuarioForm, TecnicosForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib import messages
@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from mantenimientoReportes.serializers import ReporteSerializer
 from mantenimientoReportes.models import Reportes
+from .models import Tecnicos
 
 
 
@@ -161,3 +162,47 @@ class ReporteDetail(APIView):
         reporte = Reportes.objects.get(id_reporte=id_reporte)
         serializer = ReporteSerializer(reporte)
         return Response(serializer.data)
+    
+def lista_tecnicos(request):
+
+
+    return render(request, 'lista_tecnicos.html')
+
+def registrar_tecnicos(request):
+    if request.method == 'POST':
+        form = TecnicosForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Verificar si el usuario ya existe
+            username = form.cleaned_data['user'].username
+            if User.objects.filter(username=username).exists():
+                return render(request, 'registrar_tecnicos.html', {
+                    'form': form,
+                    'error': 'El nombre de usuario ya existe'
+                })
+
+            # Verificar si el correo electrónico ya existe
+            email = form.cleaned_data['user'].email
+            if User.objects.filter(email=email).exists():
+                return render(request, 'registrar_tecnicos.html', {
+                    'form': form,
+                    'error': 'El correo electrónico ya está en uso'
+                })
+
+            # Verificar que las contraseñas coincidan
+            password1 = form.cleaned_data['user'].password1
+            password2 = form.cleaned_data['user'].password2
+            if password1 != password2:
+                return render(request, 'registrar_tecnicos.html', {
+                    'form': form,
+                    'error': 'Las contraseñas no coinciden'
+                })
+
+            # Si todas las verificaciones pasan, guarda los datos del técnico
+            tecnico = form.save()
+            # Realiza cualquier otra acción que necesites, como redireccionar a la lista de técnicos
+            return redirect('lista_tecnicos')  # Cambia 'lista_tecnicos' al nombre de la vista que muestre la lista de técnicos
+    else:
+        form = TecnicosForm()
+    
+    return render(request, 'registrar_tecnicos.html', {'form': form})
+

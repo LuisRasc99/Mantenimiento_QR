@@ -29,14 +29,14 @@
         <tbody>
           {% for historial in historiales %}
           <tr>
-            <td>{{ historial.nombre_maquina_anterior }}</td>
-            <td>{{ historial.descripcion_anterior }}</td>
-            <td>{{ historial.numero_parte_anterior }}</td>
-            <td>{{ historial.piezas_anterior }}</td>
-            <td>{{ historial.costo_anterior }}</td>
-            <td>{{ historial.horas_anterior }}</td>
-            <td>{{ historial.fecha_reemplazo_anterior }}</td>
-            <td>{{ historial.fecha_modificacion }}</td>
+            <td>{{ historial.nombre_maquina_anterior|default:"" }}</td>
+            <td>{{ historial.descripcion_anterior|default:"" }}</td>
+            <td>{{ historial.numero_parte_anterior|default:"" }}</td>
+            <td>{{ historial.piezas_anterior|default:"" }}</td>
+            <td>{{ historial.costo_anterior|default:"" }}</td>
+            <td>{{ historial.horas_anterior|default:"" }}</td>
+            <td>{{ historial.fecha_reemplazo_anterior|default:"" }}</td>
+            <td>{{ historial.fecha_modificacion|default:"" }}</td>
             <td>
               {% if historial.qr_anterior %}
                 <img src="{{ historial.qr_anterior.url }}" alt="QR" width="100" height="100">

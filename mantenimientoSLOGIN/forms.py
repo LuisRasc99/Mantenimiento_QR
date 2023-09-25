@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import DatosUsuario
+from .models import DatosUsuario, Tecnicos
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -39,3 +39,8 @@ class DatosUsuarioForm(forms.ModelForm):
             'apellido_paterno': 'Apellido Paterno',
             'numero_calle': 'Numero de calle',
         }
+
+class TecnicosForm(forms.ModelForm):
+    class Meta:
+        model = Tecnicos
+        exclude = ['fecha_registro', 'user']
