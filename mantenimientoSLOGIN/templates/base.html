@@ -30,7 +30,7 @@
                 <a class="nav-link" href="{% url 'reportes' %}">Reportes</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'tecnicos' %}">Tecnicos</a>
+                    <a class="nav-link" href="{% url 'lista_tecnicos' %}">Tecnicos</a>
                 </li>
                 {% endif %}
                 {% if user.is_authenticated and not es_inicio %}
