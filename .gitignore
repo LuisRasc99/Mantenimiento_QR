@@ -1,4 +1,4 @@
 db_appmantenimiento.sqlite3
-venv
+venv/
 __pycache__
 db_appmantenimiento.sqlite3
