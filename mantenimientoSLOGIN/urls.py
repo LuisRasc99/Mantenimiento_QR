@@ -17,4 +17,5 @@ urlpatterns = [
     path('api/reportes/', ReporteList.as_view(), name='reportes_api'),
     path('api/reportes/<int:id_reporte>/', ReporteDetail.as_view(), name='reporte_detail_api'),
     path('lista_tecnicos/', views.lista_tecnicos, name= 'lista_tecnicos'),
+    path('registrar_tecnicos/', views.registrar_tecnicos, name='registrar_tecnicos'),
 ]

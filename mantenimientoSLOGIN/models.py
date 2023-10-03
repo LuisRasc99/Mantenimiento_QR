@@ -2,9 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class User(models.Model):
-    email = models.EmailField(unique=True)
-
 class DatosUsuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
