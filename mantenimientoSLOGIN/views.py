@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from mantenimientoReportes.serializers import ReporteSerializer
 from mantenimientoReportes.models import Reportes
-from .models import Tecnicos
+from .models import DatosTecnicos
 
 
 
@@ -32,42 +32,43 @@ def inicio(request):
     
     
 def registrar(request):
-    if request.method == 'GET':
-        return render(request, 'registrar.html', {'form': CustomUserCreationForm})
-    else:
-        if request.POST["password1"] == request.POST["password2"]:
-            username = request.POST['username']
-            email = request.POST['email']
-            
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            rol = form.cleaned_data['rol']
+
             # Verificar si el usuario ya existe
             if User.objects.filter(username=username).exists():
                 return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
+                    'form': form,
                     'error': 'El nombre de usuario ya existe'
                 })
-            
-            # Verificar si el correo electrónico ya existe
-            if User.objects.filter(email=email).exists():
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'El correo electrónico ya está en uso'
-                })
-            
-            try:
-                user = User.objects.create_user(username=username, email=email, password=request.POST['password1'])
+
+            user = form.save()
+            user.refresh_from_db()
+            user.profile.rol = rol
+
+            if rol == 'tecnico':
+                email = form.cleaned_data['email']
+                user.email = email
                 user.save()
-                login(request, user)
-                return redirect('DatosUsuario')
-            except:
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'Error al crear el usuario'
-                })
-        else:
-            return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'Las contraseñas no coinciden'
-                })
+
+            login(request, user)
+
+            if rol == 'administrador':
+                return redirect('datosusuario')
+            elif rol == 'tecnico':
+                return redirect('datostecnico')
+
+    else:
+        form = CustomUserCreationForm()
+
+    return render(request, 'registrar.html', {'form': form})
+
+
+
 
 def isesion(request):
     if request.method == 'POST':
@@ -205,4 +206,42 @@ def registrar_tecnicos(request):
         form = TecnicosForm()
     
     return render(request, 'registrar_tecnicos.html', {'form': form})
+
+def registrar_usuario(request):
+    if request.method == 'GET':
+        return render(request, 'registrar_administrador.html', {'form': CustomUserCreationForm})
+    else:
+        if request.POST["password1"] == request.POST["password2"]:
+            username = request.POST['username']
+            email = request.POST['email']
+            
+            # Verificar si el usuario ya existe
+            if User.objects.filter(username=username).exists():
+                return render(request, 'registrar.html', {
+                    'form': CustomUserCreationForm,
+                    'error': 'El nombre de usuario ya existe'
+                })
+            
+            # Verificar si el correo electrónico ya existe
+            if User.objects.filter(email=email).exists():
+                return render(request, 'registrar.html', {
+                    'form': CustomUserCreationForm,
+                    'error': 'El correo electrónico ya está en uso'
+                })
+            
+            try:
+                user = User.objects.create_user(username=username, email=email, password=request.POST['password1'])
+                user.save()
+                login(request, user)
+                return redirect('DatosUsuario')
+            except:
+                return render(request, 'registrar.html', {
+                    'form': CustomUserCreationForm,
+                    'error': 'Error al crear el usuario'
+                })
+        else:
+            return render(request, 'registrar.html', {
+                    'form': CustomUserCreationForm,
+                    'error': 'Las contraseñas no coinciden'
+                })
 
