@@ -31,7 +31,12 @@ def inicio(request):
     return render(request, 'inicio.html', {'reportes': reportes})
     
     
+from .forms import CustomUserCreationForm, TecnicosForm
+
 def registrar(request):
+    form_usuario = CustomUserCreationForm()
+    form_tecnicos = TecnicosForm()  # Agregar el formulario de técnicos
+
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
 
@@ -42,7 +47,8 @@ def registrar(request):
             # Verificar si el usuario ya existe
             if User.objects.filter(username=username).exists():
                 return render(request, 'registrar.html', {
-                    'form': form,
+                    'form_usuario': form,
+                    'form_tecnicos': form_tecnicos,  # Pasar el formulario de técnicos al contexto
                     'error': 'El nombre de usuario ya existe'
                 })
 
@@ -62,10 +68,87 @@ def registrar(request):
             elif rol == 'tecnico':
                 return redirect('datostecnico')
 
-    else:
-        form = CustomUserCreationForm()
+    return render(request, 'registrar.html', {
+        'form_usuario': form_usuario,
+        'form_tecnicos': form_tecnicos,  # Pasar el formulario de técnicos al contexto
+    })
 
-    return render(request, 'registrar.html', {'form': form})
+
+def registrar_tecnicos(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            # Verificar si el usuario ya existe
+            username = form.cleaned_data['username']
+            if User.objects.filter(username=username).exists():
+                return render(request, 'registrar_tecnicos.html', {
+                    'form': form,
+                    'error': 'El nombre de usuario ya existe'
+                })
+
+            # Verificar si el correo electrónico ya existe
+            email = form.cleaned_data['email']
+            if User.objects.filter(email=email).exists():
+                return render(request, 'registrar_tecnicos.html', {
+                    'form': form,
+                    'error': 'El correo electrónico ya está en uso'
+                })
+
+            # Verificar que las contraseñas coincidan
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            if password1 != password2:
+                return render(request, 'registrar_tecnicos.html', {
+                    'form': form,
+                    'error': 'Las contraseñas no coinciden'
+                })
+
+            # Si todas las verificaciones pasan, guarda los datos del técnico
+            user = form.save()
+            # Realiza cualquier otra acción que necesites, como redireccionar a la lista de técnicos
+            return redirect('lista_tecnicos')  # Cambia 'lista_tecnicos' al nombre de la vista que muestre la lista de técnicos
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'registrar_tecnicos.html', {'form': form})
+
+def registrar_usuario(request):
+    if request.method == 'GET':
+        return render(request, 'registrar_usuario.html', {'form': UserCreationForm()})
+    else:
+        if request.POST["password1"] == request.POST["password2"]:
+            username = request.POST['username']
+            email = request.POST['email']
+            
+            # Verificar si el usuario ya existe
+            if User.objects.filter(username=username).exists():
+                return render(request, 'registrar_usuario.html', {
+                    'form': UserCreationForm(),
+                    'error': 'El nombre de usuario ya existe'
+                })
+            
+            # Verificar si el correo electrónico ya existe
+            if User.objects.filter(email=email).exists():
+                return render(request, 'registrar_usuario.html', {
+                    'form': UserCreationForm(),
+                    'error': 'El correo electrónico ya está en uso'
+                })
+            
+            try:
+                user = User.objects.create_user(username=username, email=email, password=request.POST['password1'])
+                user.save()
+                login(request, user)
+                return redirect('DatosUsuario')
+            except:
+                return render(request, 'registrar_usuario.html', {
+                    'form': UserCreationForm(),
+                    'error': 'Error al crear el usuario'
+                })
+        else:
+            return render(request, 'registrar_usuario.html', {
+                    'form': UserCreationForm(),
+                    'error': 'Las contraseñas no coinciden'
+                })
 
 
 
@@ -168,80 +251,4 @@ def lista_tecnicos(request):
 
 
     return render(request, 'lista_tecnicos.html')
-
-def registrar_tecnicos(request):
-    if request.method == 'POST':
-        form = TecnicosForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Verificar si el usuario ya existe
-            username = form.cleaned_data['user'].username
-            if User.objects.filter(username=username).exists():
-                return render(request, 'registrar_tecnicos.html', {
-                    'form': form,
-                    'error': 'El nombre de usuario ya existe'
-                })
-
-            # Verificar si el correo electrónico ya existe
-            email = form.cleaned_data['user'].email
-            if User.objects.filter(email=email).exists():
-                return render(request, 'registrar_tecnicos.html', {
-                    'form': form,
-                    'error': 'El correo electrónico ya está en uso'
-                })
-
-            # Verificar que las contraseñas coincidan
-            password1 = form.cleaned_data['user'].password1
-            password2 = form.cleaned_data['user'].password2
-            if password1 != password2:
-                return render(request, 'registrar_tecnicos.html', {
-                    'form': form,
-                    'error': 'Las contraseñas no coinciden'
-                })
-
-            # Si todas las verificaciones pasan, guarda los datos del técnico
-            tecnico = form.save()
-            # Realiza cualquier otra acción que necesites, como redireccionar a la lista de técnicos
-            return redirect('lista_tecnicos')  # Cambia 'lista_tecnicos' al nombre de la vista que muestre la lista de técnicos
-    else:
-        form = TecnicosForm()
-    
-    return render(request, 'registrar_tecnicos.html', {'form': form})
-
-def registrar_usuario(request):
-    if request.method == 'GET':
-        return render(request, 'registrar_administrador.html', {'form': CustomUserCreationForm})
-    else:
-        if request.POST["password1"] == request.POST["password2"]:
-            username = request.POST['username']
-            email = request.POST['email']
-            
-            # Verificar si el usuario ya existe
-            if User.objects.filter(username=username).exists():
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'El nombre de usuario ya existe'
-                })
-            
-            # Verificar si el correo electrónico ya existe
-            if User.objects.filter(email=email).exists():
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'El correo electrónico ya está en uso'
-                })
-            
-            try:
-                user = User.objects.create_user(username=username, email=email, password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('DatosUsuario')
-            except:
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'Error al crear el usuario'
-                })
-        else:
-            return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'Las contraseñas no coinciden'
-                })
 

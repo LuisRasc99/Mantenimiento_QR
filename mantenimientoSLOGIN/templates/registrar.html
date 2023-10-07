@@ -6,36 +6,46 @@
       <div class="col-md-6 offset-md-4 mt-5">
         <h1 class="text-center" id="titulo-registro">Registro</h1>
         <div class="text-center">
-          <a href="#" class="btn btn-primary mx-2" id="btn-registrar-usuario">Registrar como Usuario</a>
-          <a href="{% url 'registrar_tecnicos' %}" class="btn btn-secondary mx-2" id="btn-registrar-tecnicos">Registrar como Técnico</a>
+          <a href="javascript:void(0);" class="btn btn-primary mx-2" id="btn-registrar-usuario">Registrar como Usuario</a>
+          <a href="javascript:void(0);" class="btn btn-primary mx-2" id="btn-registrar-tecnicos">Registrar como Técnico</a>
         </div>
         <div id="registro-usuario-form" style="display: none;">
           <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form_usuario.as_p }}
             <button type="submit" class="btn btn-primary">Registrar Usuario</button>
-          </form>
+        </form>
+        </div>
+        
+        <!-- Mostrar formulario de registro de técnicos -->
+        <div id="registro-tecnico-form" style="display: none;">
+          <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
+            {% csrf_token %}
+            {{ form_tecnicos.as_p }}
+            <button type="submit" class="btn btn-primary">Registrar Técnico</button>
+        </form>
         </div>
       </div>
     </div>
   </main>
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const btnRegistrarUsuario = document.getElementById("btn-registrar-usuario");
-      const btnRegistrarTecnicos = document.getElementById("btn-registrar-tecnicos");
-      const formularioUsuario = document.getElementById("registro-usuario-form");
-      const tituloRegistro = document.getElementById("titulo-registro");
-    
-      btnRegistrarUsuario.addEventListener("click", function(event) {
-        event.preventDefault(); // Previene el comportamiento predeterminado del enlace
-    
-        formularioUsuario.style.display = "block"; // Muestra el formulario de usuario
-        btnRegistrarUsuario.style.display = "none"; // Oculta el botón de registro de usuario
-        btnRegistrarTecnicos.style.display = "none";
-        tituloRegistro.style.display = "none"; // Oculta el título "Registro"
-      });
+    function seleccionarRegistro(tipo) {
+        if (tipo === 'usuario') {
+            document.getElementById('registro-usuario-form').style.display = 'block';
+            document.getElementById('registro-tecnico-form').style.display = 'none';
+        } else if (tipo === 'tecnico') {
+            document.getElementById('registro-usuario-form').style.display = 'none';
+            document.getElementById('registro-tecnico-form').style.display = 'block';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        // Verificar si hay un estado inicial en el historial y restaurar la selección
+        if (history.state) {
+            seleccionarRegistro(history.state.registro);
+        }
     });
-    </script>
-    
-    
+</script>
+
+  
 {% endblock %}

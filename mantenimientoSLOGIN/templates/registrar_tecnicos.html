@@ -1,60 +1,18 @@
 {% extends 'base.html' %}
 
-<body>
-    <main class="container">
-        <div class="row">
-            <div class="col-md-6 offset-md-4 mt-5">
-                <h1 class="text-center">Registro de Tecnicos</h1>
-                <form method="POST" action="{% url 'DatosUsuario' %}" class="card card-body">
-                {% csrf_token %} 
-                <div class="mb-3">
-                    <label for="foto_tecnico">Foto del Filtro:</label>
-                    <input type="file" name="foto_tecnico" class="form-control" id="foto_tecnico">
-                  </div>
-                <div class="mb-3">
-                  <label for="nombre">Nombre:</label>
-                  <input type="text" name="nombre" class="form-control" id="nombre">
-                </div>
-                <div class="mb-3">
-                  <label for="apellido_materno">Apellido Materno:</label>
-                  <input type="text" name="apellido_materno" class="form-control" id="apellido_materno">
-                </div>
-                <div class="mb-3">
-                  <label for="apellido_paterno">Apellido Paterno:</label>
-                  <input type="text" name="apellido_paterno" class="form-control" id="apellido_paterno">
-                </div>
-                <div class="mb-3">
-                  <label for="calle">Calle:</label>
-                  <input type="text" name="calle" class="form-control" id="calle">
-                </div>
-                <div class="mb-3">
-                  <label for="numero_calle">Numero de calle:</label>
-                  <input type="text" name="numero_calle" class="form-control" id="numero_calle">
-                </div>
-                <div class="mb-3">
-                  <label for="colonia">Colonia:</label>
-                  <input type="text" name="colonia" class="form-control" id="colonia">
-                </div>
-                <div class="mb-3">
-                  <label for="ciudad">Ciudad:</label>
-                  <input type="text" name="ciudad" class="form-control" id="ciudad">
-                </div>
-                <div class="mb-3">
-                  <label for="codigo_postal">Codigo Postal:</label>
-                  <input type="text" name="codigo_postal" class="form-control" id="codigo_postal">
-                </div>
-                <div class="mb-3">
-                    <label for="email_tecnico">Email:</label>
-                    <input type="text" name="email_tecnico" class="form-control" id="email_tecnico">
-                </div>
-                <div class="mb-3">
-                  <label for="telefono">Telefono:</label>
-                  <input type="text" name="telefono" class="form-control" id="telefono">
-                </div>
-                <p></p>
-                <button class="btn btn-primary">Guardar</button>
-                </form>
-                </div>
-        </div>
-    </main>
-</body>
+{% block content %}
+  <main class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-4 mt-5">
+        <h1 class="text-center">Registrar Técnico</h1>
+        <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-primary">Registrar Técnico</button>
+      </form>
+      
+      </div>
+    </div>
+  </main>
+{% endblock %}
+

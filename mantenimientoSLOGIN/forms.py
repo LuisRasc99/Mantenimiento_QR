@@ -5,13 +5,18 @@ from django.contrib.auth import authenticate
 from .models import DatosUsuario, DatosTecnicos
 
 
-# Definimos las opciones para el campo de rol
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    
+    # Agregar un campo para seleccionar el rol
+    ROL_CHOICES = [
+        ('usuario', 'Usuario'),
+        ('tecnico', 'Técnico'),
+    ]
+    rol = forms.ChoiceField(choices=ROL_CHOICES, required=True)
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')  # Agrega 'foto_user' al formulario
+        fields = ['username', 'email', 'password1', 'password2', 'rol']
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(label='Correo electrónico/Usuario')
