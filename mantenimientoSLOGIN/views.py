@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, DatosUsuarioForm, TecnicosForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib import messages
 from django.db.models import Q
@@ -105,6 +105,8 @@ def registrar_tecnicos(request):
 
             # Si todas las verificaciones pasan, guarda los datos del técnico
             user = form.save()
+            user.profile.rol = 'tecnico'  # Asignar el rol "tecnico" al usuario
+            user.save()
             # Realiza cualquier otra acción que necesites, como redireccionar a la lista de técnicos
             return redirect('lista_tecnicos')  # Cambia 'lista_tecnicos' al nombre de la vista que muestre la lista de técnicos
     else:
@@ -136,6 +138,7 @@ def registrar_usuario(request):
             
             try:
                 user = User.objects.create_user(username=username, email=email, password=request.POST['password1'])
+                user.profile.rol = 'usuario'  # Asignar el rol "usuario" al usuario
                 user.save()
                 login(request, user)
                 return redirect('DatosUsuario')
