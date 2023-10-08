@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'mantenimientoReportes',
 ]
 
+AUTH_USER_MODEL = 'mantenimientoSLOGIN.Administrador'
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

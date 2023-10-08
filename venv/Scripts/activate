@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\thean\OneDrive\Documentos\UTP IX\Direccion de Proyectos de TI\Trabajo\Mantenimiento_QR\venv"
+VIRTUAL_ENV="C:\Users\JLuis\OneDrive\Documentos\GitHub\Mantenimiento_QR\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

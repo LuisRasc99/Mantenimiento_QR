@@ -25,7 +25,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Inicio</a>
                 </li>
-                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'registrar' %}">Registrar</a>
+                </li>
+                <!-- {% if user.is_authenticated %}
                 <li class="nav-item">
                 <a class="nav-link" href="{% url 'reportes' %}">Reportes</a>
                 </li>
@@ -43,13 +46,9 @@
                 </li>
                 {% endif %}
                 {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'registrar' %}">Registrar</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'isesion' %}">Iniciar Sesion</a>
-                </li>
-                {% endif %}
+                
+                
+                {% endif %} -->
             </ul>
             </div>
         </div>
