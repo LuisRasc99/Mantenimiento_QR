@@ -1,30 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <main class="container">
+<main class="container">
     <div class="row">
-      <div class="col-md-6 offset-md-4 mt-5">
-        <h1 class="text-center" id="titulo-registro">Registro</h1>
-        <!-- 
-        <div id="registro-usuario-form" style="display: none;">
-          <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
-            {% csrf_token %}
-            {{ form_usuario.as_p }}
-            <button type="submit" class="btn btn-primary">Registrar Usuario</button>
-        </form>
-        </div>
-        
-        Mostrar formulario de registro de técnicos 
-        <div id="registro-tecnico-form" style="display: none;">
-          <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
-            {% csrf_token %}
-            {{ form_tecnicos.as_p }}
-            <button type="submit" class="btn btn-primary">Registrar Técnico</button>
-        </form>
-        </div> -->
-      </div>
+        <div class="col-md-6 offset-md-4 mt-5">
+            <h1 class="text-center">Registro de Personal</h1>
+            <form action="{% url 'registrar_usuario' %}" method="POST" class="card card-body">
+            {{error}}
+            {% csrf_token %} 
+            <div class="mb-3">
+                <label for="username">Usuario:</label>
+                <input type="text" name="username" class="form-control" placeholder="Escribe tu usuario" id="username">
+            </div>
+            <div class="mb-3">
+                <label for="email">Correo electronico:</label>
+                <input type="text" name="email" class="form-control" placeholder="Escribe tu correo electronico" id="email">
+            </div>
+            <div class="mb-3">
+                <label for="password1">Contraseña:</label>
+                <input type="password" name="password1" class="form-control" placeholder="Escribe tu contraseña" id="password1">
+            </div>
+            <div class="mb-3">
+                <label for="password2">Confirmar contraseña:</label>
+                <input type="password" name="password2" class="form-control" placeholder="Confirma tu contraseña" id="password2">
+            </div>
+            <div class="mb-3">
+              <label for="rol">Rol:</label>
+              <select name="rol" id="rol" class="form-control">
+                  <option value="Administrador">Administrador</option>
+                  <option value="Tecnico">Técnico</option>
+              </select>
+          </div>
+            <button class="btn btn-primary">Registrar Personal</button>
+            </form>
+            </div>
     </div>
-  </main>
+</main>
+
   
    <!--<script>
     function seleccionarRegistro(tipo) {

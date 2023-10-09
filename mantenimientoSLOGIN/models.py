@@ -1,13 +1,14 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 ROL_CHOICES = [
-    ('usuario', 'Usuario'),
+    ('administrador', 'Administrador'),
     ('tecnico', 'Técnico'),
 ]
 
-class SuperAdministrador(BaseUserManager):
+class AdministradorManager(BaseUserManager):
     def create_user(self, username, email, password=None):
         if not email:
             raise ValueError('El correo electrónico es obligatorio')
@@ -22,22 +23,77 @@ class SuperAdministrador(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+
+class TecnicoManager(BaseUserManager):
+    def create_user(self, username, email, password=None):
+        if not email:
+            raise ValueError('El correo electrónico es obligatorio')
+        user = self.model(username=username, email=self.normalize_email(email))
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
     
 class Administrador(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(unique=True)
-    rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='usuario')  # Campo para el rol
+    rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='administrador')  # Campo para el rol
 
     # Otros campos personalizados según tus necesidades
 
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    objects = SuperAdministrador()
+    objects = AdministradorManager()
+
+    # Agrega related_name personalizados
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=_('groups'),
+        blank=True,
+        related_name='administradores'
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_('user permissions'),
+        blank=True,
+        related_name='administradores'
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
+    def __str__(self):
+        return self.username
+    
+class Tecnico(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=30, unique=True)
+    rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='tecnico')
+    # Agrega los campos personalizados específicos para el técnico aquí
+    
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    objects = TecnicoManager()
+
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=_('groups'),
+        blank=True,
+        related_name='tecnicos'
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_('user permissions'),
+        blank=True,
+        related_name='tecnicos'
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'rol']
 
     def __str__(self):
         return self.username
