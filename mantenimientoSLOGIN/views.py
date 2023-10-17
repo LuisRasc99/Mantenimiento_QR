@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomAuthenticationForm, DatosAdministradorForm, TecnicosForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib import messages
@@ -13,7 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from mantenimientoReportes.serializers import ReporteSerializer
 from mantenimientoReportes.models import Reportes
-from .models import DatosAdministrador, DatosTecnicos
+from .models import DatosAdministrador, DatosTecnico, Administrador, Tecnico
+from .forms import DatosAdministradorForm, DatosTecnicoForm,CustomUserCreationForm
 
 
 
@@ -24,12 +24,118 @@ def inicio(request):
     
     
 
+from django.shortcuts import render, redirect
+from .forms import CustomUserCreationForm, DatosAdministradorForm, DatosTecnicoForm
+from .models import Administrador, Tecnico
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+
 def registrar(request):
+    user_form = CustomUserCreationForm()
+    if request.method == 'POST':
+        if 'registrar_administrador' in request.POST:
+            user_form = CustomUserCreationForm(request.POST)
+            if user_form.is_valid():
+                # Lógica para registrar un administrador
+                email = user_form.cleaned_data['email']
+                password1 = user_form.cleaned_data['password1']
+                password2 = user_form.cleaned_data['password2']
+                if User.objects.filter(username=user_form.cleaned_data['username']).exists():
+                    user_form.add_error('username', 'Este usuario ya existe, inténtelo de nuevo.')
+                elif User.objects.filter(email=email).exists():
+                    user_form.add_error('email', 'Este correo ya está registrado, inténtelo de nuevo.')
+                elif password1 != password2:
+                    user_form.add_error('password2', 'Las contraseñas no coinciden.')
+                else:
+                    user = user_form.save()
+                    administrador = Administrador(user=user, email=user.email)
+                    administrador.save()
+                    print(request.POST)
+                    login(request, user)
+                    return redirect('reportes')
+        elif 'registrar_tecnico' in request.POST:
+            user_form = CustomUserCreationForm(request.POST)
+            if user_form.is_valid():
+                # Lógica para registrar un técnico
+                email = user_form.cleaned_data['email']
+                password1 = user_form.cleaned_data['password1']
+                password2 = user_form.cleaned_data['password2']
+                if User.objects.filter(username=user_form.cleaned_data['username']).exists():
+                    user_form.add_error('username', 'Este usuario ya existe, inténtelo de nuevo.')
+                elif User.objects.filter(email=email).exists():
+                    user_form.add_error('email', 'Este correo ya está registrado, inténtelo de nuevo.')
+                elif password1 != password2:
+                    user_form.add_error('password2', 'Las contraseñas no coinciden.')
+                else:
+                    user = user_form.save()
+                    tecnico = Tecnico(user=user, email=user.email)
+                    tecnico.save()
+                    print(request.POST)
+                    login(request, user)
+                    return redirect('inicio')
+    else:
+        user_form = CustomUserCreationForm()
+
+    return render(request, 'registrar.html', {'user_form': user_form})
 
 
-    return render(request, 'registrar.html', {
 
-    })
+
+
+def registrar_administrador(request):
+    if request.method == 'POST':
+        user_form = CustomUserCreationForm(request.POST)
+        datos_form = DatosAdministradorForm(request.POST)
+        if user_form.is_valid() and datos_form.is_valid():
+            email = user_form.cleaned_data['email']
+            password1 = user_form.cleaned_data['password1']
+            password2 = user_form.cleaned_data['password2']
+            
+            if User.objects.filter(username=user_form.cleaned_data['username']).exists():
+                user_form.add_error('username', 'Este usuario ya existe intente otra vez.')
+            elif User.objects.filter(email=email).exists():
+                user_form.add_error('email', 'Este correo ya esta registrado intente otra vez.')
+            elif password1 != password2:
+                user_form.add_error('password2', 'Las contraseñas no coinciden.')
+            else:
+                user = user_form.save()
+                administrador = Administrador(user=user, email=user.email)
+                administrador.save()
+                print(request.POST)
+                login(request, user)  # Inicia sesión automáticamente después del registro
+                return redirect('reportes')
+    else:
+        user_form = CustomUserCreationForm()
+        datos_form = DatosTecnicoForm()
+
+    return render(request, 'registrar_administrador.html', {'user_form': user_form, 'datos_form': datos_form})
+
+def registrar_tecnico(request):
+    if request.method == 'POST':
+        user_form = CustomUserCreationForm(request.POST)
+
+        if user_form.is_valid():
+            email = user_form.cleaned_data['email']
+            password1 = user_form.cleaned_data['password1']
+            password2 = user_form.cleaned_data['password2']
+            
+            if User.objects.filter(username=user_form.cleaned_data['username']).exists():
+                user_form.add_error('username', 'Este usuario ya existe intente otra vez.')
+            elif User.objects.filter(email=email).exists():
+                user_form.add_error('email', 'Este correo ya está registrado intente otra vez.')
+            elif password1 != password2:
+                user_form.add_error('password2', 'Las contraseñas no coinciden.')
+            else:
+                user = user_form.save()
+                tecnico = Tecnico(user=user, email=user.email)
+                tecnico.save()
+                print(request.POST)
+                login(request, user)  # Inicia sesión automáticamente después del registro
+                return redirect('inicio')
+    else:
+        user_form = CustomUserCreationForm()
+
+    return render(request, 'registrar_tecnico.html', {'user_form': user_form})
 
 
 #def registrar_tecnicos(request):
@@ -143,8 +249,7 @@ def registrar(request):
         form = CustomAuthenticationForm()
     return render(request, 'isesion.html', {'isesionform': form})
 
-
-#def csesion(request):
+def csesion(request):
     logout(request)
     return redirect('inicio')
 

@@ -2,43 +2,109 @@
 
 {% block content %}
 <main class="container">
+
+    <!-- Formularios -->
+    <div class="contenedor-formularios">
+        <!-- Links de los formularios -->
+        <ul class="contenedor-tabs">
+            <li class="tab tab-segunda active"><a href="#registrar_administrador">Registrar Administrador</a></li>
+            <li class="tab tab-primera"><a href="#registrar_tecnico">Registrar Técnico</a></li>
+        </ul>
+
+        <!-- Contenido de los Formularios -->
+        <div class="contenido-tab">
+            <!-- Iniciar Sesion -->
+            <div id="registrar_administrador">
+                <h1>Registrar Administrador</h1>
+                <form method="post" action="{% url 'registrar' %}">
+                    {{ user_form.errors }}
+                    {% csrf_token %} 
+                    <div class="contenedor-input">
+                        <label for="username">
+                            Usuario <span class="req">*</span>
+                        </label>
+                        <input type="text" name="username" id="username">
+                    </div>
+
+                    <div class="contenedor-input">
+                        <label for="email">
+                            Email <span class="req">*</span>
+                        </label>
+                        <input type="email" name="email" id="email">
+                    </div>
+
+                    <div class="contenedor-input">
+                        <label for="password1">
+                            Contraseña <span class="req">*</span>
+                        </label>
+                        <input type="password" name="password1" id="password1">
+                    </div>
+
+                    <div class="contenedor-input">
+                        <label for="password2">
+                            Confirmar Contraseña <span class="req">*</span>
+                        </label>
+                        <input type="password" name="password2" id="password2">
+                    </div>
+                    <input type="submit" class="button button-block" value="Registrarse" name="registrar_administrador">
+                </form>
+            </div>
+
+            <!-- Registrarse -->
+            <div id="registrar_tecnico">
+                <h1>Registrar Técnico</h1>
+                <form method="post" action="{% url 'registrar' %}" >
+                    {{ user_form.errors }}
+                    {% csrf_token %} 
+                    <div class="contenedor-input">
+                        <label for="username">
+                            Usuario <span class="req">*</span>
+                        </label>
+                        <input type="text" name="username" id="username">
+                    </div>
+
+                    <div class="contenedor-input">
+                        <label for="email">
+                            Email <span class="req">*</span>
+                        </label>
+                        <input type="email" name="email" id="email">
+                    </div>
+
+                    <div class="contenedor-input">
+                        <label for="password1">
+                            Contraseña <span class="req">*</span>
+                        </label>
+                        <input type="password" name="password1" id="password1">
+                    </div>
+
+                    <div class="contenedor-input">
+                        <label for="password2">
+                            Confirmar Contraseña <span class="req">*</span>
+                        </label>
+                        <input type="password" name="password2" id="password2">
+                    </div>
+
+                    <input type="submit" class="button button-block" value="Registrarse" name="registrar_tecnico">
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <div class="row">
         <div class="col-md-6 offset-md-4 mt-5">
             <h1 class="text-center">Registro de Personal</h1>
-            <form action="{% url 'registrar_usuario' %}" method="POST" class="card card-body">
-            {{error}}
-            {% csrf_token %} 
-            <div class="mb-3">
-                <label for="username">Usuario:</label>
-                <input type="text" name="username" class="form-control" placeholder="Escribe tu usuario" id="username">
-            </div>
-            <div class="mb-3">
-                <label for="email">Correo electronico:</label>
-                <input type="text" name="email" class="form-control" placeholder="Escribe tu correo electronico" id="email">
-            </div>
-            <div class="mb-3">
-                <label for="password1">Contraseña:</label>
-                <input type="password" name="password1" class="form-control" placeholder="Escribe tu contraseña" id="password1">
-            </div>
-            <div class="mb-3">
-                <label for="password2">Confirmar contraseña:</label>
-                <input type="password" name="password2" class="form-control" placeholder="Confirma tu contraseña" id="password2">
-            </div>
-            <div class="mb-3">
-              <label for="rol">Rol:</label>
-              <select name="rol" id="rol" class="form-control">
-                  <option value="Administrador">Administrador</option>
-                  <option value="Tecnico">Técnico</option>
-              </select>
-          </div>
-            <button class="btn btn-primary">Registrar Personal</button>
+            <form action="{% url 'registrar_administrador' %}" method="get">
+                <button class="btn btn-primary" type="submit">Registrarse como Administrador</button>
+            </form>
+            <form action="{% url 'registrar_tecnico' %}" method="get">
+                <button class="btn btn-primary" type="submit">Registrarse como Técnico</button>
             </form>
             </div>
     </div>
 </main>
 
-  
-   <!--<script>
+
+<!--<script>
     function seleccionarRegistro(tipo) {
         if (tipo === 'usuario') {
             document.getElementById('registro-usuario-form').style.display = 'block';
