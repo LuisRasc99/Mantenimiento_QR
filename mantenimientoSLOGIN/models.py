@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 class SuperUsuario(AbstractUser):
-    username = models.CharField(max_length=150)
+    username = models.CharField(max_length=150, unique= True)
     email = models.EmailField()
     is_active = models.BooleanField(default=True)
 
@@ -16,13 +16,13 @@ class SuperUsuario(AbstractUser):
     ciudad = models.CharField(max_length=100)
     codigo_postal = models.CharField(max_length=10)
     telefono = models.CharField(max_length=15)
+    celular = models.CharField(max_length=15)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'superusuario'
 
 class Administrador(SuperUsuario):
-
     foto_user = models.ImageField(upload_to='usuarios/', blank=True, null=True)
 
     class Meta:

@@ -6,11 +6,10 @@ from . import views
 
 urlpatterns = [
 
-    path('admin/', admin.site.urls),
     path('', views.inicio, name= 'inicio'),
     path('registrar/', views.registrar, name= 'registrar'),
-    path('registrar/administrador/', views.registrar_administrador, name='registrar_administrador'),
-    path('registrar/tecnico/', views.registrar_tecnico, name='registrar_tecnico'),
+    #path('registrar/administrador/', views.registrar_administrador, name='registrar_administrador'),
+    #path('registrar/tecnico/', views.registrar_tecnico, name='registrar_tecnico'),
     
     #path('isesion/', views.isesion, name= 'isesion'),
     #path('logout/', views.csesion, name= 'logout'),

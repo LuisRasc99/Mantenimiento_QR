@@ -4,15 +4,38 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import DatosAdministrador, DatosTecnico, Administrador, Tecnico
 
-class AdministradorForm(forms.ModelForm):
+class AdministradorForm(UserCreationForm):
+    password2 = forms.CharField(label='Confirmar contraseña', widget=forms.PasswordInput)
+
     class Meta:
         model = Administrador
-        exclude = ['fecha_registro', 'foto_user']
+        fields = ['username','email', 'password1', 'password2']
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError('Las contraseñas no coinciden.')
+        return password2
+
+class TecnicoForm(UserCreationForm):
+    password2 = forms.CharField(label='Confirmar contraseña', widget=forms.PasswordInput)
+
+    class Meta:
+        model = Tecnico
+        fields = ['username','email', 'password1', 'password2']
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError('Las contraseñas no coinciden.')
+        return password2
 
 class DatosAdministradorForm(forms.ModelForm):
     class Meta:
         model = DatosAdministrador
-        exclude = ['fecha_registro', 'foto_tecnico']
+        exclude = ['fecha_registro']
 
 class DatosTecnicoForm(forms.ModelForm):
     class Meta:
