@@ -2,11 +2,20 @@ from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 from django.utils import timezone
 
-class SuperUsuario(AbstractUser):
-    username = models.CharField(max_length=150, unique= True)
-    email = models.EmailField()
+class Usuarios(AbstractUser):
+    username = models.CharField(max_length=80, unique=True)
+    password = models.CharField(max_length=20)
+    email = models.EmailField(max_length=100, unique=True)
+    first_name = models.CharField(max_length=40)
     is_active = models.BooleanField(default=True)
+    rol = models.CharField(max_length=20)
 
+    class Meta:
+        db_table = 'Usuarios'
+
+
+class Tecnico(SuperUsuario):
+    
     nombre = models.CharField(max_length=100)
     apellido_materno = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)
@@ -19,16 +28,6 @@ class SuperUsuario(AbstractUser):
     celular = models.CharField(max_length=15)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        db_table = 'superusuario'
-
-class Administrador(SuperUsuario):
-    foto_user = models.ImageField(upload_to='usuarios/', blank=True, null=True)
-
-    class Meta:
-        db_table = 'administrador'
-
-class Tecnico(SuperUsuario):
     foto_tecnico = models.ImageField(upload_to='tecnicos/', blank=True, null=True)
     
     class Meta:
