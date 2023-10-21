@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from mantenimientoReportes.serializers import ReporteSerializer
 from mantenimientoReportes.models import Reportes
-from .models import DatosAdministrador, DatosTecnico, Administrador, Tecnico
-from .forms import DatosAdministradorForm, DatosTecnicoForm,CustomUserCreationForm, AdministradorForm, TecnicoForm
+from .models import DatosAdministrador, DatosTecnico, Usuarios
+from .forms import DatosAdministradorForm, DatosTecnicoForm,CustomUserCreationForm, RegistroForm
 
 
 
@@ -22,8 +22,65 @@ def inicio(request):
 
     return render(request, 'inicio.html')
     
-
 def registrar(request):
+    if request.method == 'POST':
+        user_form = RegistroForm(request.POST)
+        if user_form.is_valid():
+            username = user_form.cleaned_data['username']
+            email = user_form.cleaned_data['email']
+            password1 = user_form.cleaned_data['password1']
+            password2 = user_form.cleaned_data['password2']
+            rol = user_form.cleaned_data['rol']  # Obtener el rol del formulario
+
+            if Usuarios.objects.filter(username=username).exists():
+                user_form.add_error('username', 'Este usuario ya existe, inténtelo de nuevo.')
+            elif Usuarios.objects.filter(email=email).exists():
+                user_form.add_error('email', 'Este correo ya está registrado, inténtelo de nuevo.')
+            elif password1 != password2:
+                user_form.add_error('password2', 'Las contraseñas no coinciden.')
+            else:
+                user = user_form.save()
+                user.is_active = True
+                usuarios = Usuarios(user=user, email=user.email, rol=rol)  # Asignar el rol al usuario
+                usuarios.save()
+                login(request, user)
+                
+                # Redirigir a páginas diferentes según el rol del usuario
+                if rol == 'administrador':
+                    return redirect('DatosAdministrador')  # Cambia 'pagina_administrador' al nombre de tu vista para administradores
+                elif rol == 'tecnico':
+                    return redirect('DatosTecnico')  # Cambia 'pagina_tecnico' al nombre de tu vista para técnicos
+
+    else:
+        user_form = CustomUserCreationForm()
+
+    return render(request, 'registrar.html', {'user_form': user_form})
+
+def DatosAdministrador(request):
+    if request.method == 'POST':
+        datosform = DatosAdministradorForm(request.POST)
+        if datosform.is_valid():
+            datos_usuario = datosform.save(commit=False)
+            datos_usuario.user = request.user
+            datos_usuario.save()
+            return redirect('reportes')  # Reemplaza 'reportes' con la URL correcta
+    else:
+        datosform = DatosAdministradorForm()
+    return render(request, 'DatosAdministrador.html', {'datosform': datosform})
+
+def DatosTecnico(request):
+    if request.method == 'POST':
+        datosform = DatosTecnicoForm(request.POST)
+        if datosform.is_valid():
+            datos_usuario = datosform.save(commit=False)
+            datos_usuario.user = request.user
+            datos_usuario.save()
+            return redirect('tecnico')  # Reemplaza 'tecnico' con la URL correcta
+    else:
+        datosform = DatosTecnicoForm()
+    return render(request, 'DatosTecnico.html', {'datosform': datosform})
+
+#def registrar(request):
     if request.method == 'POST':
         if 'registrar_administrador' in request.POST:
             user_form = AdministradorForm(request.POST)

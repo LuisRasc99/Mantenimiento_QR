@@ -8,12 +8,12 @@ urlpatterns = [
 
     path('', views.inicio, name= 'inicio'),
     path('registrar/', views.registrar, name= 'registrar'),
-    #path('registrar/administrador/', views.registrar_administrador, name='registrar_administrador'),
-    #path('registrar/tecnico/', views.registrar_tecnico, name='registrar_tecnico'),
-    
+    path('registrar/datos_administrador/', views.DatosAdministrador, name= 'DatosAdministrador'),
+    path('registrar/datos_administrador/', views.DatosTecnico, name= 'DatosTecnico'),
+
+
     #path('isesion/', views.isesion, name= 'isesion'),
     #path('logout/', views.csesion, name= 'logout'),
-    #path('DatosAdministrador/', views.DatosAdministrador, name= 'DatosAdministrador'),
     #path('modificar_datos/', views.modificar_datos, name='modificar_datos'),
     #path('api/inicio/', views.api_inicio, name='api_inicio'),
     #path('api/datos-usuario/', views.api_datos_usuario, name='api_datos_usuario'),
