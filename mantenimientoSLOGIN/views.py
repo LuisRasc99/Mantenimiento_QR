@@ -41,7 +41,7 @@ def registrar(request):
             else:
                 user = user_form.save()
                 user.is_active = True
-                usuarios = Usuarios(user=user, email=user.email, rol=rol)  # Asignar el rol al usuario
+                usuarios = Usuarios(email=user.email,password=request.POST['password1'], rol=rol)  # Asignar el rol al usuario
                 usuarios.save()
                 login(request, user)
                 
@@ -52,7 +52,7 @@ def registrar(request):
                     return redirect('DatosTecnico')  # Cambia 'pagina_tecnico' al nombre de tu vista para técnicos
 
     else:
-        user_form = CustomUserCreationForm()
+        user_form = RegistroForm()
 
     return render(request, 'registrar.html', {'user_form': user_form})
 
@@ -66,7 +66,7 @@ def DatosAdministrador(request):
             return redirect('reportes')  # Reemplaza 'reportes' con la URL correcta
     else:
         datosform = DatosAdministradorForm()
-    return render(request, 'DatosAdministrador.html', {'datosform': datosform})
+    return render(request, 'Datos/datos_administrador.html', {'datosform': datosform})
 
 def DatosTecnico(request):
     if request.method == 'POST':
@@ -78,7 +78,7 @@ def DatosTecnico(request):
             return redirect('tecnico')  # Reemplaza 'tecnico' con la URL correcta
     else:
         datosform = DatosTecnicoForm()
-    return render(request, 'DatosTecnico.html', {'datosform': datosform})
+    return render(request, 'Datos/datos_tecnico.html', {'datosform': datosform})
 
 #def registrar(request):
     if request.method == 'POST':

@@ -164,4 +164,17 @@ td {
   background-color: #0000a4; /* Fondo blanco */
 }
 
+.custom-select {
+  background-color: #43e013; /* Cambia el color de fondo */
+  color: #333; /* Cambia el color del texto */
+  border: 1px solid #ccc; /* Cambia el borde */
+  border-radius: 5px; /* Agrega esquinas redondeadas */
+  padding: 5px; /* Añade espaciado interno */
+  width: 100%; /* Cambia el ancho del select */
+}
+
+.custom-select option {
+  background-color: #fff; /* Cambia el color de fondo de las opciones */
+  color: #030303; /* Cambia el color del texto de las opciones */
+}
 
