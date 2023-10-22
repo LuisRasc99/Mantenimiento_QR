@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, DatosUsuarioForm, TecnicosForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, DatosUsuarioForm, RegistroFormulario
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib import messages
@@ -14,7 +14,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from mantenimientoReportes.serializers import ReporteSerializer
 from mantenimientoReportes.models import Reportes
-from .models import Tecnicos
+from .models import Usuario
+
 
 
 
@@ -32,42 +33,50 @@ def inicio(request):
     
     
 def registrar(request):
-    if request.method == 'GET':
-        return render(request, 'registrar.html', {'form': CustomUserCreationForm})
-    else:
-        if request.POST["password1"] == request.POST["password2"]:
-            username = request.POST['username']
-            email = request.POST['email']
-            
-            # Verificar si el usuario ya existe
-            if User.objects.filter(username=username).exists():
+    if request.method == 'POST':
+        form = RegistroFormulario(request.POST)
+        if form.is_valid():
+            if form.cleaned_data["password1"] == form.cleaned_data["password2"]:
+                username = form.cleaned_data['username']
+                email = form.cleaned_data['email']
+                rol = form.cleaned_data['rol']
+
+                if Usuario.objects.filter(username=username).exists():
+                    return render(request, 'registrar.html', {
+                        'form': form,
+                        'error': 'El nombre de usuario ya existe'
+                    })
+
+                if Usuario.objects.filter(email=email).exists():
+                    return render(request, 'registrar.html', {
+                        'form': form,
+                        'error': 'El correo electrónico ya está en uso'
+                    })
+
+                try:
+                    user = Usuario.objects.create_user(username=username, email=email, password=form.cleaned_data['password1'], rol=rol)
+                    user.save()
+                    login(request, user)
+                    
+                    # Redirigir según el rol
+                    if rol == 'administrador':
+                        return redirect('DatosAdministrador')  # Reemplaza 'pagina_administrador' con la URL de la página de administrador.
+                    elif rol == 'tecnico':
+                        return redirect('DatosTecnico')  # Reemplaza 'pagina_tecnico' con la URL de la página de técnico.
+                except:
+                    return render(request, 'registrar.html', {
+                        'form': form,
+                        'error': 'Error al crear el usuario'
+                    })
+            else:
                 return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'El nombre de usuario ya existe'
-                })
-            
-            # Verificar si el correo electrónico ya existe
-            if User.objects.filter(email=email).exists():
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'El correo electrónico ya está en uso'
-                })
-            
-            try:
-                user = User.objects.create_user(username=username, email=email, password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('DatosUsuario')
-            except:
-                return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
-                    'error': 'Error al crear el usuario'
-                })
-        else:
-            return render(request, 'registrar.html', {
-                    'form': CustomUserCreationForm,
+                    'form': form,
                     'error': 'Las contraseñas no coinciden'
                 })
+    else:
+        form = RegistroFormulario()
+    
+    return render(request, 'registrar.html', {'form': form})
 
 def isesion(request):
     if request.method == 'POST':
@@ -163,46 +172,3 @@ class ReporteDetail(APIView):
         serializer = ReporteSerializer(reporte)
         return Response(serializer.data)
     
-def lista_tecnicos(request):
-
-
-    return render(request, 'lista_tecnicos.html')
-
-def registrar_tecnicos(request):
-    if request.method == 'POST':
-        form = TecnicosForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Verificar si el usuario ya existe
-            username = form.cleaned_data['user'].username
-            if User.objects.filter(username=username).exists():
-                return render(request, 'registrar_tecnicos.html', {
-                    'form': form,
-                    'error': 'El nombre de usuario ya existe'
-                })
-
-            # Verificar si el correo electrónico ya existe
-            email = form.cleaned_data['user'].email
-            if User.objects.filter(email=email).exists():
-                return render(request, 'registrar_tecnicos.html', {
-                    'form': form,
-                    'error': 'El correo electrónico ya está en uso'
-                })
-
-            # Verificar que las contraseñas coincidan
-            password1 = form.cleaned_data['user'].password1
-            password2 = form.cleaned_data['user'].password2
-            if password1 != password2:
-                return render(request, 'registrar_tecnicos.html', {
-                    'form': form,
-                    'error': 'Las contraseñas no coinciden'
-                })
-
-            # Si todas las verificaciones pasan, guarda los datos del técnico
-            tecnico = form.save()
-            # Realiza cualquier otra acción que necesites, como redireccionar a la lista de técnicos
-            return redirect('lista_tecnicos')  # Cambia 'lista_tecnicos' al nombre de la vista que muestre la lista de técnicos
-    else:
-        form = TecnicosForm()
-    
-    return render(request, 'registrar_tecnicos.html', {'form': form})
-

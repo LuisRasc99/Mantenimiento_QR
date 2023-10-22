@@ -4,11 +4,32 @@
   <main class="container">
     <div class="row">
       <div class="col-md-6 offset-md-4 mt-5">
-        <h1 class="text-center">Agregar Nuevo Operador</h1>
+        <h1 class="text-center">Registrar Usuario</h1>
         <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
           {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Añadir Operador</button>
+          <div class="mb-3">
+            <label for="username">Usuario:</label>
+            <input type="text" name="username" class="form-control" placeholder="Escribe tu usuario" id="username">
+          </div>
+          <div class="mb-3">
+            <label for="email">Correo:</label>
+            <input type="email" name="email" class="form-control" placeholder="Escribe tu correo electronico" id="email">
+          </div>
+          <div class="mb-3">
+            <label for="password1">Contraseña:</label>
+            <input type="password" name="password1" class="form-control" placeholder="Escribe tu contraseña" id="password1">
+          </div>
+          <div class="mb-3">
+            <label for="password2">Contraseña:</label>
+            <input type="password" name="password2" class="form-control" placeholder="Confirma tu contraseña" id="password2">
+          </div>
+          <div class="mb-3">
+            <select name="rol" id="rol" class="custom-select">
+                <option value="administrador">Administrador</option>
+                <option value="tecnico">Técnico</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Añadir Usuario</button>
         </form>
       </div>
     </div>

@@ -2,8 +2,19 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import DatosUsuario, Tecnicos
+from .models import DatosUsuario, Usuario
 
+class RegistroFormulario(UserCreationForm):
+    ROLES = [
+        ('administrador', 'Administrador'),
+        ('tecnico', 'Técnico'),
+    ]
+
+    rol = forms.ChoiceField(choices=ROLES)
+
+    class Meta:
+        model = Usuario
+        fields = ['username', 'email', 'password1', 'password2', 'rol']
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -39,8 +50,3 @@ class DatosUsuarioForm(forms.ModelForm):
             'apellido_paterno': 'Apellido Paterno',
             'numero_calle': 'Numero de calle',
         }
-
-class TecnicosForm(forms.ModelForm):
-    class Meta:
-        model = Tecnicos
-        exclude = ['fecha_registro', 'user']
