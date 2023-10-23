@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from .views import reporteList, reporteDetail
 
 
 urlpatterns = [
@@ -15,7 +14,5 @@ urlpatterns = [
     path('reportes/<int:reporte_id>/historial/', views.historial_reportes, name='historial_reportes'),
     path('eliminar_historial/<int:id_historial>/', views.eliminar_historial, name='eliminar_historial'),
     path('imprimir_qr_anterior/<int:id_historial>/<str:formato>/', views.imprimir_qr_anterior, name='imprimir_qr_anterior'),
-    path('api/reportes/', reporteList.as_view(), name='reportes_api'),
-    path('api/reportes/<int:id_reporte>/', reporteDetail.as_view(), name='reporte_detail_api'),
 
 ]

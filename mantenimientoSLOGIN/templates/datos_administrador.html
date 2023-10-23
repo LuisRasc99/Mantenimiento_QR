@@ -1,18 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplicacion de Mantenimiento</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
     <main class="container">
         <div class="row">
             <div class="col-md-6 offset-md-4 mt-5">
                 <h1 class="text-center">Ingresa tus datos</h1>
-                <form method="POST" action="{% url 'DatosUsuario' %}" class="card card-body">
-                {% csrf_token %}
+                <form method="POST" action="{% url 'DatosAdministrador' %}" class="card card-body">
                 {% csrf_token %} 
                 <div class="mb-3">
                   <label for="nombre">Nombre:</label>
@@ -50,14 +44,17 @@
                   <label for="telefono">Telefono:</label>
                   <input type="text" name="telefono" class="form-control" id="telefono">
                 </div>
+                <div class="mb-3">
+                  <label for="foto_administrador">Foto:</label>
+                  <input type="file" name="foto_administrador" class="form-control-file" id="foto_administrador">
+              </div>
                 <p></p>
                 <button class="btn btn-primary">Guardar</button>
                 </form>
                 </div>
         </div>
     </main>
-</body>
-</html>
+{% endblock %}
 
 
 

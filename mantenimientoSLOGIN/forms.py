@@ -2,18 +2,19 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import DatosUsuario, Usuario
+from .models import DatosAdministrador, DatosTecnico
 
-class RegistroFormulario(UserCreationForm):
+class RegistroForm(UserCreationForm):
     ROLES = [
         ('administrador', 'Administrador'),
         ('tecnico', 'Técnico'),
     ]
 
     rol = forms.ChoiceField(choices=ROLES)
+    
 
     class Meta:
-        model = Usuario
+        model = User
         fields = ['username', 'email', 'password1', 'password2', 'rol']
 
 class CustomUserCreationForm(UserCreationForm):
@@ -41,12 +42,23 @@ class CustomAuthenticationForm(AuthenticationForm):
                     raise forms.ValidationError('Las credenciales ingresadas son incorrectas.')
         return self.cleaned_data
     
-class DatosUsuarioForm(forms.ModelForm):
+class DatosAdministradorForm(forms.ModelForm):
     class Meta:
-        model = DatosUsuario
+        model = DatosAdministrador
         fields = ('nombre', 'apellido_materno', 'apellido_paterno', 'calle','numero_calle', 'colonia', 'ciudad', 'codigo_postal', 'telefono')
         labels = {
             'apellido_materno': 'Apellido Materno',
             'apellido_paterno': 'Apellido Paterno',
             'numero_calle': 'Numero de calle',
         }
+
+class DatosTecnicoForm(forms.ModelForm):
+    class Meta:
+        model = DatosTecnico
+        fields = ('nombre', 'apellido_materno', 'apellido_paterno', 'calle','numero_calle', 'colonia', 'ciudad', 'codigo_postal', 'telefono')
+        labels = {
+            'apellido_materno': 'Apellido Materno',
+            'apellido_paterno': 'Apellido Paterno',
+            'numero_calle': 'Numero de calle',
+        }
+

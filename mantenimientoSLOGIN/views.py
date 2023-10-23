@@ -1,20 +1,11 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, DatosUsuarioForm, RegistroFormulario
-from django.contrib.auth.models import User
+from .forms import CustomAuthenticationForm, DatosAdministradorForm, RegistroForm, DatosTecnicoForm
 from django.contrib.auth import login, logout, authenticate, get_user_model
-from django.contrib import messages
-from django.db.models import Q
 from mantenimientoReportes.models import Reportes
 from rest_framework.decorators import api_view
-from rest_framework import status
-from .serializers import DatosUsuarioSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from mantenimientoReportes.serializers import ReporteSerializer
 from mantenimientoReportes.models import Reportes
-from .models import Usuario
+from .models import User, DatosAdministrador, DatosTecnico
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -34,50 +25,51 @@ def inicio(request):
     
 def registrar(request):
     if request.method == 'POST':
-        form = RegistroFormulario(request.POST)
+        form = RegistroForm(request.POST)
         if form.is_valid():
-            if form.cleaned_data["password1"] == form.cleaned_data["password2"]:
-                username = form.cleaned_data['username']
-                email = form.cleaned_data['email']
-                rol = form.cleaned_data['rol']
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            rol = form.cleaned_data['rol']
 
-                if Usuario.objects.filter(username=username).exists():
-                    return render(request, 'registrar.html', {
-                        'form': form,
-                        'error': 'El nombre de usuario ya existe'
-                    })
+            # Comprobar si el usuario ya existe
+            if usuario.objects.filter(username=username).exists():
+                form.add_error('username', 'El nombre de usuario ya existe')
 
-                if Usuario.objects.filter(email=email).exists():
-                    return render(request, 'registrar.html', {
-                        'form': form,
-                        'error': 'El correo electrónico ya está en uso'
-                    })
+            # Comprobar si el correo ya existe
+            if usuario.objects.filter(email=email).exists():
+                form.add_error('email', 'El correo ya está en uso')
 
-                try:
-                    user = Usuario.objects.create_user(username=username, email=email, password=form.cleaned_data['password1'], rol=rol)
-                    user.save()
-                    login(request, user)
-                    
-                    # Redirigir según el rol
-                    if rol == 'administrador':
-                        return redirect('DatosAdministrador')  # Reemplaza 'pagina_administrador' con la URL de la página de administrador.
-                    elif rol == 'tecnico':
-                        return redirect('DatosTecnico')  # Reemplaza 'pagina_tecnico' con la URL de la página de técnico.
-                except:
-                    return render(request, 'registrar.html', {
-                        'form': form,
-                        'error': 'Error al crear el usuario'
-                    })
-            else:
+            # Comprobar si las contraseñas coinciden
+            if password1 != password2:
+                form.add_error('password1', 'Las contraseñas no coinciden')
+                form.add_error('password2', 'Las contraseñas no coinciden')
+
+            # Comprobar si se eligió un rol
+            if not rol:
+                form.add_error('rol', 'Debes seleccionar un rol')
+
+            try:
+                usuario = usuario.objects.create_user(username=username, email=email, password=form.cleaned_data['password1'], rol=rol)
+                usuario.save()
+                login(request, usuario)
+                
+                # Redirigir según el rol
+                if rol == 'administrador':
+                    return redirect('DatosAdministrador')  # Reemplaza 'pagina_administrador' con la URL de la página de administrador.
+                elif rol == 'tecnico':
+                    return redirect('DatosTecnico')  # Reemplaza 'pagina_tecnico' con la URL de la página de técnico.
+            except:
                 return render(request, 'registrar.html', {
                     'form': form,
-                    'error': 'Las contraseñas no coinciden'
+                    'error': 'Error al crear el usuario'
                 })
+
     else:
-        form = RegistroFormulario()
+        form = RegistroForm()
     
     return render(request, 'registrar.html', {'form': form})
-
 def isesion(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -86,19 +78,19 @@ def isesion(request):
             password = form.cleaned_data.get('password')
 
             # Intentar autenticar con el nombre de usuario
-            user = authenticate(request=request, username=username, password=password)
+            usuario = authenticate(request=request, username=username, password=password)
 
             # Si la autenticación con el nombre de usuario falla, intentar con el correo electrónico
-            if user is None:
-                UserModel = get_user_model()
+            if usuario is None:
+                UsuarioModel = get_user_model()
                 try:
-                    user = UserModel.objects.get(email=username)
-                    user = authenticate(request=request, username=user.username, password=password)
-                except UserModel.DoesNotExist:
+                    usuario = UsuarioModel.objects.get(email=username)
+                    usuario = authenticate(request=request, username=usuario.username, password=password)
+                except UsuarioModel.DoesNotExist:
                     pass
 
-            if user is not None:
-                login(request, user)
+            if usuario is not None:
+                login(request, usuario)
                 return redirect('reportes')  # Redirigir a la página de inicio después del inicio de sesión exitoso
         else:
             error_message = 'Error al iniciar sesión. Por favor, verifica tus credenciales.'
@@ -107,68 +99,83 @@ def isesion(request):
         form = CustomAuthenticationForm()
     return render(request, 'isesion.html', {'isesionform': form})
 
+@login_required
+def DatosAdministrador(request):
+    if request.method == 'POST':
+        datosform = DatosAdministradorForm(request.POST)
+        if datosform.is_valid():
+            if request.user.is_authenticated:
+                # Si el usuario está autenticado, guarda los datos del administrador
+                datos_administrador = datosform.save(commit=False)
+                datos_administrador.usuario = request.user
+                datos_administrador.save()
+                return redirect('reportes')  # Reemplaza 'reportes' con la URL a la que deseas redirigir después de guardar los datos
+            else:
+                # Si el usuario no está autenticado, puedes guardar los datos en una sesión temporal
+                request.session['datos_administrador_temp'] = datosform.cleaned_data
+                return redirect('registrar')  # Redirigir al usuario a la página de inicio de sesión
+    else:
+        datosform = DatosAdministradorForm()
+    return render(request, 'datos_administrador.html', {'datosform': datosform})
+
+
+
+
+
+@login_required
+def DatosTecnico(request):
+    if request.method == 'POST':
+        datosform = DatosTecnicoForm(request.POST)
+        if datosform.is_valid():
+            datos_administrador = datosform.save(commit=False)
+            datos_administrador.usuario = request.user
+            datos_administrador.save()
+            return redirect('tecnico')  #Reemplaza 'otra_pagina' con la URL a la que deseas redirigir después de guardar los datos
+    else:
+        datosform = DatosTecnicoForm()
+    return render(request, 'datos_tecnico.html', {'datosform': datosform})
+
+def modificar_datos(request):
+    usuario = request.user
+    rol = usuario.rol  # Obtener el rol del usuario
+
+    if rol == 'administrador':
+        # Usuario con rol de administrador
+        try:
+            datos_usuario = usuario.datosadministrador
+        except DatosAdministrador.DoesNotExist:
+            datos_usuario = None
+        form = DatosAdministradorForm(instance=datos_usuario)
+    elif rol == 'tecnico':
+        # Usuario con rol de técnico
+        try:
+            datos_usuario = usuario.datostecnico
+        except DatosTecnico.DoesNotExist:
+            datos_usuario = None
+        form = DatosTecnicoForm(instance=datos_usuario)
+    else:
+        # Manejar otros roles o situaciones según sea necesario
+        error_message = "Rol no admitido"
+
+    if request.method == 'POST':
+        if rol == 'administrador':
+            form = DatosAdministradorForm(request.POST, instance=datos_usuario)
+        elif rol == 'tecnico':
+            form = DatosTecnicoForm(request.POST, instance=datos_usuario)
+        
+        if form.is_valid():
+            datos_usuario = form.save(commit=False)
+            datos_usuario.usuario = request.user
+            datos_usuario.save()
+            return redirect('reportes')  # Reemplaza 'reportes' con la URL a la que deseas redirigir después de guardar los datos
+
+    return render(request, 'modificar_datos.html', {'form': form})
+
+
+
+
 
 def csesion(request):
     logout(request)
     return redirect('inicio')
 
-def DatosUsuario(request):
-    if request.method == 'POST':
-        datosform = DatosUsuarioForm(request.POST)
-        if datosform.is_valid():
-            datos_usuario = datosform.save(commit=False)
-            datos_usuario.user = request.user
-            datos_usuario.save()
-            return redirect('reportes')  #Reemplaza 'otra_pagina' con la URL a la que deseas redirigir después de guardar los datos
-    else:
-        datosform = DatosUsuarioForm()
-    return render(request, 'datosusuario.html', {'datosform': datosform})
-
-def modificar_datos(request):
-    user = request.user
-    try:
-        datos_usuario = user.datosusuario
-    except DatosUsuario.DoesNotExist:
-        datos_usuario = None
-
-    if request.method == 'POST':
-        form = DatosUsuarioForm(request.POST, instance=datos_usuario)
-        if form.is_valid():
-            datos_usuario = form.save(commit=False)
-            datos_usuario.user = request.user
-            datos_usuario.save()
-            return redirect('reportes')  # Reemplaza 'reportes' con la URL a la que deseas redirigir después de guardar los datos
-    else:
-        form = DatosUsuarioForm(instance=datos_usuario)
-
-    return render(request, 'modificar_datos.html', {'form': form})
-
-@api_view(['GET'])
-def api_inicio(request):
-    if request.method == 'GET':
-        reportes = Reportes.objects.all()
-        serializer = ReporteSerializer(reportes, many=True)
-        return Response(serializer.data)
-
-
-@api_view(['POST'])
-def api_datos_usuario(request):
-    if request.method == 'POST':
-        serializer = DatosUsuarioSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class ReporteList(APIView):
-    def get(self, request):
-        reportes = Reportes.objects.all()
-        serializer = ReporteSerializer(reportes, many=True)
-        return Response(serializer.data)
-
-class ReporteDetail(APIView):
-    def get(self, request, id_reporte):
-        reporte = Reportes.objects.get(id_reporte=id_reporte)
-        serializer = ReporteSerializer(reporte)
-        return Response(serializer.data)
-    

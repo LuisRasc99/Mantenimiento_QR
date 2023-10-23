@@ -1,16 +1,13 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block content %}
     <main class="container">
         <div class="row">
             <div class="col-md-6 offset-md-4 mt-5">
-                <h1 class="text-center">Registro de Tecnicos</h1>
-                <form method="POST" action="{% url 'DatosUsuario' %}" class="card card-body">
+                <h1 class="text-center">Ingresa tus datos</h1>
+                <form method="POST" action="{% url 'DatosTecnico' %}" class="card card-body">
                 {% csrf_token %} 
-                <div class="mb-3">
-                    <label for="foto_tecnico">Foto del Filtro:</label>
-                    <input type="file" name="foto_tecnico" class="form-control" id="foto_tecnico">
-                  </div>
                 <div class="mb-3">
                   <label for="nombre">Nombre:</label>
                   <input type="text" name="nombre" class="form-control" id="nombre">
@@ -44,17 +41,17 @@
                   <input type="text" name="codigo_postal" class="form-control" id="codigo_postal">
                 </div>
                 <div class="mb-3">
-                    <label for="email_tecnico">Email:</label>
-                    <input type="text" name="email_tecnico" class="form-control" id="email_tecnico">
-                </div>
-                <div class="mb-3">
                   <label for="telefono">Telefono:</label>
                   <input type="text" name="telefono" class="form-control" id="telefono">
                 </div>
+                <div class="mb-3">
+                  <label for="foto_tecnico">Foto:</label>
+                  <input type="file" name="foto_tecnico" class="form-control-file" id="foto_tecnico">
+              </div>
                 <p></p>
                 <button class="btn btn-primary">Guardar</button>
                 </form>
                 </div>
         </div>
-    </main>
+    </main> 
 {% endblock %}

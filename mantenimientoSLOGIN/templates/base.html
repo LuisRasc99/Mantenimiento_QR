@@ -25,16 +25,16 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Inicio</a>
                 </li>
-                {% if user.is_authenticated %}
+                {% if Usuario.is_authenticated %}
                 <li class="nav-item">
                 <a class="nav-link" href="{% url 'reportes' %}">Reportes</a>
                 </li>
                 {% endif %}
-                {% if user.is_authenticated and not es_inicio %}
+                {% if Usuario.is_authenticated and not es_inicio %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'modificar_datos' %}">Modificar datos</a>
                 </li>
-                {% if user.is_authenticated %}
+                {% if Usuario.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesion</a>
                 </li>

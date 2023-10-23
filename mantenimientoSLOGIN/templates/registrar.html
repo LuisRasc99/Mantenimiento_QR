@@ -6,6 +6,7 @@
       <div class="col-md-6 offset-md-4 mt-5">
         <h1 class="text-center">Registrar Usuario</h1>
         <form method="post" enctype="multipart/form-data" class="card card-body custom-form">
+          {{ form.errors }}
           {% csrf_token %}
           <div class="mb-3">
             <label for="username">Usuario:</label>
@@ -25,6 +26,7 @@
           </div>
           <div class="mb-3">
             <select name="rol" id="rol" class="custom-select">
+                <option value="" selected disabled>Seleccionar rol</option>
                 <option value="administrador">Administrador</option>
                 <option value="tecnico">Técnico</option>
             </select>

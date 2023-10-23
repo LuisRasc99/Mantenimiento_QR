@@ -9,17 +9,10 @@ import qrcode
 import os
 from io import BytesIO
 from django.core.files import File
-from django.http import HttpResponse, HttpResponseNotFound
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import ReporteSerializer
-from uuid import uuid4
+from django.http import HttpResponse
 import shutil
 import uuid
 from django.db.models import Q
-from django.http import FileResponse 
-import io
 from django.utils import timezone
 
 
@@ -215,17 +208,6 @@ def imprimir_qr(request, id_reporte, formato):
     return redirect('reportes')
 
 
-class reporteList(APIView):
-    def get(self, request):
-        Reportes = Reportes.objects.all()
-        serializer = ReporteSerializer(Reportes, many=True)
-        return Response(serializer.data)
-
-class reporteDetail(APIView):
-    def get(self, request, id_reporte):
-        reporte = Reportes.objects.get(id_reporte=id_reporte)
-        serializer = ReporteSerializer(reporte)
-        return Response(serializer.data)
 
 def historial_reportes(request, reporte_id):
     reporte = get_object_or_404(Reportes, id_reporte=reporte_id)
