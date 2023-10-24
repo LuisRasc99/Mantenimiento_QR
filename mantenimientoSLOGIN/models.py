@@ -15,7 +15,7 @@ Usuario.groups.field.remote_field.related_name = 'usuarios_groups'
 Usuario.user_permissions.field.remote_field.related_name = 'usuarios_user_permissions'
 
 class DatosAdministrador(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='administrador')
     nombre = models.CharField(max_length=100)
     apellido_materno = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)
@@ -32,7 +32,7 @@ class DatosAdministrador(models.Model):
         return self.usuario.username
     
 class DatosTecnico(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='tecnico')
     nombre = models.CharField(max_length=100)
     apellido_materno = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)

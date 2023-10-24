@@ -70,34 +70,7 @@ def registrar(request):
         form = RegistroForm()
     
     return render(request, 'registrar.html', {'form': form})
-def isesion(request):
-    if request.method == 'POST':
-        form = CustomAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
 
-            # Intentar autenticar con el nombre de usuario
-            usuario = authenticate(request=request, username=username, password=password)
-
-            # Si la autenticación con el nombre de usuario falla, intentar con el correo electrónico
-            if usuario is None:
-                UsuarioModel = get_user_model()
-                try:
-                    usuario = UsuarioModel.objects.get(email=username)
-                    usuario = authenticate(request=request, username=usuario.username, password=password)
-                except UsuarioModel.DoesNotExist:
-                    pass
-
-            if usuario is not None:
-                login(request, usuario)
-                return redirect('reportes')  # Redirigir a la página de inicio después del inicio de sesión exitoso
-        else:
-            error_message = 'Error al iniciar sesión. Por favor, verifica tus credenciales.'
-            return render(request, 'isesion.html', {'isesionform': form, 'error_message': error_message})
-    else:
-        form = CustomAuthenticationForm()
-    return render(request, 'isesion.html', {'isesionform': form})
 
 def DatosAdministrador(request):
     if request.method == 'POST':
@@ -135,7 +108,34 @@ def DatosTecnico(request):
         datosform = DatosTecnicoForm()
     return render(request, 'datos_tecnico.html', {'datosform': datosform})
 
+def isesion(request):
+    if request.method == 'POST':
+        form = CustomAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
 
+            # Intentar autenticar con el nombre de usuario
+            usuario = authenticate(request=request, username=username, password=password)
+
+            # Si la autenticación con el nombre de usuario falla, intentar con el correo electrónico
+            if usuario is None:
+                UsuarioModel = get_user_model()
+                try:
+                    usuario = UsuarioModel.objects.get(email=username)
+                    usuario = authenticate(request=request, username=usuario.username, password=password)
+                except UsuarioModel.DoesNotExist:
+                    pass
+
+            if usuario is not None:
+                login(request, usuario)
+                return redirect('reportes')  # Redirigir a la página de inicio después del inicio de sesión exitoso
+        else:
+            error_message = 'Error al iniciar sesión. Por favor, verifica tus credenciales.'
+            return render(request, 'isesion.html', {'isesionform': form, 'error_message': error_message})
+    else:
+        form = CustomAuthenticationForm()
+    return render(request, 'isesion.html', {'isesionform': form})
 
 def modificar_datos(request):
     usuario = request.user
