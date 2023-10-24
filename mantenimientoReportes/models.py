@@ -9,7 +9,7 @@ from django.dispatch import receiver
 import os
 from decimal import Decimal
 from django.core.files.storage import default_storage
-User = get_user_model()
+Usuario = get_user_model()
 
 def maquina_image_path(instance, filename):
     # Generar la ruta de almacenamiento para la imagen de la máquina
@@ -21,7 +21,7 @@ def filtro_image_path(instance, filename):
 
 
 class Reportes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     id_reporte = models.AutoField(primary_key=True)
     nombre_maquina = models.CharField(max_length=100)
     descripcion = models.TextField(null=True, blank=True)
@@ -91,7 +91,7 @@ def eliminar_fotos(sender, instance, **kwargs):
 
 class Historial(models.Model):
     reporte = models.ForeignKey(Reportes, on_delete=models.CASCADE)
-    usuario_modificacion = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    usuario_modificacion = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True)
     tipo_modificacion = models.CharField(max_length=20)  # Puedes usar choices para definir opciones
     fecha_modificacion = models.DateTimeField(auto_now_add=True)
     nombre_maquina_anterior = models.CharField(max_length=100, null=True, blank=True)
@@ -112,6 +112,8 @@ class Historial(models.Model):
         qr_img = qrcode.make(data)
         qr_bytes = BytesIO()
         qr_img.save(qr_bytes, format='PNG')
+
+        self.save()
 
         # Utiliza default_storage.save() para guardar el archivo en la ubicación correcta
         qr_filename = f'qr_anterior_{self.id}.png'

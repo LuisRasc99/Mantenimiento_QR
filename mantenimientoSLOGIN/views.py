@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout, authenticate, get_user_model
 from mantenimientoReportes.models import Reportes
 from rest_framework.decorators import api_view
 from mantenimientoReportes.models import Reportes
-from .models import User, DatosAdministrador, DatosTecnico
+from .models import Usuario, DatosAdministrador, DatosTecnico
 from django.contrib.auth.decorators import login_required
 
 
@@ -34,11 +34,11 @@ def registrar(request):
             rol = form.cleaned_data['rol']
 
             # Comprobar si el usuario ya existe
-            if usuario.objects.filter(username=username).exists():
+            if Usuario.objects.filter(username=username).exists():
                 form.add_error('username', 'El nombre de usuario ya existe')
 
             # Comprobar si el correo ya existe
-            if usuario.objects.filter(email=email).exists():
+            if Usuario.objects.filter(email=email).exists():
                 form.add_error('email', 'El correo ya está en uso')
 
             # Comprobar si las contraseñas coinciden
@@ -51,7 +51,7 @@ def registrar(request):
                 form.add_error('rol', 'Debes seleccionar un rol')
 
             try:
-                usuario = usuario.objects.create_user(username=username, email=email, password=form.cleaned_data['password1'], rol=rol)
+                usuario = Usuario.objects.create_user(username=username, email=email, password=form.cleaned_data['password1'], rol=rol)
                 usuario.save()
                 login(request, usuario)
                 
@@ -99,7 +99,6 @@ def isesion(request):
         form = CustomAuthenticationForm()
     return render(request, 'isesion.html', {'isesionform': form})
 
-@login_required
 def DatosAdministrador(request):
     if request.method == 'POST':
         datosform = DatosAdministradorForm(request.POST)
@@ -118,22 +117,25 @@ def DatosAdministrador(request):
         datosform = DatosAdministradorForm()
     return render(request, 'datos_administrador.html', {'datosform': datosform})
 
-
-
-
-
-@login_required
 def DatosTecnico(request):
     if request.method == 'POST':
         datosform = DatosTecnicoForm(request.POST)
         if datosform.is_valid():
-            datos_administrador = datosform.save(commit=False)
-            datos_administrador.usuario = request.user
-            datos_administrador.save()
-            return redirect('tecnico')  #Reemplaza 'otra_pagina' con la URL a la que deseas redirigir después de guardar los datos
+            if request.user.is_authenticated:
+                # Si el usuario está autenticado, guarda los datos del administrador
+                datos_tecnico = datosform.save(commit=False)
+                datos_tecnico.usuario = request.user
+                datos_tecnico.save()
+                return redirect('reportes')  # Reemplaza 'reportes' con la URL a la que deseas redirigir después de guardar los datos
+            else:
+                # Si el usuario no está autenticado, puedes guardar los datos en una sesión temporal
+                request.session['datos_tecnico_temp'] = datosform.cleaned_data
+                return redirect('registrar')  # Redirigir al usuario a la página de inicio de sesión
     else:
         datosform = DatosTecnicoForm()
     return render(request, 'datos_tecnico.html', {'datosform': datosform})
+
+
 
 def modificar_datos(request):
     usuario = request.user

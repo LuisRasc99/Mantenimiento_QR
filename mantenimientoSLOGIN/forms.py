@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import DatosAdministrador, DatosTecnico
+from .models import Usuario, DatosAdministrador, DatosTecnico
 
 class RegistroForm(UserCreationForm):
     ROLES = [
@@ -14,14 +13,14 @@ class RegistroForm(UserCreationForm):
     
 
     class Meta:
-        model = User
+        model = Usuario
         fields = ['username', 'email', 'password1', 'password2', 'rol']
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
     class Meta:
-        model = User
+        model = Usuario
         fields = ('username', 'email', 'password1', 'password2')
 
 
@@ -33,12 +32,12 @@ class CustomAuthenticationForm(AuthenticationForm):
         password = self.cleaned_data.get('password')
 
         if username and password:
-            user = authenticate(username=username, password=password)
-            if user is None:
+            usuario = authenticate(username=username, password=password)
+            if usuario is None:
                 try:
-                    user = User.objects.get(email=username)
-                    user = authenticate(request=self.request, username=user.email, password=password)
-                except User.DoesNotExist:
+                    usuario = Usuario.objects.get(email=username)
+                    usuario = authenticate(request=self.request, username=Usuario.email, password=password)
+                except Usuario.DoesNotExist:
                     raise forms.ValidationError('Las credenciales ingresadas son incorrectas.')
         return self.cleaned_data
     

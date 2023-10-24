@@ -8,7 +8,7 @@ from io import BytesIO
 class ReporteForm(forms.ModelForm):
     class Meta:
         model = Reportes
-        exclude = ('qr', 'user', 'fecha_reporte')
+        exclude = ('qr', 'usuario', 'fecha_reporte')
 
     # Configurar los campos como no requeridos
     nombre_maquina = forms.CharField(required=False)

@@ -22,7 +22,7 @@ def nuevo_reporte(request):
         form = ReporteForm(request.POST, request.FILES)
         if form.is_valid():
             reporte = form.save(commit=False)
-            reporte.user = request.user  # Llenamos automáticamente el campo 'user' con el usuario actual
+            reporte.usuario = request.user  # Llenamos automáticamente el campo 'user' con el usuario actual
             reporte.save()
             reporte.generar_qr()
             return redirect('reportes')
@@ -33,8 +33,8 @@ def nuevo_reporte(request):
 
 @login_required
 def reportes(request):
-    user = request.user
-    reportes = Reportes.objects.filter(user=user)
+    usuario = request.user
+    reportes = Reportes.objects.filter(usuario=usuario)
 
     # Obtener el valor del parámetro GET 'search'
     search_query = request.GET.get('search')

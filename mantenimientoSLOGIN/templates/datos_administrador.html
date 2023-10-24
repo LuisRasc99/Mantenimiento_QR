@@ -8,6 +8,7 @@
                 <h1 class="text-center">Ingresa tus datos</h1>
                 <form method="POST" action="{% url 'DatosAdministrador' %}" class="card card-body">
                 {% csrf_token %} 
+                {{ form.errors }}
                 <div class="mb-3">
                   <label for="nombre">Nombre:</label>
                   <input type="text" name="nombre" class="form-control" id="nombre">
