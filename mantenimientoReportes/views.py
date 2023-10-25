@@ -23,7 +23,11 @@ import io
 from django.utils import timezone
 
 
+from .models import Reportes
 
+
+
+@login_required
 def nuevo_reporte(request):
     if request.method == 'POST':
         form = ReporteForm(request.POST, request.FILES)
@@ -36,7 +40,6 @@ def nuevo_reporte(request):
     else:
         form = ReporteForm()
     return render(request, 'nuevo_reporte.html', {'form': form})
-
 
 @login_required
 def reportes(request):
@@ -61,6 +64,7 @@ def modificar_reporte(request, id_reporte):
     if request.method == 'POST':
         form = ReporteUpdateForm(request.POST, request.FILES, instance=reporte)
         if form.is_valid():
+
             # Guardar los cambios en el reporte
             reporte = form.save()
             
@@ -84,6 +88,7 @@ def modificar_reporte(request, id_reporte):
             historial.generar_qr_anterior()
             
             # Guardar los cambios en el reporte
+
             reporte = form.save()
             reporte.generar_qr()
 
@@ -185,7 +190,7 @@ def get_new_qr_path(original_path):
 @login_required
 def generar_qr(request, id_reporte):
     reporte = Reportes.objects.get(id_reporte=id_reporte)
-    data = f"Nombre de máquina: {reporte.nombre_maquina}\nDescripción: {reporte.descripcion}\nNúmero de parte: {reporte.numero_parte}\nPiezas: {reporte.piezas}\nCosto: {reporte.costo}\nHoras: {reporte.horas}\nFecha de reemplazo: {reporte.fecha_reemplazo()}\nFecha de reporte: {reporte.fecha_reporte}"
+    data = f"Nombre de máquina: {reporte.nombre_maquina}\nDescripción: {reporte.descripcion}\nNúmero de parte: {reporte.numero_parte}\nPiezas: {reporte.piezas}\nCosto: {reporte.costo}\nHoras: {reporte.horas}\nFecha de reemplazo: {reporte.fecha_reemplazo}\nFecha de reporte: {reporte.fecha_reporte}"
     qr_img = qrcode.make(data)
     qr_bytes = BytesIO()
     qr_img.save(qr_bytes, format='PNG')
