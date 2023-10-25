@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import CustomAuthenticationForm, DatosAdministradorForm, RegistroForm, DatosTecnicoForm
+from .forms import CustomAuthenticationForm, RegistroForm,  PerfilForm
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from mantenimientoReportes.models import Reportes
 from rest_framework.decorators import api_view
@@ -57,9 +57,9 @@ def registrar(request):
                 
                 # Redirigir según el rol
                 if rol == 'administrador':
-                    return redirect('DatosAdministrador')  # Reemplaza 'pagina_administrador' con la URL de la página de administrador.
+                    return redirect('PerfilUsuario')  # Reemplaza 'pagina_administrador' con la URL de la página de administrador.
                 elif rol == 'tecnico':
-                    return redirect('DatosTecnico')  # Reemplaza 'pagina_tecnico' con la URL de la página de técnico.
+                    return redirect('PerfilUsuario')  # Reemplaza 'pagina_tecnico' con la URL de la página de técnico.
             except:
                 return render(request, 'registrar.html', {
                     'form': form,
@@ -72,9 +72,9 @@ def registrar(request):
     return render(request, 'registrar.html', {'form': form})
 
 
-def DatosAdministrador(request):
+def PerfilUsuario(request):
     if request.method == 'POST':
-        datosform = DatosAdministradorForm(request.POST)
+        datosform = PerfilForm(request.POST)
         if datosform.is_valid():
             if request.user.is_authenticated:
                 # Si el usuario está autenticado, guarda los datos del administrador
@@ -84,13 +84,13 @@ def DatosAdministrador(request):
                 return redirect('reportes')  # Reemplaza 'reportes' con la URL a la que deseas redirigir después de guardar los datos
             else:
                 # Si el usuario no está autenticado, puedes guardar los datos en una sesión temporal
-                request.session['datos_administrador_temp'] = datosform.cleaned_data
+                request.session['perfil_usuario_temp'] = datosform.cleaned_data
                 return redirect('registrar')  # Redirigir al usuario a la página de inicio de sesión
     else:
-        datosform = DatosAdministradorForm()
-    return render(request, 'datos_administrador.html', {'datosform': datosform})
+        datosform = PerfilForm()
+    return render(request, 'perfil_usuario.html', {'datosform': datosform})
 
-def DatosTecnico(request):
+#def DatosTecnico(request):
     if request.method == 'POST':
         datosform = DatosTecnicoForm(request.POST)
         if datosform.is_valid():
@@ -139,39 +139,21 @@ def isesion(request):
 
 def modificar_datos(request):
     usuario = request.user
-    rol = usuario.rol  # Obtener el rol del usuario
-
-    if rol == 'administrador':
-        # Usuario con rol de administrador
-        try:
-            datos_usuario = usuario.datosadministrador
-        except DatosAdministrador.DoesNotExist:
-            datos_usuario = None
-        form = DatosAdministradorForm(instance=datos_usuario)
-    elif rol == 'tecnico':
-        # Usuario con rol de técnico
-        try:
-            datos_usuario = usuario.datostecnico
-        except DatosTecnico.DoesNotExist:
-            datos_usuario = None
-        form = DatosTecnicoForm(instance=datos_usuario)
-    else:
-        # Manejar otros roles o situaciones según sea necesario
-        error_message = "Rol no admitido"
+    try:
+        datos_usuario = usuario.perfilusuario
+    except PerfilUsuario.DoesNotExist:
+        datos_usuario = None
 
     if request.method == 'POST':
-        if rol == 'administrador':
-            form = DatosAdministradorForm(request.POST, instance=datos_usuario)
-        elif rol == 'tecnico':
-            form = DatosTecnicoForm(request.POST, instance=datos_usuario)
-        
+        form = PerfilForm(request.POST, instance=datos_usuario)
         if form.is_valid():
             datos_usuario = form.save(commit=False)
             datos_usuario.usuario = request.user
             datos_usuario.save()
             return redirect('reportes')  # Reemplaza 'reportes' con la URL a la que deseas redirigir después de guardar los datos
+    else:
+        form = PerfilForm(instance=datos_usuario)
 
-    return render(request, 'modificar_datos.html', {'form': form})
 
 
 

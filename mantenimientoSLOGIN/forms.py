@@ -41,9 +41,9 @@ class CustomAuthenticationForm(AuthenticationForm):
                     raise forms.ValidationError('Las credenciales ingresadas son incorrectas.')
         return self.cleaned_data
     
-class DatosAdministradorForm(forms.ModelForm):
+class PerfilForm(forms.ModelForm):
     class Meta:
-        model = DatosAdministrador
+        model = Usuario
         fields = ('nombre', 'apellido_materno', 'apellido_paterno', 'calle','numero_calle', 'colonia', 'ciudad', 'codigo_postal', 'telefono')
         labels = {
             'apellido_materno': 'Apellido Materno',
@@ -51,13 +51,4 @@ class DatosAdministradorForm(forms.ModelForm):
             'numero_calle': 'Numero de calle',
         }
 
-class DatosTecnicoForm(forms.ModelForm):
-    class Meta:
-        model = DatosTecnico
-        fields = ('nombre', 'apellido_materno', 'apellido_paterno', 'calle','numero_calle', 'colonia', 'ciudad', 'codigo_postal', 'telefono')
-        labels = {
-            'apellido_materno': 'Apellido Materno',
-            'apellido_paterno': 'Apellido Paterno',
-            'numero_calle': 'Numero de calle',
-        }
 

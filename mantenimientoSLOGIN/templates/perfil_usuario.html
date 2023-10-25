@@ -5,8 +5,8 @@
     <main class="container">
         <div class="row">
             <div class="col-md-6 offset-md-4 mt-5">
-                <h1 class="text-center">Ingresa tus datos</h1>
-                <form method="POST" action="{% url 'DatosAdministrador' %}" class="card card-body">
+                <h1 class="text-center">Perfil de Usuario</h1>
+                <form method="POST" action="{% url 'PerfilUsuario' %}" class="card card-body">
                 {% csrf_token %} 
                 {{ form.errors }}
                 <div class="mb-3">
