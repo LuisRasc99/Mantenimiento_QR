@@ -19,6 +19,12 @@ def filtro_image_path(instance, filename):
     # Generar la ruta de almacenamiento para la imagen del filtro
     return f'filtros_img/{filename}'
 
+class Maquina(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    nombre_maquina = models.TextField(max_length=100)
+    marca = models.TextField(max_length=100)
+    modelo = models.TextField(max_length=100)
+    foto_maquina = models.ImageField(upload_to='maquinas/', null=True, blank=True)
 
 class Reportes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

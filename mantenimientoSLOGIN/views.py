@@ -100,7 +100,7 @@ def isesion(request):
 
 def csesion(request):
     logout(request)
-    return redirect('inicio')
+    return redirect('isesion')
 
 def DatosUsuario(request):
     if request.method == 'POST':

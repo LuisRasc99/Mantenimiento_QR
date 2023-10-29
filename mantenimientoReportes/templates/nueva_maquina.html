@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container py-5">
+<section class="card card-body text-center">
+    <h1>Nuevo maquina</h1>
+</section>
+<p></p>
+{% if form.errors %}
+<div class="alert alert-danger">
+    <strong>Errores:</strong>
+    <ul>
+    {% for error in form.errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<p></p>
+<button class="btn btn-primary" onclick="regresar()">
+    <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+</button>
+<p></p>
+<section class="card card-body">
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+    <label for="nombre_maquina">Nombre de la máquina:</label>
+    <input type="text" name="nombre_maquina" class="form-control" id="nombre_maquina">
+    </div>
+    <div class="mb-3">
+    <label for="marca">Marca:</label>
+    <input type="text" name="marca" class="form-control" id="marca">
+    </div>
+    <div class="mb-3">
+    <label for="modelo">Modelo:</label>
+    <input type="text" name="modelo" class="form-control" id="modelo">
+    </div>
+    <div class="mb-3">
+    <label for="foto_maquina">Foto del Filtro:</label>
+    <input type="file" name="foto_maquina" class="form-control" id="foto_maquina">
+    </div>
+    <p></p>
+    <button type="submit">Guardar</button>
+    </form>
+</section>
+
+</main>
+{% endblock %}

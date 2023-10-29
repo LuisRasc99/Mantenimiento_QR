@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container py-5">
+    <section class="card card-body text-center">
+        <h1 class="text-center mt-4">Lista de Máquinas</h1>
+    </section>
+    <p></p>
+    <div class="col">
+        <!-- Botón "Añadir nuevo reporte" -->
+        <a href="{% url 'nueva_maquina' %}" class="btn btn-primary">Añadir maquina</a>
+    </div>
+    <p></p>
+    <section class="card card-body text-center">
+        <div class="container mosaico">
+            {% if maquinas %}
+                {% for maquina in maquinas %}
+                    <div class="maquina card">
+                        <img src="{{ maquina.foto_maquina.url }}" alt="{{ maquina.nombre }}" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ maquina.nombre_maquina }} </h5>
+                            <h6 class="card-text">{{ maquina.marca }} {{ maquina.modelo }} </h6>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="Botones de acción">
+                            <a href="" class="btn btn-info">
+                                <i class="fa-solid fa-wrench" style="color: #ffffff;"></i>
+                            </a>
+                            <a href="{% url 'modificar_maquina' maquina_id=maquina.id %}" class="btn btn-warning">
+                                <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
+                            </a>
+                            <form id="eliminarmaquina_{{ maquina.id }}" method="POST" action="{% url 'eliminar_maquina' maquina_id=maquina.id %}">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-danger" onclick="mostrarConfirmacion('{{ maquina.id }}')">
+                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                </button>
+                            </form>
+                            
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No se han registrado máquinas todavía.</p>
+            {% endif %}
+        </div>
+    </section>
+    <script>
+        // Función para mostrar el cuadro de diálogo de confirmación antes de enviar el formulario
+        function mostrarConfirmacion(id) {
+        if (confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
+            // Si el usuario hace clic en "Aceptar", enviar el formulario de eliminación
+            const form = document.getElementById(`eliminarmaquina_${id}`);
+            form.submit();
+        }
+        }
+    </script>
+
+
+</main>   
+    
+    
+    {% endblock %}

@@ -1,6 +1,6 @@
 import qrcode
 from django import forms
-from .models import Reportes
+from .models import Maquina, Reportes
 from django.core.files import File
 from io import BytesIO
 
@@ -27,4 +27,12 @@ class ReporteUpdateForm(forms.ModelForm):
     costo = forms.DecimalField(required=False)
     horas = forms.DecimalField(required=False)    
     fecha_reemplazo = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))   
-        
+
+class MaquinaForm(forms.ModelForm):
+    class Meta:
+        model = Maquina
+        fields = ['nombre_maquina', 'marca', 'modelo', 'foto_maquina']
+
+    def __init__(self, *args, **kwargs):
+        super(MaquinaForm, self).__init__(*args, **kwargs)
+        self.fields['foto_maquina'].required = True

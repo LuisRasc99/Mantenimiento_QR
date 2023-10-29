@@ -83,14 +83,15 @@ td {
 }
 
 .btn-modificar:hover {
-  background-color: #eccf0e; /* Amarillo más oscuro cuando se pasa el cursor */
+  background-color: #d5ba0d; /* Amarillo más oscuro cuando se pasa el cursor */
   border-color: #d5ba0d;
 }
 
 .btn-modificar:active {
-  background-color: #eccf0e; /* Amarillo aún más oscuro cuando se hace clic */
+  background-color: #d5ba0d; /* Mantener el mismo color cuando se hace clic */
   border-color: #d5ba0d;
 }
+
 
 .btn-info {
   background-color: #4CAF50; /* Verde */
@@ -153,4 +154,19 @@ td {
 .btn-historial:active {
   background-color: #343a40; /* Color de fondo aún más oscuro al hacer clic */
   border-color: #343a40;
+}
+
+/*---- Estilo para los mosaicos del pánel ----*/
+.mosaico {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.maquina {
+  width: 30%;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
 }

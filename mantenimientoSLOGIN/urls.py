@@ -6,9 +6,9 @@ from .views import ReporteList, ReporteDetail
 
 
 urlpatterns = [
-    path('', views.inicio, name= 'inicio'),
+    #path('', views.inicio, name= 'inicio'),
     path('registrar/', views.registrar, name= 'registrar'),
-    path('isesion/', views.isesion, name= 'isesion'),
+    path('', views.isesion, name= 'isesion'),
     path('logout/', views.csesion, name= 'logout'),
     path('DatosUsuario/', views.DatosUsuario, name= 'DatosUsuario'),
     path('modificar_datos/', views.modificar_datos, name='modificar_datos'),
