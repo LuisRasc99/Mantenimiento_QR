@@ -26,6 +26,9 @@ class Maquina(models.Model):
     modelo = models.TextField(max_length=100)
     foto_maquina = models.ImageField(upload_to='maquinas/', null=True, blank=True)
 
+    def __str__(self):
+        return self.nombre_maquina
+
 class Reportes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_reporte = models.AutoField(primary_key=True)
@@ -137,4 +140,13 @@ class Historial(models.Model):
     def delete(self, *args, **kwargs):
         self.eliminar_archivos()
         super(Historial, self).delete(*args, **kwargs)
-    
+
+class Inventario(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    nombre_pieza = models.TextField(max_length=100)
+    numero_pieza = models.TextField(max_length=20)
+    horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
+    foto_pieza = models.ImageField(upload_to='partes/', null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre_pieza

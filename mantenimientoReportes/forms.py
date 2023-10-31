@@ -1,6 +1,6 @@
 import qrcode
 from django import forms
-from .models import Maquina, Reportes
+from .models import Maquina, Reportes, Inventario
 from django.core.files import File
 from io import BytesIO
 
@@ -36,3 +36,12 @@ class MaquinaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(MaquinaForm, self).__init__(*args, **kwargs)
         self.fields['foto_maquina'].required = True
+
+class  InventarioForm(forms.ModelForm):
+    class Meta:
+        model = Inventario
+        fields = ['nombre_pieza', 'numero_pieza', 'horas_uso', 'foto_pieza']
+
+    def __init__(self, *args, **kwargs):
+        super(InventarioForm, self).__init__(*args, **kwargs)
+        self.fields['foto_pieza'].required = True

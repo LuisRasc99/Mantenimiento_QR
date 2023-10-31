@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container py-5">
+<section class="card card-body text-center">
+    <h1>Inventario</h1>
+</section>
+<p></p>
+{% if form.errors %}
+<div class="alert alert-danger">
+    <strong>Errores:</strong>
+    <ul>
+    {% for error in form.errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<p></p>
+<button class="btn btn-primary" onclick="regresar()">
+    <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+</button>
+<p></p>
+<section class="card card-body">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3 custom-border-left">
+                <div class="mb-2">
+                    {% if form.foto_pieza.value %}
+                        <img id="imagen-preview" src="{{ form.foto_pieza.value.url }}" alt="Vista previa de la imagen" style="max-width: 100%">
+                    {% else %}
+                        <i id="icono-imagen" class="fas fa-image" style="font-size: 48px;"></i>
+                    {% endif %}
+                </div>
+                <input type="file" name="foto_maquina" class="d-none" id="foto_maquina" onchange="mostrarImagen(this)">
+                <button type="button" class="btn btn-primary" id="boton-importar-imagen">
+                    <i class="fas fa-upload"></i> Importar imagen
+                </button>
+            </div>
+            <div class="col-md-6">
+                <label for="nombre_pieza">Nombre de la pieza:</label>
+                <input type="text" name="nombre_pieza" class="form-control" id="nombre_pieza">
+                <label for="cantidad_pieza">Cantidad de piezas:</label>
+                <input type="number" name="cantidad_pieza" class="form-control" id="cantidad_pieza">
+                <label for="costo_pieza">Ultimo costo:</label>
+                <input type="number" name="costo_pieza" class="form-control" id="costo_pieza"step="0.01" min="0" pattern="\d*">
+                <label for="horas_uso">Horas de uso:</label>
+                <input type="number" name="horas_uso" class="form-control" id="horas_uso" pattern="\d*">
+            </div>
+        </div>
+        <p></p>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</section>
+
+<script>
+    function mostrarImagen(input) {
+        var imagenPreview = document.getElementById('imagen-preview');
+        var iconoImagen = document.getElementById('icono-imagen');
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                imagenPreview.src = e.target.result;
+                iconoImagen.style.display = 'none'; // Oculta el ícono de imagen
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Agregar un manejador de eventos para el botón "Importar imagen"
+    document.getElementById('boton-importar-imagen').addEventListener('click', function () {
+        document.getElementById('foto_maquina').click();
+    });
+</script>
+</main>
+
+
+{% endblock %}

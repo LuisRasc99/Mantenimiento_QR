@@ -170,3 +170,8 @@ td {
   padding: 10px;
   text-align: center;
 }
+
+.custom-border-left {
+  border-left: 4px solid #007BFF; /* Color del borde izquierdo (puedes cambiarlo) */
+  padding-left: 15px; /* Espacio a la izquierda del campo */
+}

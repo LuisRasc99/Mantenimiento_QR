@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import MaquinaForm, ReporteForm, ReporteUpdateForm
-from .models import Historial, Maquina, Reportes
+from .forms import MaquinaForm, InventarioForm, ReporteForm, ReporteUpdateForm
+from .models import Historial, Maquina, Inventario, Reportes
 from django.contrib import messages
 import qrcode
 import os
@@ -76,6 +76,23 @@ def eliminar_maquina(request, maquina_id):
         return redirect('panel')
     
     return render(request, 'eliminar_maquina.html', {'maquina': maquina})
+
+@login_required
+def inventario(request):
+    if request.method == 'POST':
+        form = InventarioForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('inventario')
+    else:
+        form = InventarioForm()
+
+    inventario = Inventario.objects.all()
+    return render(request, 'inventario.html', {'form': form, 'inventario': inventario})
+
+
+
+
 @login_required
 def nuevo_reporte(request):
     if request.method == 'POST':
