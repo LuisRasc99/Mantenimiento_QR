@@ -79,9 +79,12 @@ def eliminar_maquina(request, maquina_id):
 
 @login_required
 def inventario(request):
+    inventario = Inventario.objects.filter(user=request.user)  # Filtra el inventario del usuario actual
     if request.method == 'POST':
         form = InventarioForm(request.POST, request.FILES)
         if form.is_valid():
+            # Asignar el usuario actual al campo 'user' del formulario
+            form.instance.user = request.user
             form.save()
             return redirect('inventario')
     else:
@@ -90,8 +93,34 @@ def inventario(request):
     inventario = Inventario.objects.all()
     return render(request, 'inventario.html', {'form': form, 'inventario': inventario})
 
+@login_required
+def eliminar_inventario(request, inventario_id):
+    inventario = get_object_or_404(Inventario, id=inventario_id)
+    
+    if request.method == 'POST':
+        # Si se realiza una solicitud POST, elimina la pieza de inventario y redirige a una página de confirmación o a donde desees.
+        inventario.delete()
+        return redirect('inventario')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+    
+    return render(request, 'eliminar_inventario.html', {'inventario': inventario})
 
-
+@login_required
+def modificar_inventario(request, inventario_id):
+    inventario = get_object_or_404(Inventario, id=inventario_id)
+    
+    if request.method == 'POST':
+        # Procesa el formulario de modificación aquí y guarda los cambios en el inventario
+        # Luego, redirige a una página de confirmación o a donde desees.
+        # Por ejemplo:
+        inventario.nombre_pieza = request.POST['nombre_pieza']
+        inventario.numero_pieza = request.POST['numero_pieza']
+        inventario.cantidad_pieza = request.POST['cantidad_pieza']
+        inventario.ultimo_costo = request.POST['ultimo_costo']
+        inventario.horas_uso = request.POST['horas_uso']
+        inventario.save()
+        return redirect('inventario')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+    
+    return render(request, 'modificar_inventario.html', {'inventario': inventario})
 
 @login_required
 def nuevo_reporte(request):

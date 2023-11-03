@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <label for="nombre_pieza">Nombre de la pieza:</label>
-                    <input type="text" name="nombre_pieza" class="form-control" id="id_nombre_pieza">
+                    <input type="text" name="nombre_pieza" class="form-control" id="nombre_pieza">
                     {% if form.nombre_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.nombre_pieza.errors %}
@@ -36,8 +36,17 @@
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="numero_pieza">Cantidad de piezas:</label>
-                    <input type="number" name="numero_pieza" class="form-control" id="numero_pieza">
+                    <label for="numero_pieza">Numero de la pieza:</label>
+                    <input type="text" name="numero_pieza" class="form-control" id="numero_pieza">
+                    {% if form.nombre_pieza.errors %}
+                    <ul class="errors">
+                        {% for error in form.nombre_pieza.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <label for="cantidad_pieza">Cantidad de piezas:</label>
+                    <input type="number" name="cantidad_pieza" class="form-control" id="cantidad_pieza">
                     {% if form.cantidad_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.cantidad_pieza.errors %}
@@ -45,11 +54,11 @@
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="costo_pieza">Ultimo costo:</label>
-                    <input type="number" name="costo_pieza" class="form-control" id="costo_pieza" step="0.01" min="0" pattern="\d*">
-                    {% if form.costo_pieza.errors %}
+                    <label for="ultimo_costo">Ultimo costo:</label>
+                    <input type="number" name="ultimo_costo" class="form-control" id="ultimo_costo" step="0.01" min="0" pattern="\d*">
+                    {% if form.ultimo_costo.errors %}
                     <ul class="errors">
-                        {% for error in form.costo_pieza.errors %}
+                        {% for error in form.ultimo_costo.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
@@ -78,6 +87,49 @@
             <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
     </section>
+    <p></p>
+    {% if inventario %}
+    <section class="card card-body">
+        <h2>Inventario Actual:</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Foto de la pieza</th>
+                    <th>Nombre de la Pieza</th>
+                    <th>Numero de la Pieza</th>
+                    <th>Cantidad</th>
+                    <th>Último Costo</th>
+                    <th>Horas de Uso</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in inventario %}
+                <tr>
+                    <td>
+                        <img src="{{ item.foto_pieza.url }}" alt="Imagen de la pieza" style="max-width: 100px;">
+                    </td>
+                    <td>{{ item.nombre_pieza }}</td>
+                    <td>{{ item.numero_pieza }}</td>
+                    <td>{{ item.cantidad_pieza }}</td>
+                    <td>{{ item.ultimo_costo }}</td>
+                    <td>{{ item.horas_uso }}</td>
+                    <td>
+                        <a href="{% url 'modificar_inventario' id_inventario=inventario.id %}" class="btn btn-warning">
+                            <i class="fa-solid fa-pencil"></i> Modificar
+                        </a>
+                        <a href="{% url 'eliminar_inventario' id_inventario=inventario.id %}" class="btn btn-danger">
+                            <i class="fa-solid fa-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% else %}
+        <p>No hay elementos en el inventario.</p>
+    {% endif %}
 </main>
 {% endblock %}  <!-- Añadí el cierre del bloque 'content' aquí -->
 

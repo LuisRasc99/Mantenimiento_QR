@@ -40,7 +40,7 @@ class MaquinaForm(forms.ModelForm):
 class  InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
-        fields = ['nombre_pieza', 'numero_pieza', 'horas_uso', 'foto_pieza']
+        fields = ['nombre_pieza', 'numero_pieza','cantidad_pieza','ultimo_costo', 'horas_uso', 'foto_pieza']
 
     def __init__(self, *args, **kwargs):
         super(InventarioForm, self).__init__(*args, **kwargs)

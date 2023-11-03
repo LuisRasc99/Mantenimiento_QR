@@ -145,6 +145,8 @@ class Inventario(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre_pieza = models.TextField(max_length=100)
     numero_pieza = models.TextField(max_length=20)
+    cantidad_pieza = models.IntegerField()
+    ultimo_costo = models.DecimalField(max_digits=10, decimal_places=2)
     horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
     foto_pieza = models.ImageField(upload_to='partes/', null=True, blank=True)
 
