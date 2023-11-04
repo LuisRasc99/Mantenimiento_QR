@@ -4,9 +4,8 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Modificar inventario</h1>
+        <h1>Nuevo Inventario</h1>
     </section>
-
     {% if form.errors %}
     <div class="alert alert-danger">
         <strong>Errores:</strong>
@@ -20,7 +19,7 @@
     <p></p>
     <button class="btn btn-primary" href="{% url 'inventario' %}">
         <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
-    </button>s
+    </button>
     <p></p>
     <section class="card card-body">
         <form method="post" enctype="multipart/form-data">
@@ -28,7 +27,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <label for="nombre_pieza">Nombre de la pieza:</label>
-                    <input type="text" name="nombre_pieza" class="form-control" id="nombre_pieza" value="{{ form.nombre_pieza.value }}">
+                    <input type="text" name="nombre_pieza" class="form-control" id="nombre_pieza">
                     {% if form.nombre_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.nombre_pieza.errors %}
@@ -37,7 +36,7 @@
                     </ul>
                     {% endif %}
                     <label for="numero_pieza">Numero de la pieza:</label>
-                    <input type="text" name="numero_pieza" class="form-control" id="numero_pieza" value="{{ form.numero_pieza.value }}">
+                    <input type="text" name="numero_pieza" class="form-control" id="numero_pieza">
                     {% if form.nombre_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.nombre_pieza.errors %}
@@ -46,7 +45,7 @@
                     </ul>
                     {% endif %}
                     <label for="cantidad_pieza">Cantidad de piezas:</label>
-                    <input type="number" name="cantidad_pieza" class="form-control" id="cantidad_pieza" value="{{ form.cantidad_pieza.value }}">
+                    <input type="number" name="cantidad_pieza" class="form-control" id="cantidad_pieza">
                     {% if form.cantidad_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.cantidad_pieza.errors %}
@@ -55,7 +54,7 @@
                     </ul>
                     {% endif %}
                     <label for="ultimo_costo">Ultimo costo:</label>
-                    <input type="number" name="ultimo_costo" class="form-control" id="ultimo_costo" step="0.01" min="0" pattern="\d*" value="{{ form.ultimo_costo.value }}">
+                    <input type="number" name="ultimo_costo" class="form-control" id="ultimo_costo" step="0.01" min="0" pattern="\d*">
                     {% if form.ultimo_costo.errors %}
                     <ul class="errors">
                         {% for error in form.ultimo_costo.errors %}
@@ -64,7 +63,7 @@
                     </ul>
                     {% endif %}
                     <label for="horas_uso">Horas de uso:</label>
-                    <input type="number" name="horas_uso" class="form-control" id="horas_uso" pattern="\d*" value="{{ form.horas_uso.value }}">
+                    <input type="number" name="horas_uso" class="form-control" id="horas_uso" pattern="\d*">
                     {% if form.horas_uso.errors %}
                     <ul class="errors">
                         {% for error in form.horas_uso.errors %}
@@ -72,8 +71,8 @@
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="foto_pieza">Foto de la pieza:</label>
-                    <input type="file" name="foto_pieza" class="form-control" id="foto_pieza" pattern="\d*" value="{{ form.foto_pieza.value }}">
+                    <label for="foto_pieza">Horas de uso:</label>
+                    <input type="file" name="foto_pieza" class="form-control" id="foto_pieza" pattern="\d*">
                     {% if form.foto_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.foto_pieza.errors %}

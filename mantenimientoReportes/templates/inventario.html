@@ -6,92 +6,16 @@
     <section class="card card-body text-center">
         <h1>Inventario</h1>
     </section>
-
-    {% if form.errors %}
-    <div class="alert alert-danger">
-        <strong>Errores:</strong>
-        <ul>
-            {% for error in form.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
+    <p></p>
+    <div class="col">
+        <!-- Botón "Añadir nuevo reporte" -->
+        <a href="{% url 'nuevo_inventario' %}" class="btn btn-primary">Añadir nuevo reporte</a>
     </div>
-    {% endif %}
-
-    <button class="btn btn-primary" onclick="regresar()">
-        <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
-    </button>
-
-    <section class="card card-body">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col-md-6">
-                    <label for="nombre_pieza">Nombre de la pieza:</label>
-                    <input type="text" name="nombre_pieza" class="form-control" id="nombre_pieza">
-                    {% if form.nombre_pieza.errors %}
-                    <ul class="errors">
-                        {% for error in form.nombre_pieza.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    <label for="numero_pieza">Numero de la pieza:</label>
-                    <input type="text" name="numero_pieza" class="form-control" id="numero_pieza">
-                    {% if form.nombre_pieza.errors %}
-                    <ul class="errors">
-                        {% for error in form.nombre_pieza.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    <label for="cantidad_pieza">Cantidad de piezas:</label>
-                    <input type="number" name="cantidad_pieza" class="form-control" id="cantidad_pieza">
-                    {% if form.cantidad_pieza.errors %}
-                    <ul class="errors">
-                        {% for error in form.cantidad_pieza.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    <label for="ultimo_costo">Ultimo costo:</label>
-                    <input type="number" name="ultimo_costo" class="form-control" id="ultimo_costo" step="0.01" min="0" pattern="\d*">
-                    {% if form.ultimo_costo.errors %}
-                    <ul class="errors">
-                        {% for error in form.ultimo_costo.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    <label for="horas_uso">Horas de uso:</label>
-                    <input type="number" name="horas_uso" class="form-control" id="horas_uso" pattern="\d*">
-                    {% if form.horas_uso.errors %}
-                    <ul class="errors">
-                        {% for error in form.horas_uso.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    <label for="foto_pieza">Horas de uso:</label>
-                    <input type="file" name="foto_pieza" class="form-control" id="foto_pieza" pattern="\d*">
-                    {% if form.foto_pieza.errors %}
-                    <ul class="errors">
-                        {% for error in form.foto_pieza.errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </div>
-            </div>
-            <p></p>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-        </form>
-    </section>
     <p></p>
     {% if inventario %}
     <section class="card card-body">
         <h2>Inventario Actual:</h2>
-        <table class="table table-bordered">
+        <table>
             <thead>
                 <tr>
                     <th>Foto de la pieza</th>
@@ -115,11 +39,11 @@
                     <td>{{ item.ultimo_costo }}</td>
                     <td>{{ item.horas_uso }}</td>
                     <td>
-                        <a href="{% url 'modificar_inventario' id_inventario=inventario.id %}" class="btn btn-warning">
-                            <i class="fa-solid fa-pencil"></i> Modificar
+                        <a href="{% url 'modificar_inventario' inventario_id=item.id %}" class="btn btn-warning" >
+                            <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                         </a>
-                        <a href="{% url 'eliminar_inventario' id_inventario=inventario.id %}" class="btn btn-danger">
-                            <i class="fa-solid fa-trash"></i> Eliminar
+                        <a href="#" class="btn btn-danger" onclick="confirmarEliminacion('{{ inventario.id }}')">
+                            <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
                         </a>
                     </td>
                 </tr>
@@ -130,6 +54,14 @@
     {% else %}
         <p>No hay elementos en el inventario.</p>
     {% endif %}
+
+    <script>
+        function confirmarEliminacion(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar este elemento del inventario?")) {
+                window.location.href = "{% url 'eliminar_inventario' %}?inventario_id=" + id;
+            }
+        }
+    </script>
 </main>
 {% endblock %}  <!-- Añadí el cierre del bloque 'content' aquí -->
 
