@@ -107,16 +107,17 @@ def nuevo_inventario(request):
     
     return render(request, 'nuevo_inventario.html', {'form': form})
 
+
 @login_required
 def eliminar_inventario(request, inventario_id):
-    inventario = get_object_or_404(Inventario, id=inventario_id)
-    
     if request.method == 'POST':
-        # Si se realiza una solicitud POST, elimina la pieza de inventario y redirige a una página de confirmación o a donde desees.
+        inventario_id = request.POST.get('inventario_id')
+        inventario = get_object_or_404(Inventario, id=inventario_id)
         inventario.delete()
         return redirect('inventario')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
     
-    return render(request, 'eliminar_inventario.html', {'inventario': inventario})
+    # Si la solicitud no es POST, puedes mostrar un mensaje de error o redirigir a alguna otra vista.
+    return redirect('inventario') 
 
 @login_required
 def modificar_inventario(request, inventario_id):
