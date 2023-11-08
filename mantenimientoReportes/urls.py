@@ -16,6 +16,11 @@ urlpatterns = [
     path('panel/inventario/modificar/<int:inventario_id>/', views.modificar_inventario, name='modificar_inventario'),
     path('panel/inventario/eliminar/<int:inventario_id>/', views.eliminar_inventario, name='eliminar_inventario'),
 
+    path('panel/partes', views.partes, name='partes'),
+    path('panel/partes/nuevo', views.nuevo_inventario, name='nuevo_partes'),
+    path('panel/partes/modificar/<int:partes_id>/', views.modificar_partes, name='modificar_partes'),
+    path('panel/partes/eliminar/<int:partes_id>/', views.eliminar_partes, name='eliminar_partes'),
+
     path('nuevo/', views.nuevo_reporte, name='nuevo_reporte'),
     path('modificar/<int:id_reporte>/', views.modificar_reporte, name='modificar_reporte'),
     path('eliminar/<int:id_reporte>/', views.eliminar_reporte, name='eliminar_reporte'),

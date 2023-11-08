@@ -45,3 +45,12 @@ class  InventarioForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(InventarioForm, self).__init__(*args, **kwargs)
         self.fields['foto_pieza'].required = True
+
+class  PartesForm(forms.ModelForm):
+    class Meta:
+        model = Inventario
+        fields = ['nombre_parte', 'numero_parte','cantidad_partes','ultimo_costo', 'horas_uso', 'foto_partes']
+
+    def __init__(self, *args, **kwargs):
+        super(InventarioForm, self).__init__(*args, **kwargs)
+        self.fields['foto_partes'].required = True

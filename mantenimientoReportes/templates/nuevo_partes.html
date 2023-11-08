@@ -4,7 +4,7 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Nuevo Inventario</h1>
+        <h1>Agregar parte</h1>
     </section>
     {% if form.errors %}
     <div class="alert alert-danger">
@@ -17,7 +17,7 @@
     </div>
     {% endif %}
     <p></p>
-    <a class="btn btn-primary" href="{% url 'inventario' %}">
+    <a class="btn btn-primary" href="{% url 'partes' %}">
         <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
     </a>
     <p></p>

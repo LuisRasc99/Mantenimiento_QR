@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import MaquinaForm, InventarioForm, ReporteForm, ReporteUpdateForm
-from .models import Historial, Maquina, Inventario, Reportes
+from .forms import MaquinaForm, InventarioForm, PartesForm, ReporteForm, ReporteUpdateForm
+from .models import Historial, Maquina, Inventario, Partes, Reportes
 from django.contrib import messages
 import qrcode
 import os
@@ -133,6 +133,63 @@ def modificar_inventario(request, inventario_id):
         form = InventarioForm(instance=inventario)  # Pasa el formulario con la instancia del inventario
     
     return render(request, 'modificar_inventario.html', {'form': form, 'inventario': inventario})
+
+@login_required
+def partes(request):
+    partes = Partes.objects.filter(user=request.user)  # Filtra el inventario del usuario actual
+    if request.method == 'POST':
+        form = PartesForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Asignar el usuario actual al campo 'user' del formulario
+            form.instance.user = request.user
+            form.save()
+            return redirect('partes')
+    else:
+        form = PartesForm()
+
+    partes = Partes.objects.all()
+    return render(request, 'partes.html', {'form': form, 'partes': partes})
+
+@login_required
+def nuevo_partes(request):
+    if request.method == 'POST':
+        form = PartesForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Asignar el usuario actual al campo 'user' del formulario
+            form.instance.user = request.user
+            form.save()
+            return redirect('partes')
+    else:
+        form = PartesForm()
+    
+    return render(request, 'nuevo_partes.html', {'form': form})
+
+
+@login_required
+def eliminar_partes(request, partes_id):
+    if request.method == 'POST':
+        partes_id = request.POST.get('partes_id')
+        partes = get_object_or_404(Partes, id=partes_id)
+        partes.delete()
+        return redirect('partes')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+    
+    # Si la solicitud no es POST, puedes mostrar un mensaje de error o redirigir a alguna otra vista.
+    return redirect('partes') 
+
+@login_required
+def modificar_partes(request, partes_id):
+    partes = get_object_or_404(Partes, id=partes_id)
+    
+    if request.method == 'POST':
+        # Procesa el formulario de modificación aquí y guarda los cambios en el inventario
+        form = PartesForm(request.POST, request.FILES, instance=partes)  # Pasa el formulario con la instancia del inventario
+        if form.is_valid():
+            form.save()
+            return redirect('partes')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+    else:
+        form = PartesForm(instance=partes)  # Pasa el formulario con la instancia del inventario
+    
+    return render(request, 'modificar_partes.html', {'form': form, 'partes': partes})
 
 @login_required
 def nuevo_reporte(request):

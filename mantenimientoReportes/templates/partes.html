@@ -4,12 +4,12 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Partes</h1>
+        <h1>Inventario</h1>
     </section>
     <p></p>
     <div class="col">
         <!-- Botón "Añadir nuevo reporte" -->
-        <a href="" class="btn btn-primary">Añadir parte</a>
+        <a href="{% url 'nuevo_inventario' %}" class="btn btn-primary">Añadir nuevo inventario</a>
     </div>
     <p></p>
     {% if inventario %}
@@ -42,9 +42,15 @@
                         <a href="{% url 'modificar_inventario' inventario_id=item.id %}" class="btn btn-warning" >
                             <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                         </a>
-                        <a href="#" class="btn btn-danger" onclick="confirmarEliminacion('{{ inventario.id }}')">
-                            <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
-                        </a>
+                        <form method="post" action="{% url 'eliminar_inventario' inventario_id=item.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="inventario_id" value="{{ item.id }}">
+                            <button type="button" class="btn btn-danger eliminar-item" data-inventario-id="{{ item.id }}">
+                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                            </button>
+                        </form>
+                        
+                        
                     </td>
                 </tr>
             {% endfor %}
@@ -54,13 +60,22 @@
     {% else %}
         <p>No hay elementos en el inventario.</p>
     {% endif %}
-
     <script>
-        function confirmarEliminacion(id) {
-            if (confirm("¿Estás seguro de que deseas eliminar este elemento del inventario?")) {
-                window.location.href = "{% url 'eliminar_inventario' %}?inventario_id=" + id;
-            }
-        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const eliminarBotones = document.querySelectorAll(".eliminar-item");
+    
+            eliminarBotones.forEach(function (boton) {
+                boton.addEventListener("click", function () {
+                    if (confirm("¿Estás seguro de que deseas eliminar este elemento del inventario?")) {
+                        // Si se confirma, envía el formulario.
+                        boton.closest("form").submit();
+                    }
+                });
+            });
+        });
     </script>
+    
 </main>
 {% endblock %}  <!-- Añadí el cierre del bloque 'content' aquí -->
+
+
