@@ -20,9 +20,10 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ maquina.nombre_maquina }} </h5>
                             <h6 class="card-text">{{ maquina.marca }} {{ maquina.modelo }} </h6>
+                            <h6 class="card-text">{{ maquina.contador_horas }} </h6>
                         </div>
                         <div class="btn-group" role="group" aria-label="Botones de acción">
-                            <a href="" class="btn btn-info">
+                            <a href="{% url 'partes' maquina_id=maquina.id %}" class="btn btn-info">
                                 <i class="fa-solid fa-wrench" style="color: #ffffff;"></i>
                             </a>
                             <a href="{% url 'modificar_maquina' maquina_id=maquina.id %}" class="btn btn-warning">

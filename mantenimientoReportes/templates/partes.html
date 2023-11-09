@@ -4,47 +4,50 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Inventario</h1>
+        <h1>Partes</h1>
     </section>
     <p></p>
     <div class="col">
         <!-- Botón "Añadir nuevo reporte" -->
-        <a href="{% url 'nuevo_inventario' %}" class="btn btn-primary">Añadir nuevo inventario</a>
+        <a href="{% url 'nuevo_partes' %}" class="btn btn-primary">Añadir partes</a>
     </div>
     <p></p>
-    {% if inventario %}
+    {% if partes %}
     <section class="card card-body">
-        <h2>Inventario Actual:</h2>
+        <h2 class="card-title">Partes de{{ maquina.nombre_maquina }} </h2>
+        <h3 class="card-text">Partes de{{ maquina.contador_horas }} </h3>
         <table>
             <thead>
                 <tr>
-                    <th>Foto de la pieza</th>
+                    <th>Foto de la Pieza</th>
                     <th>Nombre de la Pieza</th>
                     <th>Numero de la Pieza</th>
                     <th>Cantidad</th>
                     <th>Último Costo</th>
                     <th>Horas de Uso</th>
+                    <th>Horas de Restantes</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-            {% for item in inventario %}
+            {% for item in partes %}
                 <tr>
                     <td>
-                        <img src="{{ item.foto_pieza.url }}" alt="Imagen de la pieza" style="max-width: 100px;">
+                        <img src="{{ item.foto_partes.url }}" alt="Imagen de la parte" style="max-width: 100px;">
                     </td>
-                    <td>{{ item.nombre_pieza }}</td>
-                    <td>{{ item.numero_pieza }}</td>
-                    <td>{{ item.cantidad_pieza }}</td>
+                    <td>{{ item.nombre_partes }}</td>
+                    <td>{{ item.numero_partes }}</td>
+                    <td>{{ item.cantidad_partes }}</td>
                     <td>{{ item.ultimo_costo }}</td>
                     <td>{{ item.horas_uso }}</td>
+                    <td>{{ item.horas_restantes }}</td>
                     <td>
-                        <a href="{% url 'modificar_inventario' inventario_id=item.id %}" class="btn btn-warning" >
+                        <a href="{% url 'modificar_partes' partes_id=item.id %}" class="btn btn-warning" >
                             <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                         </a>
-                        <form method="post" action="{% url 'eliminar_inventario' inventario_id=item.id %}">
+                        <form method="post" action="{% url 'eliminar_partes' partes_id=item.id %}">
                             {% csrf_token %}
-                            <input type="hidden" name="inventario_id" value="{{ item.id }}">
+                            <input type="hidden" name="partes_id" value="{{ item.id }}">
                             <button type="button" class="btn btn-danger eliminar-item" data-inventario-id="{{ item.id }}">
                                 <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
                             </button>
@@ -58,7 +61,7 @@
         </table>
     </section>
     {% else %}
-        <p>No hay elementos en el inventario.</p>
+        <p>No hay piezas</p>
     {% endif %}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -66,7 +69,7 @@
     
             eliminarBotones.forEach(function (boton) {
                 boton.addEventListener("click", function () {
-                    if (confirm("¿Estás seguro de que deseas eliminar este elemento del inventario?")) {
+                    if (confirm("¿Estás seguro de que deseas esta pieza?")) {
                         // Si se confirma, envía el formulario.
                         boton.closest("form").submit();
                     }

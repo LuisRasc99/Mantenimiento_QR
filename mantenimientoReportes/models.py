@@ -24,11 +24,12 @@ class Maquina(models.Model):
     nombre_maquina = models.TextField(max_length=100)
     marca = models.TextField(max_length=100)
     modelo = models.TextField(max_length=100)
+    contador_horas = models.DecimalField(max_digits=10, decimal_places=2)
     foto_maquina = models.ImageField(upload_to='maquinas/', null=True, blank=True)
 
     def __str__(self):
         return self.nombre_maquina
-    
+
 class Inventario(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre_pieza = models.TextField(max_length=100)
@@ -50,9 +51,12 @@ class Partes(models.Model):
     horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
     horas_restantes = models.DecimalField(max_digits=10, decimal_places=2)
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
+    maquinas = models.ManyToManyField(Maquina, related_name='partes')
+    inventarios = models.ManyToManyField(Inventario, related_name='partes')
+    
 
     def __str__(self):
-        return self.nombre_pieza
+        return self.nombre_partes
 
 class Reportes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
