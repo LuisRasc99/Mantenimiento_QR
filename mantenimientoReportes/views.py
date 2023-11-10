@@ -150,34 +150,47 @@ def partes(request, maquina_id):
     maquina = get_object_or_404(Maquina, pk=maquina_id)
     partes = Partes.objects.filter(maquinas=maquina)
 
-    if request.method == 'POST':
-        form = PartesForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_parte = form.save(commit=False)
-            new_parte.user = request.user
-            new_parte.save()
-            maquina.partes.add(new_parte)  # Agregar esta parte a la máquina
+    return render(request, 'partes.html', {'maquina': maquina, 'partes': partes})
 
-            # Redireccionar a la lista de partes de la máquina
-            return redirect('mantenimientoReportes:partes', maquina_id=maquina.id)
-    else:
-        form = PartesForm()
-
-    return render(request, 'partes.html', {'maquina': maquina, 'form': form, 'partes': partes})
 
 @login_required
-def nuevo_partes(request):
+def nuevo_partes(request, maquina_id):
     if request.method == 'POST':
         form = PartesForm(request.POST, request.FILES)
         if form.is_valid():
-            # Asignar el usuario actual al campo 'user' del formulario
+            # Asignar el usuario actual y la máquina al campo 'user' y 'maquinas' del formulario
             form.instance.user = request.user
-            form.save()
-            return redirect('partes')
+            maquina = get_object_or_404(Maquina, id=maquina_id)
+            form.instance.maquinas = maquina
+
+            # Guardar la parte
+            nueva_parte = form.save()
+
+            # Verificar si ya existe un elemento en el inventario
+            inventario_existente = Inventario.objects.filter(
+                nombre_partes=nueva_parte.nombre_partes,
+                numero_partes=nueva_parte.numero_partes
+            ).first()
+
+            if not inventario_existente:
+                # Si no existe, crea un nuevo elemento en el inventario
+                Inventario.objects.create(
+                    user=request.user,
+                    nombre_partes=nueva_parte.nombre_partes,
+                    numero_partes=nueva_parte.numero_partes,
+                    cantidad_partes=nueva_parte.cantidad_partes,
+                    costo_aproximado=nueva_parte.costo_aproximado,
+                    horas_uso=nueva_parte.horas_uso,
+                    foto_parte=nueva_parte.foto_partes
+                )
+
+            return redirect('partes', maquina_id=maquina_id)
+
     else:
         form = PartesForm()
-    
-    return render(request, 'nuevo_partes.html', {'form': form})
+
+    return render(request, 'nuevo_partes.html', {'form': form, 'maquina_id': maquina_id})
+
 
 
 @login_required

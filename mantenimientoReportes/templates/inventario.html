@@ -7,20 +7,15 @@
         <h1>Inventario</h1>
     </section>
     <p></p>
-    <div class="col">
-        <!-- Botón "Añadir nuevo reporte" -->
-        <a href="{% url 'nuevo_inventario' %}" class="btn btn-primary">Añadir nuevo inventario</a>
-    </div>
-    <p></p>
     {% if inventario %}
     <section class="card card-body">
         <h2>Inventario Actual:</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Foto de la pieza</th>
-                    <th>Nombre de la Pieza</th>
-                    <th>Numero de la Pieza</th>
+                    <th>Foto de la parte</th>
+                    <th>Nombre de la Parte</th>
+                    <th>Numero de la Parte</th>
                     <th>Cantidad</th>
                     <th>Último Costo</th>
                     <th>Horas de Uso</th>
@@ -31,11 +26,11 @@
             {% for item in inventario %}
                 <tr>
                     <td>
-                        <img src="{{ item.foto_pieza.url }}" alt="Imagen de la pieza" style="max-width: 100px;">
+                        <img src="{{ item.foto_parte.url }}" alt="Imagen de la parte" style="max-width: 100px;">
                     </td>
-                    <td>{{ item.nombre_pieza }}</td>
-                    <td>{{ item.numero_pieza }}</td>
-                    <td>{{ item.cantidad_pieza }}</td>
+                    <td>{{ item.nombre_partes }}</td>
+                    <td>{{ item.numero_partes }}</td>
+                    <td>{{ item.cantidad_partes }}</td>
                     <td>{{ item.ultimo_costo }}</td>
                     <td>{{ item.horas_uso }}</td>
                     <td>
@@ -49,8 +44,6 @@
                                 <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
                             </button>
                         </form>
-                        
-                        
                     </td>
                 </tr>
             {% endfor %}
@@ -74,8 +67,8 @@
             });
         });
     </script>
-    
 </main>
-{% endblock %}  <!-- Añadí el cierre del bloque 'content' aquí -->
+{% endblock %}
+  <!-- Añadí el cierre del bloque 'content' aquí -->
 
 

@@ -17,38 +17,39 @@
     </div>
     {% endif %}
     <p></p>
-    <a class="btn btn-primary" href="{% url 'partes' %}">
-        <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+    <a class="btn btn-primary" href="{% url 'partes' maquina_id=maquina.id %}">
+        <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i> 
     </a>
+
     <p></p>
     <section class="card card-body">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
                 <div class="col-md-6">
-                    <label for="nombre_pieza">Nombre de la pieza:</label>
-                    <input type="text" name="nombre_pieza" class="form-control" id="nombre_pieza">
-                    {% if form.nombre_pieza.errors %}
+                    <label for="nombre_partes">Nombre de la parte:</label>
+                    <input type="text" name="nombre_partes" class="form-control" id="nombre_partes">
+                    {% if form.nombre_partes.errors %}
                     <ul class="errors">
-                        {% for error in form.nombre_pieza.errors %}
+                        {% for error in form.nombre_partes.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="numero_pieza">Numero de la pieza:</label>
-                    <input type="text" name="numero_pieza" class="form-control" id="numero_pieza">
-                    {% if form.nombre_pieza.errors %}
+                    <label for="numero_partes">Numero de la parte:</label>
+                    <input type="text" name="numero_partes" class="form-control" id="numero_partes">
+                    {% if form.numero_partes.errors %}
                     <ul class="errors">
-                        {% for error in form.nombre_pieza.errors %}
+                        {% for error in form.numero_partes.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="cantidad_pieza">Cantidad de piezas:</label>
-                    <input type="number" name="cantidad_pieza" class="form-control" id="cantidad_pieza">
-                    {% if form.cantidad_pieza.errors %}
+                    <label for="cantidad_partes">Cantidad de partes:</label>
+                    <input type="number" name="cantidad_partes" class="form-control" id="cantidad_partes">
+                    {% if form.cantidad_partes.errors %}
                     <ul class="errors">
-                        {% for error in form.cantidad_pieza.errors %}
+                        {% for error in form.cantidad_partes.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
@@ -71,11 +72,11 @@
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="foto_pieza">Foto de la pieza:</label>
-                    <input type="file" name="foto_pieza" class="form-control" id="foto_pieza" pattern="\d*">
-                    {% if form.foto_pieza.errors %}
+                    <label for="foto_partes">Foto de la parte:</label>
+                    <input type="file" name="foto_partes" class="form-control" id="foto_partes" pattern="\d*" accept="image/*">
+                    {% if form.foto_partes.errors %}
                     <ul class="errors">
-                        {% for error in form.foto_pieza.errors %}
+                        {% for error in form.foto_partes.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
@@ -87,6 +88,7 @@
         </form>
     </section>
 </main>
-{% endblock %}  <!-- Añadí el cierre del bloque 'content' aquí -->
+{% endblock %}
+
 
 

@@ -72,7 +72,7 @@
                     </ul>
                     {% endif %}
                     <label for="foto_pieza">Foto de la pieza:</label>
-                    <input type="file" name="foto_pieza" class="form-control" id="foto_pieza" pattern="\d*">
+                    <input type="file" name="foto_pieza" class="form-control" id="foto_pieza" pattern="\d*" accept="image/*">
                     {% if form.foto_pieza.errors %}
                     <ul class="errors">
                         {% for error in form.foto_pieza.errors %}

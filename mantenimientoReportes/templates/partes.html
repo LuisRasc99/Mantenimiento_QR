@@ -4,62 +4,55 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Partes</h1>
+        <h1>Partes de {{ maquina.nombre_maquina }} {{ maquina.marca }} {{ maquina.modelo }}</h1>
+        <h2>Contador de horas: {{ maquina.contador_horas }}</h2>
+        <h3>Ultima actualización:</h3>
     </section>
     <p></p>
     <div class="col">
         <!-- Botón "Añadir nuevo reporte" -->
-        <a href="{% url 'nuevo_partes' %}" class="btn btn-primary">Añadir partes</a>
+        <a href="{% url 'nuevo_partes' maquina_id=maquina.id %}" class="btn btn-primary">Añadir partes</a>
     </div>
     <p></p>
     {% if partes %}
-    <section class="card card-body">
-        <h2 class="card-title">Partes de{{ maquina.nombre_maquina }} </h2>
-        <h3 class="card-text">Partes de{{ maquina.contador_horas }} </h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Foto de la Pieza</th>
-                    <th>Nombre de la Pieza</th>
-                    <th>Numero de la Pieza</th>
-                    <th>Cantidad</th>
-                    <th>Último Costo</th>
-                    <th>Horas de Uso</th>
-                    <th>Horas de Restantes</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="row">
             {% for item in partes %}
-                <tr>
-                    <td>
-                        <img src="{{ item.foto_partes.url }}" alt="Imagen de la parte" style="max-width: 100px;">
-                    </td>
-                    <td>{{ item.nombre_partes }}</td>
-                    <td>{{ item.numero_partes }}</td>
-                    <td>{{ item.cantidad_partes }}</td>
-                    <td>{{ item.ultimo_costo }}</td>
-                    <td>{{ item.horas_uso }}</td>
-                    <td>{{ item.horas_restantes }}</td>
-                    <td>
-                        <a href="{% url 'modificar_partes' partes_id=item.id %}" class="btn btn-warning" >
-                            <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
-                        </a>
-                        <form method="post" action="{% url 'eliminar_partes' partes_id=item.id %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="partes_id" value="{{ item.id }}">
-                            <button type="button" class="btn btn-danger eliminar-item" data-inventario-id="{{ item.id }}">
-                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
-                            </button>
-                        </form>
-                        
-                        
-                    </td>
-                </tr>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ item.foto_partes.url }}" class="card-img-top" alt="Imagen de la parte" style="max-height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.nombre_partes }}</h5>
+                            <p class="card-text">Número: {{ item.numero_partes }}</p>
+                            <p class="card-text">Horas de Uso: {{ item.horas_uso }}</p>
+                            <p class="card-text">Horas Restantes: {{ item.horas_restantes }}</p>
+                            <a href="{% url 'modificar_partes' partes_id=item.id %}" class="btn btn-warning">
+                                <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
+                            </a>
+                            <form method="post" action="{% url 'eliminar_partes' partes_id=item.id %}" style="display: inline-block;">
+                                {% csrf_token %}
+                                <input type="hidden" name="partes_id" value="{{ item.id }}">
+                                <button type="button" class="btn btn-danger eliminar-item" data-inventario-id="{{ item.id }}">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-            </tbody>
-        </table>
-    </section>
+        </div>
+        <div class="row">
+            <div class="col">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        {% for i in partes.paginator.page_range %}
+                            <li class="page-item {% if partes.number == i %}active{% endif %}">
+                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
     {% else %}
         <p>No hay piezas</p>
     {% endif %}
@@ -77,8 +70,5 @@
             });
         });
     </script>
-    
 </main>
-{% endblock %}  <!-- Añadí el cierre del bloque 'content' aquí -->
-
-
+{% endblock %}

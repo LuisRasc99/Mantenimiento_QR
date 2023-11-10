@@ -32,31 +32,33 @@ class Maquina(models.Model):
 
 class Inventario(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    nombre_pieza = models.TextField(max_length=100)
-    numero_pieza = models.TextField(max_length=20)
-    cantidad_pieza = models.IntegerField()
-    ultimo_costo = models.DecimalField(max_digits=10, decimal_places=2)
+    nombre_partes = models.TextField(max_length=100)
+    numero_partes = models.TextField(max_length=20)
+    cantidad_partes = models.IntegerField()
+    costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
     horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
-    foto_pieza = models.ImageField(upload_to='inventario/', null=True, blank=True)
+    foto_parte = models.ImageField(upload_to='partes/', null=True, blank=True)
 
     def __str__(self):
-        return self.nombre_pieza
-    
+        return self.nombre_partes
+
 class Partes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre_partes = models.TextField(max_length=100)
     numero_partes = models.TextField(max_length=20)
     cantidad_partes = models.IntegerField()
-    ultimo_costo = models.DecimalField(max_digits=10, decimal_places=2)
+    costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
     horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
-    horas_restantes = models.DecimalField(max_digits=10, decimal_places=2)
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
-    maquinas = models.ManyToManyField(Maquina, related_name='partes')
-    inventarios = models.ManyToManyField(Inventario, related_name='partes')
-    
+    maquinas = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='partes')
+    inventarios = models.ForeignKey(Inventario, on_delete=models.CASCADE, related_name='partes', null=True, blank=True)
 
     def __str__(self):
         return self.nombre_partes
+
+
+
+
 
 class Reportes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
