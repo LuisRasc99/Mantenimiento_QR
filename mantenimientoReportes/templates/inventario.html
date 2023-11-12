@@ -7,48 +7,106 @@
         <h1>Inventario</h1>
     </section>
     <p></p>
+    <section class="card card-body">
+        <form method="get" class="form-inline">
+            <div class="mb-3">
+                <label for="nombre_partes">Nombre de la parte:</label>
+                <input type="text" name="nombre_partes" class="form-control" id="nombre_partes">
+            </div>
+            <div class="mb-3">
+                <label for="numero_partes">Numero de la parte:</label>
+                <input type="text" name="numero_partes" class="form-control" id="numero_partes">
+                </div>
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-search" style="color: #ffffff;"></i> Buscar
+            </button>
+        </form>
+    </section>
+    <p></p>
+    <p></p>
+    <div class="col">
+        <a href="{% url 'nuevo_inventario' %}" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
+        </a>
+    </div>
+    <p></p>
     {% if inventario %}
+    
     <section class="card card-body">
         <h2>Inventario Actual:</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Foto de la parte</th>
-                    <th>Nombre de la Parte</th>
-                    <th>Numero de la Parte</th>
-                    <th>Cantidad</th>
-                    <th>Último Costo</th>
-                    <th>Horas de Uso</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for item in inventario %}
-                <tr>
-                    <td>
-                        <img src="{{ item.foto_parte.url }}" alt="Imagen de la parte" style="max-width: 100px;">
-                    </td>
-                    <td>{{ item.nombre_partes }}</td>
-                    <td>{{ item.numero_partes }}</td>
-                    <td>{{ item.cantidad_partes }}</td>
-                    <td>{{ item.ultimo_costo }}</td>
-                    <td>{{ item.horas_uso }}</td>
-                    <td>
-                        <a href="{% url 'modificar_inventario' inventario_id=item.id %}" class="btn btn-warning" >
-                            <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
-                        </a>
-                        <form method="post" action="{% url 'eliminar_inventario' inventario_id=item.id %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="inventario_id" value="{{ item.id }}">
-                            <button type="button" class="btn btn-danger eliminar-item" data-inventario-id="{{ item.id }}">
-                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Foto de la parte</th>
+                        <th>Nombre de la Parte</th>
+                        <th>Numero de la Parte</th>
+                        <th>Cantidad</th>
+                        <th>Costo aproximado</th>
+                        <th>Horas de Uso</th>
+                        <th>Máquinas Asociadas</th>  <!-- Nueva columna -->
+                        <th class="d-none d-sm-table-cell">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in inventario %}
+                    <tr>
+                        <td>
+                            <img src="{{ item.foto_partes.url }}" alt="Imagen de la parte" style="max-width: 100px;">
+                        </td>
+                        <td>{{ item.nombre_partes }}</td>
+                        <td>{{ item.numero_partes }}</td>
+                        <td>{{ item.cantidad_partes }}</td>
+                        <td>{{ item.costo_aproximado }}</td>
+                        <td>{{ item.horas_uso }}</td>
+                        <td>
+                            {% with datos_maquina=item.obtener_datos_maquina %}
+                                {% if datos_maquina %}
+                                    <p>Nombre: {{ datos_maquina.nombre_maquina }}</p>
+                                    <p>Marca: {{ datos_maquina.marca }}</p>
+                                    <p>Modelo: {{ datos_maquina.modelo }}</p>
+                                {% else %}
+                                    <p>No hay máquinas asociadas.</p>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        
+                        <td class="d-none d-sm-table-cell">
+                            <a href="{% url 'modificar_inventario' inventario_id=item.id %}" class="btn btn-warning btn-sm" >
+                                <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
+                            </a>
+                            <form method="post" action="{% url 'eliminar_inventario' inventario_id=item.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="inventario_id" value="{{ item.id }}">
+                                <button type="button" class="btn btn-danger btn-sm eliminar-item" data-inventario-id="{{ item.id }}">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if inventario.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if inventario.has_previous %}
+                        <a href="?page=1">&laquo; primera</a>
+                        <a href="?page={{ inventario.previous_page_number }}">anterior</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Página {{ inventario.number }} de {{ inventario.paginator.num_pages }}.
+                    </span>
+
+                    {% if inventario.has_next %}
+                        <a href="?page={{ inventario.next_page_number }}">siguiente</a>
+                        <a href="?page={{ inventario.paginator.num_pages }}">última &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
     </section>
     {% else %}
         <p>No hay elementos en el inventario.</p>
@@ -69,6 +127,5 @@
     </script>
 </main>
 {% endblock %}
-  <!-- Añadí el cierre del bloque 'content' aquí -->
 
 

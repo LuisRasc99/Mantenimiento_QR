@@ -30,17 +30,6 @@ class Maquina(models.Model):
     def __str__(self):
         return self.nombre_maquina
 
-class Inventario(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    nombre_partes = models.TextField(max_length=100)
-    numero_partes = models.TextField(max_length=20)
-    cantidad_partes = models.IntegerField()
-    costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
-    horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
-    foto_parte = models.ImageField(upload_to='partes/', null=True, blank=True)
-
-    def __str__(self):
-        return self.nombre_partes
 
 class Partes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -51,11 +40,39 @@ class Partes(models.Model):
     horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
     maquinas = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='partes')
-    inventarios = models.ForeignKey(Inventario, on_delete=models.CASCADE, related_name='partes', null=True, blank=True)
+    inventarios = models.ForeignKey('Inventario', on_delete=models.CASCADE, related_name='partes', null=True, blank=True)
 
     def __str__(self):
         return self.nombre_partes
 
+class Inventario(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    nombre_partes = models.TextField(max_length=100)
+    numero_partes = models.TextField(max_length=20)
+    cantidad_partes = models.IntegerField()
+    costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
+    horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
+    foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
+    
+
+    def __str__(self):
+        return self.nombre_partes
+    
+    def obtener_datos_maquina(self):
+        # Accede a los datos de la máquina a través de la relación inversa con Partes
+        if self.partes.exists():
+            # Utiliza first() para obtener la primera parte asociada
+            parte_asociada = self.partes.first()
+            maquina_asociada = parte_asociada.maquinas
+            return {
+                'nombre_maquina': maquina_asociada.nombre_maquina,
+                'marca': maquina_asociada.marca,
+                'modelo': maquina_asociada.modelo,
+                'contador_horas': maquina_asociada.contador_horas,
+                'foto_maquina': maquina_asociada.foto_maquina.url if maquina_asociada.foto_maquina else None,
+            }
+        else:
+            return None
 
 
 

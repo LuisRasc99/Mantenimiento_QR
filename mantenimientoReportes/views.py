@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import MaquinaForm, InventarioForm, PartesForm, ReporteForm, ReporteUpdateForm
+from .filters import InventarioFilter
+from .forms import  MaquinaForm, InventarioForm, PartesForm, ReporteForm, ReporteUpdateForm
 from .models import Historial, Maquina, Inventario, Partes, Reportes
 from django.contrib import messages
 import qrcode
@@ -21,6 +22,7 @@ from django.db.models import Q
 from django.http import FileResponse 
 import io
 from django.utils import timezone
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 from .models import Reportes
@@ -77,34 +79,48 @@ def eliminar_maquina(request, maquina_id):
     
     return render(request, 'eliminar_maquina.html', {'maquina': maquina})
 
+
 @login_required
 def inventario(request):
-    inventario = Inventario.objects.filter(user=request.user)  # Filtra el inventario del usuario actual
-    if request.method == 'POST':
-        form = InventarioForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Asignar el usuario actual al campo 'user' del formulario
-            form.instance.user = request.user
-            form.save()
-            return redirect('inventario')
-    else:
-        form = InventarioForm()
+    inventario = Inventario.objects.filter(user=request.user)
+    queryset = Inventario.objects.filter(user=request.user)
+    filter = InventarioFilter(request.GET, queryset=queryset)
 
-    inventario = Inventario.objects.all()
-    return render(request, 'inventario.html', {'form': form, 'inventario': inventario})
+    # Obtener las máquinas asociadas para cada elemento del inventario
+    for item in filter.qs:
+        item.maquinas_asociadas = [parte.maquinas for parte in item.partes.all()]
+
+    elementos_por_pagina = 10
+    paginator = Paginator(filter.qs, elementos_por_pagina)
+
+    page = request.GET.get('page')
+
+    try:
+        inventario_paginado = paginator.page(page)
+    except PageNotAnInteger:
+        inventario_paginado = paginator.page(1)
+    except EmptyPage:
+        inventario_paginado = paginator.page(paginator.num_pages)
+
+    return render(request, 'inventario.html', {'inventario': inventario_paginado, 'filter': filter})
+
+
+
+
+
+
 
 @login_required
 def nuevo_inventario(request):
     if request.method == 'POST':
         form = InventarioForm(request.POST, request.FILES)
         if form.is_valid():
-            # Asignar el usuario actual al campo 'user' del formulario
             form.instance.user = request.user
             form.save()
             return redirect('inventario')
     else:
         form = InventarioForm()
-    
+
     return render(request, 'nuevo_inventario.html', {'form': form})
 
 
@@ -112,68 +128,79 @@ def nuevo_inventario(request):
 @login_required
 def eliminar_inventario(request, inventario_id):
     if request.method == 'POST':
-        inventario_id = request.POST.get('inventario_id')
         inventario = get_object_or_404(Inventario, id=inventario_id)
-        
+
         # Guarda la ruta del archivo de imagen
-        imagen_path = inventario.foto_pieza.path
-        
-        # Elimina el elemento del inventario
+        imagen_path = inventario.foto_partes.path
+
+        # Elimina la entrada del inventario
         inventario.delete()
-        
+
         # Verifica si la foto existe y la elimina del sistema de archivos
         if os.path.exists(imagen_path):
             os.remove(imagen_path)
-        
-        return redirect('inventario')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
 
-    # Si la solicitud no es POST, puedes mostrar un mensaje de error o redirigir a alguna otra vista.
+        return redirect('inventario')
+
     return redirect('inventario')
 
 @login_required
 def modificar_inventario(request, inventario_id):
     inventario = get_object_or_404(Inventario, id=inventario_id)
-    
+
     if request.method == 'POST':
-        # Procesa el formulario de modificación aquí y guarda los cambios en el inventario
-        form = InventarioForm(request.POST, request.FILES, instance=inventario)  # Pasa el formulario con la instancia del inventario
+        form = InventarioForm(request.POST, request.FILES, instance=inventario)
         if form.is_valid():
             form.save()
-            return redirect('inventario')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+            return redirect('inventario')
     else:
-        form = InventarioForm(instance=inventario)  # Pasa el formulario con la instancia del inventario
-    
+        form = InventarioForm(instance=inventario)
+
     return render(request, 'modificar_inventario.html', {'form': form, 'inventario': inventario})
 
 @login_required
 def partes(request, maquina_id):
     maquina = get_object_or_404(Maquina, pk=maquina_id)
-    partes = Partes.objects.filter(maquinas=maquina)
+    # Obtiene todas las partes relacionadas con la máquina y el usuario actual
+    partes = Partes.objects.filter(user=request.user, maquinas__id=maquina_id)
+    
 
-    return render(request, 'partes.html', {'maquina': maquina, 'partes': partes})
+    # Paginación
+    page = request.GET.get('page', 1)
+    paginator = Paginator(partes, 10)  # Muestra 10 partes por página
+    try:
+        partes = paginator.page(page)
+    except PageNotAnInteger:
+        partes = paginator.page(1)
+    except EmptyPage:
+        partes = paginator.page(paginator.num_pages)
+
+    # Renderiza la página 'partes' con la lista de partes
+    return render(request, 'partes.html', {'partes': partes, 'maquina': maquina,})
 
 
 @login_required
 def nuevo_partes(request, maquina_id):
+    maquina = get_object_or_404(Maquina, pk=maquina_id)
+
     if request.method == 'POST':
         form = PartesForm(request.POST, request.FILES)
         if form.is_valid():
-            # Asignar el usuario actual y la máquina al campo 'user' y 'maquinas' del formulario
+            # Asigna el usuario actual y la máquina al campo 'user' y 'maquinas' del formulario
             form.instance.user = request.user
-            maquina = get_object_or_404(Maquina, id=maquina_id)
             form.instance.maquinas = maquina
 
-            # Guardar la parte
+            # Guarda la nueva parte
             nueva_parte = form.save()
 
-            # Verificar si ya existe un elemento en el inventario
+            # Verifica si la parte existe en el Inventario
             inventario_existente = Inventario.objects.filter(
                 nombre_partes=nueva_parte.nombre_partes,
                 numero_partes=nueva_parte.numero_partes
             ).first()
 
             if not inventario_existente:
-                # Si no existe, crea un nuevo elemento en el inventario
+                # Crea el objeto Inventario si no existe
                 Inventario.objects.create(
                     user=request.user,
                     nombre_partes=nueva_parte.nombre_partes,
@@ -181,53 +208,51 @@ def nuevo_partes(request, maquina_id):
                     cantidad_partes=nueva_parte.cantidad_partes,
                     costo_aproximado=nueva_parte.costo_aproximado,
                     horas_uso=nueva_parte.horas_uso,
-                    foto_parte=nueva_parte.foto_partes
+                    foto_partes=nueva_parte.foto_partes
                 )
 
             return redirect('partes', maquina_id=maquina_id)
-
     else:
         form = PartesForm()
 
-    return render(request, 'nuevo_partes.html', {'form': form, 'maquina_id': maquina_id})
-
+    return render(request, 'nuevo_partes.html', {'form': form, 'maquina': maquina})
 
 
 @login_required
 def eliminar_partes(request, partes_id):
     if request.method == 'POST':
-        partes_id = request.POST.get('partes_id')
-        partes = get_object_or_404(Partes, id=partes_id)
-        
+        parte = get_object_or_404(Partes, id=partes_id)
+
         # Guarda la ruta del archivo de imagen
-        imagen_path = partes.foto_pieza.path
-        
-        # Elimina el elemento del inventario
-        partes.delete()
-        
+        imagen_path = parte.foto_partes.path
+
+        # Elimina la parte, pero no la pieza del inventario
+        parte.delete()
+
         # Verifica si la foto existe y la elimina del sistema de archivos
         if os.path.exists(imagen_path):
             os.remove(imagen_path)
-        
-        return redirect('partes')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+
+        return redirect('partes')  # Reemplaza 'partes' con el nombre de tu vista de partes principal
 
     # Si la solicitud no es POST, puedes mostrar un mensaje de error o redirigir a alguna otra vista.
     return redirect('partes')
 
 @login_required
 def modificar_partes(request, partes_id):
-    partes = get_object_or_404(Partes, id=partes_id)
-    
+    parte = get_object_or_404(Partes, id=partes_id)
+
     if request.method == 'POST':
-        # Procesa el formulario de modificación aquí y guarda los cambios en el inventario
-        form = PartesForm(request.POST, request.FILES, instance=partes)  # Pasa el formulario con la instancia del inventario
+        # Procesa el formulario de modificación y guarda los cambios en la parte
+        form = PartesForm(request.POST, request.FILES, instance=parte)
         if form.is_valid():
             form.save()
-            return redirect('partes')  # Reemplaza 'inventario' con el nombre de tu vista de inventario principal
+            return redirect('partes')
     else:
-        form = PartesForm(instance=partes)  # Pasa el formulario con la instancia del inventario
-    
-    return render(request, 'modificar_partes.html', {'form': form, 'partes': partes})
+        form = PartesForm(instance=parte)
+
+    # Renderiza la página 'modificar_partes' con el formulario para modificar la parte
+    return render(request, 'modificar_partes.html', {'form': form, 'parte': parte})
 
 @login_required
 def nuevo_reporte(request):

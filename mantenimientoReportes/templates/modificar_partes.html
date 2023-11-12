@@ -4,8 +4,9 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Nuevo Inventario</h1>
+        <h1>Modificar partes</h1>
     </section>
+
     {% if form.errors %}
     <div class="alert alert-danger">
         <strong>Errores:</strong>
@@ -17,9 +18,11 @@
     </div>
     {% endif %}
     <p></p>
-    <a class="btn btn-primary" href="{% url 'inventario' %}">
-        <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
-    </a>
+    <div class="col">
+        <a class="btn btn-primary" href="{% url 'partes' maquina_id=parte.maquinas.id %}">
+            <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i> 
+        </a>
+    </div>
     <p></p>
     <section class="card card-body">
         <form method="post" enctype="multipart/form-data">
@@ -27,7 +30,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <label for="nombre_partes">Nombre de la parte:</label>
-                    <input type="text" name="nombre_partes" class="form-control" id="nombre_partes">
+                    <input type="text" name="nombre_partes" class="form-control" id="nombre_partes" value="{{ form.nombre_partes.value }}">
                     {% if form.nombre_partes.errors %}
                     <ul class="errors">
                         {% for error in form.nombre_partes.errors %}
@@ -36,7 +39,7 @@
                     </ul>
                     {% endif %}
                     <label for="numero_partes">Numero de la pieza:</label>
-                    <input type="text" name="numero_partes" class="form-control" id="numero_partes">
+                    <input type="text" name="numero_partes" class="form-control" id="numero_partes" value="{{ form.numero_partes.value }}">
                     {% if form.numero_partes.errors %}
                     <ul class="errors">
                         {% for error in form.numero_partes.errors %}
@@ -45,7 +48,7 @@
                     </ul>
                     {% endif %}
                     <label for="cantidad_partes">Cantidad de partes:</label>
-                    <input type="number" name="cantidad_partes" class="form-control" id="cantidad_partes">
+                    <input type="number" name="cantidad_partes" class="form-control" id="cantidad_partes" value="{{ form.cantidad_partes.value }}">
                     {% if form.cantidad_partes.errors %}
                     <ul class="errors">
                         {% for error in form.cantidad_partes.errors %}
@@ -54,7 +57,7 @@
                     </ul>
                     {% endif %}
                     <label for="costo_aproximado">Costo aproximado:</label>
-                    <input type="number" name="costo_aproximado" class="form-control" id="costo_aproximado" step="0.01" min="0" pattern="\d*">
+                    <input type="number" name="costo_aproximado" class="form-control" id="costo_aproximado" step="0.01" min="0" pattern="\d*" value="{{ form.costo_aproximado.value }}">
                     {% if form.costo_aproximado.errors %}
                     <ul class="errors">
                         {% for error in form.costo_aproximado.errors %}
@@ -63,7 +66,7 @@
                     </ul>
                     {% endif %}
                     <label for="horas_uso">Horas de uso:</label>
-                    <input type="number" name="horas_uso" class="form-control" id="horas_uso" pattern="\d*">
+                    <input type="number" name="horas_uso" class="form-control" id="horas_uso" pattern="\d*" value="{{ form.horas_uso.value }}">
                     {% if form.horas_uso.errors %}
                     <ul class="errors">
                         {% for error in form.horas_uso.errors %}
@@ -72,7 +75,7 @@
                     </ul>
                     {% endif %}
                     <label for="foto_partes">Foto de la parte:</label>
-                    <input type="file" name="foto_partes" class="form-control" id="foto_partes" pattern="\d*" accept="image/*">
+                    <input type="file" name="foto_partes" class="form-control" id="foto_partes" pattern="\d*" value="{{ form.foto_pieza.value }}">
                     {% if form.foto_partes.errors %}
                     <ul class="errors">
                         {% for error in form.foto_partes.errors %}

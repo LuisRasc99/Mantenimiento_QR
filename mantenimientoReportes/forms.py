@@ -3,6 +3,7 @@ from django import forms
 from .models import Maquina, Partes, Reportes, Inventario
 from django.core.files import File
 from io import BytesIO
+import django_filters
 
 
 class ReporteForm(forms.ModelForm):
@@ -40,17 +41,42 @@ class MaquinaForm(forms.ModelForm):
 class  InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
-        fields = ['nombre_pieza', 'numero_pieza','cantidad_pieza','ultimo_costo', 'horas_uso', 'foto_pieza']
+        fields = ['nombre_partes', 'numero_partes','cantidad_partes','costo_aproximado', 'horas_uso', 'foto_partes']
 
     def __init__(self, *args, **kwargs):
         super(InventarioForm, self).__init__(*args, **kwargs)
-        self.fields['foto_pieza'].required = True
+        self.fields['foto_partes'].required = True
+
+    def clean_foto_partes(self):
+        foto_partes = self.cleaned_data.get('foto_partes')
+        
+        # Verifica si ya existe una parte con la misma imagen
+        parte_existente = Partes.objects.filter(foto_partes=foto_partes).first()
+
+        if parte_existente:
+            # Si existe, devuelve la instancia de la parte existente
+            return parte_existente.foto_partes
+
+        return foto_partes
 
 class  PartesForm(forms.ModelForm):
     class Meta:
         model = Partes
-        fields = ['nombre_partes', 'numero_partes','cantidad_partes','ultimo_costo', 'horas_uso', 'foto_partes']
+        fields = ['nombre_partes', 'numero_partes','cantidad_partes','costo_aproximado', 'horas_uso', 'foto_partes']
 
     def __init__(self, *args, **kwargs):
         super(PartesForm, self).__init__(*args, **kwargs)
         self.fields['foto_partes'].required = True
+
+    def clean_foto_partes(self):
+        foto_partes = self.cleaned_data.get('foto_partes')
+        
+        # Verifica si ya existe una parte con la misma imagen
+        parte_existente = Partes.objects.filter(foto_partes=foto_partes).first()
+
+        if parte_existente:
+            # Si existe, devuelve la instancia de la parte existente
+            return parte_existente.foto_partes
+
+        return foto_partes
+

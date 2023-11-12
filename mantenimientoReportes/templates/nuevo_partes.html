@@ -54,11 +54,11 @@
                         {% endfor %}
                     </ul>
                     {% endif %}
-                    <label for="ultimo_costo">Ultimo costo:</label>
-                    <input type="number" name="ultimo_costo" class="form-control" id="ultimo_costo" step="0.01" min="0" pattern="\d*">
-                    {% if form.ultimo_costo.errors %}
+                    <label for="costo_aproximado">Costo aproximado:</label>
+                    <input type="number" name="costo_aproximado" class="form-control" id="costo_aproximado" step="0.01" min="0" pattern="\d*">
+                    {% if form.costo_aproximado.errors %}
                     <ul class="errors">
-                        {% for error in form.ultimo_costo.errors %}
+                        {% for error in form.costo_aproximado.errors %}
                         <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
