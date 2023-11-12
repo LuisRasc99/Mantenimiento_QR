@@ -80,15 +80,12 @@ def eliminar_maquina(request, maquina_id):
     return render(request, 'eliminar_maquina.html', {'maquina': maquina})
 
 
+
 @login_required
 def inventario(request):
     inventario = Inventario.objects.filter(user=request.user)
     queryset = Inventario.objects.filter(user=request.user)
     filter = InventarioFilter(request.GET, queryset=queryset)
-
-    # Obtener las máquinas asociadas para cada elemento del inventario
-    for item in filter.qs:
-        item.maquinas_asociadas = [parte.maquinas for parte in item.partes.all()]
 
     elementos_por_pagina = 10
     paginator = Paginator(filter.qs, elementos_por_pagina)
@@ -103,7 +100,6 @@ def inventario(request):
         inventario_paginado = paginator.page(paginator.num_pages)
 
     return render(request, 'inventario.html', {'inventario': inventario_paginado, 'filter': filter})
-
 
 
 
@@ -163,7 +159,7 @@ def partes(request, maquina_id):
     maquina = get_object_or_404(Maquina, pk=maquina_id)
     # Obtiene todas las partes relacionadas con la máquina y el usuario actual
     partes = Partes.objects.filter(user=request.user, maquinas__id=maquina_id)
-    
+
 
     # Paginación
     page = request.GET.get('page', 1)
@@ -176,7 +172,7 @@ def partes(request, maquina_id):
         partes = paginator.page(paginator.num_pages)
 
     # Renderiza la página 'partes' con la lista de partes
-    return render(request, 'partes.html', {'partes': partes, 'maquina': maquina,})
+    return render(request, 'partes.html', {'partes': partes, 'maquina': maquina, 'filter': filter})
 
 
 @login_required
@@ -205,7 +201,6 @@ def nuevo_partes(request, maquina_id):
                     user=request.user,
                     nombre_partes=nueva_parte.nombre_partes,
                     numero_partes=nueva_parte.numero_partes,
-                    cantidad_partes=nueva_parte.cantidad_partes,
                     costo_aproximado=nueva_parte.costo_aproximado,
                     horas_uso=nueva_parte.horas_uso,
                     foto_partes=nueva_parte.foto_partes
@@ -222,7 +217,7 @@ def nuevo_partes(request, maquina_id):
 def eliminar_partes(request, partes_id):
     if request.method == 'POST':
         parte = get_object_or_404(Partes, id=partes_id)
-
+        maquina_id = parte.maquinas.id if parte.maquinas else None
         # Guarda la ruta del archivo de imagen
         imagen_path = parte.foto_partes.path
 
@@ -233,7 +228,8 @@ def eliminar_partes(request, partes_id):
         if os.path.exists(imagen_path):
             os.remove(imagen_path)
 
-        return redirect('partes')  # Reemplaza 'partes' con el nombre de tu vista de partes principal
+        if maquina_id:
+            return redirect('partes', maquina_id=maquina_id)  # Reemplaza 'partes' con el nombre de tu vista de partes principal
 
     # Si la solicitud no es POST, puedes mostrar un mensaje de error o redirigir a alguna otra vista.
     return redirect('partes')
