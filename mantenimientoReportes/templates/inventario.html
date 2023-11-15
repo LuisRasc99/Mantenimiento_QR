@@ -60,15 +60,11 @@
                         <td>{{ item.costo_aproximado }}</td>
                         <td>{{ item.horas_uso }}</td>
                         <td>
-                            {% with datos_maquina=item.obtener_datos_maquina %}
-                                {% if datos_maquina %}
-                                    <p>Nombre: {{ datos_maquina.nombre_maquina }}</p>
-                                    <p>Marca: {{ datos_maquina.marca }}</p>
-                                    <p>Modelo: {{ datos_maquina.modelo }}</p>
-                                {% else %}
-                                    <p>No hay máquinas asociadas.</p>
-                                {% endif %}
-                            {% endwith %}
+                            {% if maquinas_asociadas %}
+                                {{ maquinas_asociadas.nombre_maquina }} - {{ maquinas_asociadas.marca }} - {{ maquinas_asociadas.modelo }}
+                            {% else %}
+                                Sin máquinas asociadas
+                            {% endif %}
                         </td>
                         
                         <td class="d-none d-sm-table-cell">

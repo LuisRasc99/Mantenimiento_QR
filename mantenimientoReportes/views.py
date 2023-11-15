@@ -99,6 +99,8 @@ def inventario(request):
     except EmptyPage:
         inventario_paginado = paginator.page(paginator.num_pages)
 
+    
+
     return render(request, 'inventario.html', {'inventario': inventario_paginado, 'filter': filter})
 
 

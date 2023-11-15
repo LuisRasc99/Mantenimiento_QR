@@ -52,7 +52,7 @@ class Inventario(models.Model):
     cantidad_partes = models.IntegerField(default=0)
     costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
     horas_uso = models.DecimalField(max_digits=10, decimal_places=2)
-    foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
+    foto_partes = models.ImageField(upload_to='inventario/', null=True, blank=True)
     
 
     def __str__(self):
