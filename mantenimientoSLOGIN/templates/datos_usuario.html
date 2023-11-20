@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Modificar Datos del Usuario: {{ usuario.username }}</h2>
+  <form method="post" action="{% url 'datos_usuario' username=usuario.username %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar Cambios</button>
+  </form>
+{% endblock %}
+
+
+

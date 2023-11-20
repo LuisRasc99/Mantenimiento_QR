@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Lista de Técnicos</h2>
+  <ul>
+    {% for tecnico in tecnicos %}
+      <li>{{ tecnico.nombre }} {{ tecnico.apellido_pat }} {{ tecnico.apellido_mat }} - {{ tecnico.username }}</li>
+      <!-- Agrega más detalles según sea necesario -->
+    {% endfor %}
+  </ul>
+{% endblock %}

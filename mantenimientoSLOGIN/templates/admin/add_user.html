@@ -1,0 +1,46 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div id="content-main">
+    <form {{ formset.form.attrs }}>
+      {% csrf_token %}
+      <fieldset class="module aligned {{ formset.formset.prefix }}">
+        {{ adminform.form.non_field_errors }}
+        <h2>{{ adminform.form.name }}</h2>
+        {{ adminform.form.errors }}
+
+        <div class="fieldWrapper">
+          <div class="fieldLabel">{{ adminform.form.username.label_tag }}</div>
+          <div class="fieldValue">{{ adminform.form.username }}</div>
+        </div>
+
+        <div class="fieldWrapper">
+          <div class="fieldLabel">{{ adminform.form.email.label_tag }}</div>
+          <div class="fieldValue">{{ adminform.form.email }}</div>
+        </div>
+
+        <div class="fieldWrapper">
+          <div class="fieldLabel">{{ adminform.form.password1.label_tag }}</div>
+          <div class="fieldValue">{{ adminform.form.password1 }}</div>
+        </div>
+
+        <div class="fieldWrapper">
+          <div class="fieldLabel">{{ adminform.form.password2.label_tag }}</div>
+          <div class="fieldValue">{{ adminform.form.password2 }}</div>
+        </div>
+
+        <div class="fieldWrapper">
+          <div class="fieldLabel">{{ adminform.form.tipo_usuario.label_tag }}</div>
+          <div class="fieldValue">{{ adminform.form.tipo_usuario }}</div>
+        </div>
+
+        {% if not is_popup %}
+          <div class="submit-row">
+            <input type="submit" value="{% trans 'Guardar' %}" class="default" name="_save">
+          </div>
+        {% endif %}
+      </fieldset>
+    </form>
+  </div>
+{% endblock %}

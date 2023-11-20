@@ -1,41 +1,37 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from .models import DatosUsuario
+from django.contrib.auth.forms import UserCreationForm
+from .models import DatosUsuario, Usuario
 
-
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
+class UsuarioForm(UserCreationForm):
     class Meta:
-        model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        model = Usuario
+        fields = ('username', 'email', 'password1', 'password2', 'tipo_usuario')
+        labels = {
+            'username': 'Nombre de usuario',
+            'email': 'Correo electrónico',
+            'password1': 'Contraseña',
+            'password2': 'Confirmar contraseña',
+            'tipo_usuario': 'Tipo de usuario',
+        }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.tipo_usuario == 'administrador':
+            self.fields.pop('tipo_usuario')
 
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(label='Correo electronico/Usuario')
-
-    def clean(self):
-        username = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user is None:
-                try:
-                    user = User.objects.get(email=username)
-                    user = authenticate(request=self.request, username=user.email, password=password)
-                except User.DoesNotExist:
-                    raise forms.ValidationError('Las credenciales ingresadas son incorrectas.')
-        return self.cleaned_data
-    
 class DatosUsuarioForm(forms.ModelForm):
     class Meta:
         model = DatosUsuario
-        fields = ('nombre', 'apellido_materno', 'apellido_paterno', 'calle','numero_calle', 'colonia', 'ciudad', 'codigo_postal', 'telefono')
+        fields = ('nombre', 'apellido_pat', 'apellido_mat', 'calle', 'numero_calle', 'colonia', 'ciudad', 'cp', 'telefono')
         labels = {
-            'apellido_materno': 'Apellido Materno',
-            'apellido_paterno': 'Apellido Paterno',
-            'numero_calle': 'Numero de calle',
+            'nombre': 'Nombre',
+            'apellido_pat': 'Apellido Paterno',
+            'apellido_mat': 'Apellido Materno',
+            'calle': 'Calle',
+            'numero_calle': 'Número de Calle',
+            'colonia': 'Colonia',
+            'ciudad': 'Ciudad',
+            'cp': 'Código Postal',
+            'telefono': 'Teléfono',
         }
+

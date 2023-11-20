@@ -1,19 +1,13 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from . import views
-from .views import ReporteList, ReporteDetail
-
-
 
 urlpatterns = [
-    #path('', views.inicio, name= 'inicio'),
-    path('registrar/', views.registrar, name= 'registrar'),
-    path('', views.isesion, name= 'isesion'),
-    path('logout/', views.csesion, name= 'logout'),
-    path('DatosUsuario/', views.DatosUsuario, name= 'DatosUsuario'),
-    path('modificar_datos/', views.modificar_datos, name='modificar_datos'),
-    path('api/inicio/', views.api_inicio, name='api_inicio'),
-    path('api/datos-usuario/', views.api_datos_usuario, name='api_datos_usuario'),
-    path('api/reportes/', ReporteList.as_view(), name='reportes_api'),
-    path('api/reportes/<int:id_reporte>/', ReporteDetail.as_view(), name='reporte_detail_api'),
+    path('', views.IniciarSesion, name='iniciar_sesion'),
+    path('registrar/', views.Registrar, name='registrar'),
+    path('cerrar_sesion/', views.CerrarSesion, name='cerrar_sesion'),
+    path('datos_usuario/<str:username>/', views.DatosUsuario, name='datos_usuario'),
+
+    path('tecnicos/', views.Tecnicos, name='tecnicos'),
+    path('tecnicos/registrar/', views.RegistrarTecnicos, name='registrar_tecnico'),
+    # Agrega otras URLs según sea necesario
 ]

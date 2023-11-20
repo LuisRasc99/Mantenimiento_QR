@@ -16,43 +16,47 @@
         <div class="container">
             <a class="navbar-brand" href="#">Reportes QR</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <!-- Los usuarios deben crearse por superusuario por lo que iniciar sesion sera la pagina principal -->
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                <a class="nav-link" href="{% url 'reportes' %}">Reportes</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'panel' %}">Maquinas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'inventario' %}">Inventario</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'registrar' %}">Registrar</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'modificar_datos' %}">Modificar datos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesion</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'isesion' %}">Iniciar Sesion</a>
-                </li>
-                {% endif %}
-            </ul>
+                <ul class="navbar-nav ms-auto">
+                    <!-- Los usuarios deben crearse por superusuario por lo que iniciar sesion sera la pagina principal -->
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'panel' %}">Maquinas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Inventario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'registrar' %}">Registrar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'iniciar' %}">Iniciar Sesion</a>
+                        </li>
+                    {% endif %}
+                    <!-- Agregar enlaces para la sección de técnicos -->
+                    {% if user.is_authenticated and user.tipo_usuario == 'administrador' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'tecnicos' %}">Técnicos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'registrar_tecnico' %}">Registrar Técnico</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
-        </nav>
-{% block content %}
-{% endblock %}
-<!-- Asegúrate de tener jQuery cargado antes de cargar el código de Bootstrap -->
+    </nav>
+    {% block content %}
+    {% endblock %}
+    <!-- Asegúrate de tener jQuery cargado antes de cargar el código de Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
+

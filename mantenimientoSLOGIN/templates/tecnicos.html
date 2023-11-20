@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Registrar Nuevo Técnico</h2>
+  <form method="post" action="{% url 'registrar_tecnico' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Registrar Técnico</button>
+  </form>
+{% endblock %}
