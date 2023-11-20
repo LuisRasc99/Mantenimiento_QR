@@ -34,4 +34,12 @@ class DatosUsuarioForm(forms.ModelForm):
             'cp': 'Código Postal',
             'telefono': 'Teléfono',
         }
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = Usuario
+        fields = ('username', 'email', 'password1', 'password2', 'tipo_usuario')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.tipo_usuario == 'administrador':
+            self.fields.pop('tipo_usuario')
