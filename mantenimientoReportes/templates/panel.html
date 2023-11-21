@@ -7,8 +7,12 @@
     </section>
     <p></p>
     <div class="col">
-        <!-- Botón "Añadir nuevo reporte" -->
-        <a href="{% url 'nueva_maquina' %}" class="btn btn-primary">Añadir maquina</a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaMaquinaModal">
+            Añadir maquina
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Launch demo modal
+        </button>
     </div>
     <p></p>
     <section class="card card-body text-center">
@@ -46,6 +50,92 @@
             {% endif %}
         </div>
     </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="nuevaMaquinaModal" tabindex="-1" aria-labelledby="nuevaMaquinaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="nuevaMaquinaModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="maquina">Nombre de la máquina:</label>
+                        <input type="text" name="maquina" class="form-control" id="maquina">
+                    </div>
+                    <div class="mb-3">
+                        <label for="marca">Marca:</label>
+                        <input type="text" name="marca" class="form-control" id="marca">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modelo">Modelo:</label>
+                        <input type="text" name="modelo" class="form-control" id="modelo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="horas_maquina">Contador de horas:</label>
+                        <input type="text" name="horas_maquina" class="form-control" id="horas_maquina">
+                    </div>
+                    <div class="mb-3">
+                        <label for="foto_maquina">Foto del Filtro:</label>
+                        <input type="file" name="foto_maquina" class="form-control" id="foto_maquina">
+                    </div>
+                    <p></p>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Modal para el formulario de nueva_maquina.html -->
+    <div class="modal fade" id="nuevaMaquinaModal" tabindex="-1" role="dialog" aria-labelledby="nuevaMaquinaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nuevaMaquinaModalLabel">Nuevo Maquina</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Contenido del formulario de nueva_maquina.html -->
+                    {% include 'nueva_maquina.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            ...
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+
+
+
+
+
     <script>
         // Función para mostrar el cuadro de diálogo de confirmación antes de enviar el formulario
         function mostrarConfirmacion(id) {
