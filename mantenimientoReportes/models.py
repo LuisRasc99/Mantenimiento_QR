@@ -9,6 +9,7 @@ from django.dispatch import receiver
 import os
 from decimal import Decimal
 from django.core.files.storage import default_storage
+from appmantenimiento import settings
 from mantenimientoSLOGIN.models import Usuario 
 
 class Maquina(models.Model):
@@ -22,12 +23,18 @@ class Maquina(models.Model):
     qr = models.ImageField(upload_to='qr/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        # Elimina la imagen anterior si ha cambiado
+        if self.pk:
+            maquina_db = Maquina.objects.get(pk=self.pk)
+            if maquina_db.foto_maquina != self.foto_maquina:
+                ruta_anterior = os.path.join(settings.MEDIA_ROOT, str(maquina_db.foto_maquina))
+                if os.path.isfile(ruta_anterior):
+                    os.remove(ruta_anterior)
+
         # Construir el nombre de la máquina antes de guardar
         self.nombre_maquina = f"{self.maquina} {self.marca} {self.modelo}"
-        super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.nombre_maquina
+        super().save(*args, **kwargs)
 
 class CatalogoPartes(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)

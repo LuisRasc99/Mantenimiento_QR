@@ -16,12 +16,7 @@
             {% if maquinas %}
                 {% for maquina in maquinas %}
                     <div class="maquina card">
-                        {% if hay_imagen %}
-                        <p>Imagen actual:</p>
-                            <img src="{{ maquina.foto_maquina.url }}" alt="{{ maquina.maquina }}" class="card-img-top mi-clase-adicional">
-                        {% else %}
-                            <p>No hay imagen asociada a esta máquina.</p>
-                        {% endif %}
+                        <img src="{{ maquina.foto_maquina.url }}" alt="{{ maquina.maquina }}" class="card-img-top">
                         <div class="card-body">
                             <h5 class="card-title">{{ maquina.maquina }} </h5>
                             <h6 class="card-text">{{ maquina.marca }} {{ maquina.modelo }} </h6>
@@ -34,10 +29,12 @@
                             <a href="{% url 'modificar_maquina' maquina_id=maquina.id %}" class="btn btn-modificar">
                                 <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                             </a>
-                            
-                            <a href="#" class="btn btn-danger">
+                            <form id="eliminarmaquina_{{ maquina.id }}" method="POST" action="{% url 'eliminar_maquina' maquina_id=maquina.id %}">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-danger" onclick="mostrarConfirmacion('{{ maquina.id }}')">
                                 <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
-                            </a>
+                                </button>
+                            </form>
                             <a href="#" class="btn btn-info">
                                 <i class="fa-solid fa-qrcode" style="color: #ffffff;"></i>
                             </a>
@@ -49,9 +46,20 @@
             {% endif %}
         </div>
     </section>
-
-
-</main>   
+    <script>
+        // Función para mostrar el cuadro de diálogo de confirmación antes de enviar el formulario
+        function mostrarConfirmacion(id) {
+        if (confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
+            // Si el usuario hace clic en "Aceptar", enviar el formulario de eliminación
+            const form = document.getElementById(`eliminarmaquina_${id}`);
+            form.submit();
+        }
+        }
+    </script>
     
+    
+    
+</main>   
+
     
     {% endblock %}
