@@ -7,5 +7,5 @@ from io import BytesIO
 class MaquinaForm(forms.ModelForm):
     class Meta:
         model = Maquina
-        exclude = ['qr', 'nombre_maquina']
+        fields = ['maquina', 'marca', 'modelo', 'horas_maquina', 'foto_maquina']
 

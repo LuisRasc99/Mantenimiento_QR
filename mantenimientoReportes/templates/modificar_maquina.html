@@ -26,8 +26,8 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="mb-3">
-                <label for="nombre_maquina">Nombre de la máquina:</label>
-                <input type="text" name="nombre_maquina" class="form-control" id="nombre_maquina" value="{{ form.nombre_maquina.value }}">
+                <label for="maquina">Nombre de la máquina:</label>
+                <input type="text" name="maquina" class="form-control" id="maquina" value="{{ form.maquina.value }}">
             </div>
             <div class="mb-3">
                 <label for="marca">Marca:</label>
@@ -38,8 +38,8 @@
                 <input type="text" name="modelo" class="form-control" id="modelo" value="{{ form.modelo.value }}">
             </div>
             <div class="mb-3">
-                <label for="contador_horas">Contador de horas:</label>
-                <input type="text" name="contador_horas" class="form-control" id="contador_horas" value="{{ form.contador_horas.value }}">
+                <label for="horas_maquina">Contador de horas:</label>
+                <input type="text" name="horas_maquina" class="form-control" id="horas_maquina" value="{{ form.horas_maquina.value }}">
                 </div>
             <div class="mb-3">
                 <label for="foto_maquina">Foto del Filtro:</label>

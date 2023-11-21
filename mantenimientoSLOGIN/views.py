@@ -2,9 +2,19 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from .forms import DatosUsuarioForm, UsuarioForm
 from .models import Usuario
+from django.contrib.auth.views import LogoutView
+from django.shortcuts import redirect
 
+class CustomLogoutView(LogoutView):
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if request.user.is_authenticated:
+            return response
+
+        return redirect('iniciar_sesion')
 
 def IniciarSesion(request):
     if request.method == 'POST':
@@ -14,16 +24,23 @@ def IniciarSesion(request):
 
         if user is not None:
             login(request, user)
-            next_url = request.GET.get('next')
-            if next_url:
-                return redirect(next_url)
-            else:
-                if user.tipo_usuario == 'administrador':
-                    return redirect('panel')
-                elif user.tipo_usuario == 'tecnico':
-                    return redirect('panel_tecnico')
+
+            # Redirige según el tipo de usuario
+            if user.tipo_usuario == 'administrador':
+                return redirect('panel')
+            elif user.tipo_usuario == 'tecnico':
+                return redirect('panel_tecnico')
+            elif user.is_superuser:
+                messages.success(request, f'Bienvenido, {user.username}! Has iniciado sesión como Superusuario.')
+                return redirect('admin:index')  # Redirige al panel de administración
         else:
-            messages.error(request, 'Credenciales incorrectas. Por favor, inténtalo de nuevo.')
+            # Mensajes para diferentes escenarios de inicio de sesión fallido
+            if user is None:
+                messages.error(request, 'Credenciales incorrectas. Por favor, verifica tu usuario y contraseña.')
+            elif not user.is_active:
+                messages.error(request, 'Tu cuenta está desactivada. Comunícate con el administrador.')
+            elif user is not None and not user.is_authenticated:
+                messages.error(request, 'Error de autenticación. Comunícate con el soporte técnico.')
 
     return render(request, 'iniciar_sesion.html')
 
@@ -45,24 +62,34 @@ def Registrar(request):
 
 @login_required
 def DatosUsuario(request, username):
-    # Verifica que el usuario autenticado tenga los permisos adecuados
-    if not request.user.is_superuser and (request.user.tipo_usuario == 'tecnico' or (request.user.tipo_usuario == 'administrador' and request.user.username != username)):
-        messages.error(request, 'No tienes permisos para modificar estos datos.')
-        return redirect('isesion')
+    usuario_autenticado = request.user
 
-    # Obtiene el usuario a modificar
+    # Verifica si el usuario autenticado tiene permisos
+    if not usuario_autenticado.has_perm('puede_agregar_datos_usuario'):
+        messages.error(request, 'No tienes permisos para modificar estos datos.')
+        return redirect('iniciar_sesion')  # Modifica esto según tu lógica
+
     usuario = get_object_or_404(Usuario, username=username)
 
-    if request.method == 'POST':
-        form = DatosUsuarioForm(request.POST, instance=usuario.datos_usuario)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Datos del usuario actualizados exitosamente.')
-            return redirect('isesion')  # Redirige a la página principal después de actualizar los datos
-    else:
-        form = DatosUsuarioForm(instance=usuario.datos_usuario)
+    if not usuario.datos_usuario:
+        if request.method == 'POST':
+            form = DatosUsuarioForm(request.POST)
+            if form.is_valid():
+                datos_usuario = form.save(commit=False)
+                datos_usuario.usuario = usuario
+                datos_usuario.save()
+                messages.success(request, 'Datos del usuario completados exitosamente.')
 
-    return render(request, 'datos_usuario.html', {'form': form, 'usuario': usuario})
+                # Redirige según el tipo de usuario
+                if usuario.tipo_usuario == 'administrador':
+                    return redirect('panel')
+                elif usuario.tipo_usuario == 'tecnico':
+                    return redirect('panel_tecnico')
+        else:
+            form = DatosUsuarioForm()
+
+        return render(request, 'datos_usuario.html', {'form': form, 'usuario': usuario})
+
 
 @login_required
 def ModificarDatosUsuario(request, usuario_id):

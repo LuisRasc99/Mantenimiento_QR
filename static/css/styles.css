@@ -93,20 +93,7 @@ td {
 }
 
 
-.btn-info {
-  background-color: #4CAF50; /* Verde */
-  border-color: #4CAF50; /* Borde Verde */
-}
 
-.btn-info:hover {
-  background-color: #2E8B57; /* Verde más oscuro cuando se pasa el cursor */
-  border-color: #2E8B57;
-}
-
-.btn-info:active {
-  background-color: #006633; /* Verde aún más oscuro cuando se hace clic */
-  border-color: #006633;
-}
 
 /* Estilo personalizado para centrar el modal verticalmente */
 .modal-center {

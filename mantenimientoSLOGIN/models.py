@@ -15,14 +15,17 @@ class Usuario(AbstractUser):
         return self.username
 
 class DatosUsuario(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='datos_usuario')
-    nombre = models.CharField(max_length=255)
-    apellido_pat = models.CharField(max_length=255)
-    apellido_mat = models.CharField(max_length=255)
-    calle = models.CharField(max_length=255)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='datos_usuario')
+    nombre = models.CharField(default="", max_length=255)
+    apellido_pat = models.CharField(default="", max_length=255)
+    apellido_mat = models.CharField(default="", max_length=255)
+    calle = models.CharField(default="", max_length=255)
     numero_calle = models.IntegerField(default=0, null=True)  # Cambiado a 0
-    colonia = models.CharField(max_length=255)
-    ciudad = models.CharField(max_length=255)
+    colonia = models.CharField(default="", max_length=255)
+    ciudad = models.CharField(default="", max_length=255)
     cp = models.IntegerField(default=0, null=True)  # Cambiado a 0
     telefono = models.IntegerField(default=0, null=True)  # Cambiado a 0
     fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido_pat} {self.apellido_mat}"

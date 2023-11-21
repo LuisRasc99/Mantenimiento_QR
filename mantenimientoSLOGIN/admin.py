@@ -53,4 +53,11 @@ class CustomUsuarioAdmin(UserAdmin):
         }),
     )
 
+class DatosUsuarioAdmin(admin.ModelAdmin):
+    list_display = ('user', 'nombre', 'apellido_pat', 'apellido_mat', 'calle', 'numero_calle', 'colonia', 'ciudad', 'cp', 'telefono')
+    search_fields = ('nombre', 'apellido_pat', 'apellido_mat', 'calle', 'ciudad', 'cp', 'telefono')
+    list_filter = ('user',)  # Puedes agregar filtros según tus necesidades
+
 admin.site.register(Usuario, CustomUsuarioAdmin)  # Registrar el modelo una s
+admin.site.register(DatosUsuario, DatosUsuarioAdmin)
+ 

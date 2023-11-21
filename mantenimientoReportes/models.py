@@ -9,10 +9,10 @@ from django.dispatch import receiver
 import os
 from decimal import Decimal
 from django.core.files.storage import default_storage
-User = get_user_model()
+from mantenimientoSLOGIN.models import Usuario 
 
 class Maquina(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     maquina = models.TextField(max_length=100)
     marca = models.TextField(max_length=100)
     modelo = models.TextField(max_length=100)
@@ -30,7 +30,7 @@ class Maquina(models.Model):
         return self.nombre_maquina
 
 class CatalogoPartes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     nombre_partes = models.TextField(max_length=100)
     numero_partes = models.TextField(max_length=20)
     horas_vida = models.DecimalField(max_digits=10, decimal_places=2)
@@ -38,14 +38,14 @@ class CatalogoPartes(models.Model):
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='partes')
 
 class MantenimientoPartes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fecha_mantenimiento = models.DateField(auto_now_add=True)
     piezas_salida = models.IntegerField()
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimiento')
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE, related_name='mantenimiento')
 
 class Inventario(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fecha_entrada = models.DateField(auto_now_add=True)
     piezas_entrada = models.IntegerField()
     costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)

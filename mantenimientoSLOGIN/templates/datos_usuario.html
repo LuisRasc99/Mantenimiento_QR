@@ -1,13 +1,52 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Modificar Datos del Usuario: {{ usuario.username }}</h2>
-  <form method="post" action="{% url 'datos_usuario' username=usuario.username %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar Cambios</button>
-  </form>
+  <main class="container">
+  <div class="row">
+      <div class="col-md-6 offset-md-4 mt-5">
+          <h1 class="text-center">Datos de {{ user.username }}</h1>
+          <form method="POST" action="{% url 'datos_usuario' user.id%}" class="card card-body">
+          {% csrf_token %} 
+          <div class="mb-3">
+            <label for="nombre">Nombre:</label>
+            <input type="text" name="nombre" class="form-control" id="nombre">
+          </div>
+          <div class="mb-3">
+            <label for="apellido_mat">Apellido Materno:</label>
+            <input type="text" name="apellido_materno" class="form-control" id="apellido_mat">
+          </div>
+          <div class="mb-3">
+            <label for="apellido_pat">Apellido Paterno:</label>
+            <input type="text" name="apellido_paterno" class="form-control" id="apellido_pat">
+          </div>
+          <div class="mb-3">
+            <label for="calle">Calle:</label>
+            <input type="text" name="calle" class="form-control" id="calle">
+          </div>
+          <div class="mb-3">
+            <label for="numero_calle">Numero de calle:</label>
+            <input type="text" name="numero_calle" class="form-control" id="numero_calle">
+          </div>
+          <div class="mb-3">
+            <label for="colonia">Colonia:</label>
+            <input type="text" name="colonia" class="form-control" id="colonia">
+          </div>
+          <div class="mb-3">
+            <label for="ciudad">Ciudad:</label>
+            <input type="text" name="ciudad" class="form-control" id="ciudad">
+          </div>
+          <div class="mb-3">
+            <label for="cp">Codigo Postal:</label>
+            <input type="text" name="cp" class="form-control" id="cp">
+          </div>
+          <div class="mb-3">
+            <label for="telefono">Telefono:</label>
+            <input type="text" name="telefono" class="form-control" id="telefono" >
+          </div>
+          <p></p>
+          <button class="submit">Guardar</button>
+          </form>
+          </div>
+  </div>
+  </main>
 {% endblock %}
-
-
-
