@@ -14,7 +14,19 @@ from django.contrib import messages
 def panel(request):
     maquinas = Maquina.objects.filter(user=request.user)
     nombre_usuario = request.user.username  # Cambia esto según tu modelo de Usuario
-    context = {'maquinas': maquinas, 'nombre_usuario': nombre_usuario}
+    
+    if request.method == 'POST':
+        form = MaquinaForm(request.POST, request.FILES)
+        if form.is_valid():
+            maquina = form.save(commit=False)
+            maquina.user = request.user  # Asigna el usuario actual
+            maquina.save()
+            return redirect('panel')
+    else:
+        form = MaquinaForm()
+    
+    
+    context = {'form': MaquinaForm(),'maquinas': maquinas, 'nombre_usuario': nombre_usuario}
     return render(request, 'panel.html', context)
 
 @login_required
@@ -36,6 +48,7 @@ def modificar_maquina(request, maquina_id):
     maquina = get_object_or_404(Maquina, pk=maquina_id)
 
     if request.method == "POST":
+        print(request.POST)
         form = MaquinaForm(request.POST, request.FILES, instance=maquina)
         if form.is_valid():
             form.save()
@@ -46,6 +59,8 @@ def modificar_maquina(request, maquina_id):
         form = MaquinaForm(instance=maquina)
 
     return render(request, 'modificar_maquina.html', {'form': form, 'maquina': maquina})
+
+
 @login_required
 def eliminar_maquina(request, maquina_id):
     try:
@@ -61,4 +76,6 @@ def eliminar_maquina(request, maquina_id):
         messages.success(request, 'La máquina ha sido eliminada exitosamente.')
         return redirect('panel')
     
-    return render(request, 'eliminar_maquina.html', {'maquina': maquina})
+    maquinas = Maquina.objects.filter(user=request.user)  # Agrega esto para obtener la lista actualizada de máquinas
+    context = {'maquinas': maquinas}
+    return render(request, 'panel.html', context)

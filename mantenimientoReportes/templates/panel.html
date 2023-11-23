@@ -8,10 +8,7 @@
     <p></p>
     <div class="col">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaMaquinaModal">
-            Añadir maquina
-        </button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Launch demo modal
+            <i class="fa-solid fa-plus"></i>
         </button>
     </div>
     <p></p>
@@ -30,17 +27,15 @@
                             <a href="#" class="btn btn-primary">
                                 <i class="fa-solid fa-key" style="color: #ffffff;"></i>
                             </a>
-                            <a href="{% url 'modificar_maquina' maquina_id=maquina.id %}" class="btn btn-modificar">
+                            <button type="button" class="btn btn-modificar" data-bs-toggle="modal" data-bs-target="#modificarMaquinaModal{{ maquina.id }}">
                                 <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
-                            </a>
-                            <form id="eliminarmaquina_{{ maquina.id }}" method="POST" action="{% url 'eliminar_maquina' maquina_id=maquina.id %}">
-                                {% csrf_token %}
-                                <button type="button" class="btn btn-danger" onclick="mostrarConfirmacion('{{ maquina.id }}')">
-                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
-                                </button>
-                            </form>
+                            </button>
                             <a href="#" class="btn btn-info">
                                 <i class="fa-solid fa-qrcode" style="color: #ffffff;"></i>
+                            </a>
+                            <p></p>
+                            <a href="#" class="btn btn-danger" onclick="eliminarMaquina('{{ maquina.id }}')">
+                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
                             </a>
                         </div>
                     </div>
@@ -50,13 +45,12 @@
             {% endif %}
         </div>
     </section>
-
     <!-- Modal -->
     <div class="modal fade" id="nuevaMaquinaModal" tabindex="-1" aria-labelledby="nuevaMaquinaModalLabel" aria-hidden="true">
         <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="nuevaMaquinaModalLabel">Modal title</h5>
+            <h5 class="modal-title" id="nuevaMaquinaModalLabel">Nueva Maquina</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -77,75 +71,93 @@
                     <div class="mb-3">
                         <label for="horas_maquina">Contador de horas:</label>
                         <input type="text" name="horas_maquina" class="form-control" id="horas_maquina">
-                    </div>
+                        </div>
                     <div class="mb-3">
                         <label for="foto_maquina">Foto del Filtro:</label>
                         <input type="file" name="foto_maquina" class="form-control" id="foto_maquina">
                     </div>
                     <p></p>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
+            
         </div>
-        </div>
-    </div>
-
-    <!-- Modal para el formulario de nueva_maquina.html -->
-    <div class="modal fade" id="nuevaMaquinaModal" tabindex="-1" role="dialog" aria-labelledby="nuevaMaquinaModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="nuevaMaquinaModalLabel">Nuevo Maquina</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- Contenido del formulario de nueva_maquina.html -->
-                    {% include 'nueva_maquina.html' %}
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    {% if maquinas %}
+    {% for maquina in maquinas %}
+    <div class="modal fade" id="modificarMaquinaModal{{ maquina.id }}" tabindex="-1" aria-labelledby="modificarMaquinaModalLabel{{ maquina.id }}" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <div class="modal-header">
+            <h5 class="modal-title" id="modificarMaquinaModal{{ maquina.id }}">Modificar Máquina</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" enctype="multipart/form-data" action="{% url 'modificar_maquina' maquina_id=maquina.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="maquina">Nombre de la máquina:</label>
+                <input type="text" name="maquina" class="form-control" id="maquina" value="{{ maquina.maquina }}">
             </div>
-            <div class="modal-body">
-            ...
+            <div class="mb-3">
+                <label for="marca">Marca:</label>
+                <input type="text" name="marca" class="form-control" id="marca" value="{{ maquina.marca }}">
             </div>
+            <div class="mb-3">
+                <label for="modelo">Modelo:</label>
+                <input type="text" name="modelo" class="form-control" id="modelo" value="{{ maquina.modelo }}">
+            </div>
+            <div class="mb-3">
+                <label for="horas_maquina">Contador de horas:</label>
+                <input type="text" name="horas_maquina" class="form-control" id="horas_maquina" value="{{ maquina.horas_maquina }}">
+            </div>
+            <div class="mb-3">
+                <label for="foto_maquina">Foto del Filtro:</label>
+                <input type="file" name="foto_maquina" class="form-control" id="foto_maquina">
+            </div>
+            <p></p>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
+            </form>
         </div>
         </div>
     </div>
-
-
+    </div>
+    {% endfor %}
+    {% endif %}
 
 
 
 
     <script>
-        // Función para mostrar el cuadro de diálogo de confirmación antes de enviar el formulario
-        function mostrarConfirmacion(id) {
-        if (confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
-            // Si el usuario hace clic en "Aceptar", enviar el formulario de eliminación
-            const form = document.getElementById(`eliminarmaquina_${id}`);
+        function eliminarMaquina(maquinaId) {
+        var confirmar = confirm("¿Estás seguro de que deseas eliminar esta máquina?");
+        if (confirmar) {
+            // Agregamos un campo oculto para enviar el maquina_id en el formulario POST
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = "{% url 'eliminar_maquina' maquina_id=0 %}".replace('0', maquinaId);
+            form.style.display = 'none';
+            
+            var csrfTokenInput = document.createElement('input');
+            csrfTokenInput.type = 'hidden';
+            csrfTokenInput.name = 'csrfmiddlewaretoken';
+            csrfTokenInput.value = "{{ csrf_token }}";
+            
+            form.appendChild(csrfTokenInput);
+            document.body.appendChild(form);
+            
             form.submit();
         }
         }
     </script>
+
     
     
     
