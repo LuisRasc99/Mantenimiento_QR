@@ -42,7 +42,7 @@ class CatalogoPartes(models.Model):
     numero_partes = models.TextField(max_length=20)
     horas_vida = models.DecimalField(max_digits=10, decimal_places=2)
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
-    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='partes')
+    maquinas = models.ManyToManyField(Maquina, related_name='partes')
 
     def save(self, *args, **kwargs):
         # Elimina la imagen anterior si ha cambiado

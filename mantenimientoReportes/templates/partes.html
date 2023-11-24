@@ -10,14 +10,21 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaParteModal">
             <i class="fa-solid fa-plus"></i>
         </button>
+        <p></p>
+        <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Buscar por nombre_partes" aria-label="Buscar" name="nombre_partes">
+            <input class="form-control me-2" type="search" placeholder="Buscar por numero_partes" aria-label="Buscar" name="numero_partes">
+            <button class="btn btn-outline-success" type="submit">Buscar</button>
+        </form>
     </div>
     <p></p>
     <section class="card card-body text-center">
         <div class="container mosaico">
             {% if partes %}
                 {% for parte in partes %}
-                    <div class="parte card">
-                        <img src="{{ parte.foto_partes.url }}" alt="{{ parte.nombre_partes }}" class="card-img-top">
+                    <div class="maquina card">
+                        <div class="maquina-id">{{ parte.id }}</div>
+                        <img src="{{ parte.foto_partes.url }}" alt="{{ parte.nombre_partes }}" class="card-img-top img-fluid">
                         <div class="card-body">
                             <h5 class="card-title">{{ parte.nombre_partes }}</h5>
                             <h6 class="card-text">Número: {{ parte.numero_partes }}</h6>
@@ -37,7 +44,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No se han registrado partes todavía.</p>
+                <p>No existen registros de esta parte.</p>
             {% endif %}
         </div>
     </section>
@@ -91,7 +98,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form method="post" enctype="multipart/form-data" action="{% url 'modificar_partes' partes_id=parte.id %}">
+            <form method="post" enctype="multipart/form-data" action="{% url 'modificar_partes' parte_id=parte.id %}">
             {% csrf_token %}
             <div class="mb-3">
                 <label for="nombre_partes">Nombre de la parte:</label>

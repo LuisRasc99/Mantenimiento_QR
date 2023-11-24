@@ -10,6 +10,8 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaMaquinaModal">
             <i class="fa-solid fa-plus"></i>
         </button>
+        
+
     </div>
     <p></p>
     <section class="card card-body text-center">
@@ -17,6 +19,7 @@
             {% if maquinas %}
                 {% for maquina in maquinas %}
                     <div class="maquina card">
+                        <div class="maquina-id">{{ maquina.id }}</div>
                         <img src="{{ maquina.foto_maquina.url }}" alt="{{ maquina.maquina }}" class="card-img-top">
                         <div class="card-body">
                             <h5 class="card-title">{{ maquina.maquina }} </h5>

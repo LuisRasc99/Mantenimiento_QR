@@ -147,15 +147,37 @@ td {
 .mosaico {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start; /* Ajusta la alineación según tus preferencias */
 }
 
 .maquina {
-  width: 30%;
-  margin-bottom: 20px;
+  flex: 0 0 calc(30% - 20px); /* Ajusta el porcentaje según tu diseño y resta 20px para los márgenes */
+  margin: 0 10px 20px 0; /* Ajusta los márgenes según tus preferencias */
   border: 1px solid #ccc;
   padding: 10px;
   text-align: center;
+  
+}
+
+/* Estilo para pantallas pequeñas (móviles) */
+@media (max-width: 767px) {
+  .mosaico {
+    flex-direction: column; /* Cambiar a una columna en dispositivos móviles */
+  }
+
+  .maquina {
+    width: 100%; /* Ocupar todo el ancho en dispositivos móviles */
+  }
+}
+
+.maquina-id {
+    position: absolute;
+    top: 5px; /* Ajusta la posición vertical según sea necesario */
+    left: 5px; /* Ajusta la posición horizontal según sea necesario */
+    background-color: #000000; /* Color de fondo del ID */
+    color: #ffffff; /* Color del texto del ID */
+    padding: 10px; /* Ajusta el relleno para hacerlo cuadrado */
+    border-radius: 5px;
 }
 
 .custom-border-left {
@@ -201,6 +223,15 @@ header {
   cursor: pointer;
 }
 
+.mosaico .card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-
-
+.mosaico .card-img-top {
+  width: 150px;
+  height: 150px;
+  object-fit: fill;
+  margin: auto; /* Esto centrará la imagen horizontalmente */
+}
