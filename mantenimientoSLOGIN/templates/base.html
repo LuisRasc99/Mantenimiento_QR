@@ -32,9 +32,6 @@
                             <a class="nav-link" href="{% url 'registrar' %}">Registrar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'datos_usuario' user.id %}">Datos del usuario</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a>
                         </li>
                     {% else %}
@@ -44,7 +41,10 @@
                     {% endif %}
                     <!-- Agregar enlaces para la sección de técnicos -->
                     {% if user.is_authenticated and user.tipo_usuario == 'administrador' %}
-                        <li class="nav-item">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'partes' %}">Catalogo de partes</a>
+                    </li>    
+                    <li class="nav-item">
                             <a class="nav-link" href="{% url 'tecnicos' %}">Técnicos</a>
                         </li>
                         <li class="nav-item">

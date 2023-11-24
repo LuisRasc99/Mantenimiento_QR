@@ -1,84 +1,135 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends "base.html" %}
 
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Partes de {{ maquina.nombre_maquina }} {{ maquina.marca }} {{ maquina.modelo }}</h1>
-        <h2>Contador de horas: {{ maquina.contador_horas }}</h2>
-        <h3>Ultima actualización:</h3>
+        <h1 class="text-center mt-4">Catálogo de Partes</h1>
     </section>
     <p></p>
     <div class="col">
-        <!-- Botón "Añadir nuevo reporte" -->
-        <a href="{% url 'panel' %}" class="btn btn-primary btn-sm">
-            <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
-        </a>
-        <a href="{% url 'nuevo_partes' maquina_id=maquina.id %}" class="btn btn-primary btn-sm">
-            <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
-        </a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaParteModal">
+            <i class="fa-solid fa-plus"></i>
+        </button>
     </div>
     <p></p>
     <section class="card card-body text-center">
         <div class="container mosaico">
             {% if partes %}
-            {% for item in partes %}
-                
-                    <div class="maquina card">
-                        <img src="{{ item.foto_partes.url }}" class="card-img-top img-thumbnail" alt="Imagen de la parte" style="max-height: 150px; object-fit: contain;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ item.nombre_partes }}</h5>
-                        <p class="card-text">Número: {{ item.numero_partes }}</p>
-                        <p class="card-text">Partes requeridas: {{ item.cantidad_partes }}</p>
-                        <p class="card-text">Horas de Uso: {{ item.horas_uso }}</p>
-                        <p class="card-text">Horas Restantes: {{ item.horas_restantes }}</p>
-                        <a href="{% url 'modificar_partes' partes_id=item.id %}" class="btn btn-warning btn-sm">
-                            <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
-                        </a>
-                        <form method="post" action="{% url 'eliminar_partes' partes_id=item.id %}" style="display: inline-block;">
-                            {% csrf_token %}
-                            <input type="hidden" name="partes_id" value="{{ item.id }}">
-                            <button type="button" class="btn btn-danger btn-sm eliminar-item" data-partes-id="{{ item.id }}">
-                                <i class="fa-solid fa-trash" style="color: #ffffff;"></i> 
-                            </button>
-                        </form>
+                {% for parte in partes %}
+                    <div class="parte card">
+                        <img src="{{ parte.foto_partes.url }}" alt="{{ parte.nombre_partes }}" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ parte.nombre_partes }}</h5>
+                            <h6 class="card-text">Número: {{ parte.numero_partes }}</h6>
+                            <h6 class="card-text">Horas de vida: {{ parte.horas_vida }}</h6>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="Botones de acción">
+                            <div class="btn-group" role="group" aria-label="Botones de acción">
+                                <button type="button" class="btn btn-modificar" data-bs-toggle="modal" data-bs-target="#modificarParteModal{{ parte.id }}">
+                                    <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
+                                </button>
+                                <p></p>
+                                <a href="#" class="btn btn-danger" onclick="eliminarParte('{{ parte.id }}')">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-
-            {% endfor %}
-
+                {% endfor %}
             {% else %}
-                <p>No hay piezas</p>
+                <p>No se han registrado partes todavía.</p>
             {% endif %}
         </div>
-        <div class="row">
-            <div class="col">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination pagination-sm">
-                        {% for i in partes.paginator.page_range %}
-                            <li class="page-item {% if partes.number == i %}active{% endif %}">
-                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </nav>
-            </div>
-        </div>
     </section>
-    
+
+    <!-- Modal -->
+    <div class="modal fade" id="nuevaParteModal" tabindex="-1" aria-labelledby="nuevaParteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="nuevaParteModalLabel">Nueva Parte</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nombre_partes">Nombre de la parte:</label>
+                        <input type="text" name="nombre_partes" class="form-control" id="nombre_partes">
+                    </div>
+                    <div class="mb-3">
+                        <label for="numero_partes">Numero de parte:</label>
+                        <input type="text" name="numero_partes" class="form-control" id="numero_partes">
+                    </div>
+                    <div class="mb-3">
+                        <label for="horas_vida">Horas de vida:</label>
+                        <input type="number" name="horas_vida" class="form-control" id="horas_vida">
+                    </div>
+                    <div class="mb-3">
+                        <label for="foto_partes">Foto del Filtro:</label>
+                        <input type="file" name="foto_partes" class="form-control" id="foto_partes">
+                    </div>
+                    <p></p>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    {% if partes %}
+    {% for parte in partes %}
+    <div class="modal fade" id="modificarParteModal{{ parte.id }}" tabindex="-1" aria-labelledby="modificarParteModalLabel{{ parte.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modificarParteModal{{ parte.id }}">Modificar parte</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" enctype="multipart/form-data" action="{% url 'modificar_partes' partes_id=parte.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="nombre_partes">Nombre de la parte:</label>
+                <input type="text" name="nombre_partes" class="form-control" id="nombre_partes" value="{{ parte.nombre_partes }}">
+            </div>
+            <div class="mb-3">
+                <label for="numero_partes">Numero de la parte:</label>
+                <input type="text" name="numero_partes" class="form-control" id="numero_partes" value="{{ parte.numero_partes }}">
+            </div>
+            <div class="mb-3">
+                <label for="horas_vida">Horas de vida:</label>
+                <input type="number" name="horas_vida" class="form-control" id="horas_vida" value="{{ parte.horas_vida }}">
+            </div>
+            <div class="mb-3">
+                <label for="foto_partes">Foto del Filtro:</label>
+                <input type="file" name="foto_partes" class="form-control" id="foto_partes">
+            </div>
+            <p></p>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const eliminarBotones = document.querySelectorAll(".eliminar-item");
-    
-            eliminarBotones.forEach(function (boton) {
-                boton.addEventListener("click", function () {
-                    if (confirm("¿Estás seguro de que deseas esta pieza?")) {
-                        // Si se confirma, envía el formulario.
-                        boton.closest("form").submit();
-                    }
-                });
-            });
-        });
+        // Función para eliminar parte
+        function eliminarParte(parteId) {
+            var confirmar = confirm("¿Estás seguro de que deseas eliminar esta parte?");
+            if (confirmar) {
+                // Agrega aquí la lógica para enviar el formulario de eliminación
+            }
+        }
     </script>
 </main>
+
 {% endblock %}

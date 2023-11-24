@@ -44,6 +44,17 @@ class CatalogoPartes(models.Model):
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='partes')
 
+    def save(self, *args, **kwargs):
+        # Elimina la imagen anterior si ha cambiado
+        if self.pk:
+            parte_db = CatalogoPartes.objects.get(pk=self.pk)
+            if parte_db.foto_partes != self.foto_partes:
+                ruta_anterior = os.path.join(settings.MEDIA_ROOT, str(parte_db.foto_partes))
+                if os.path.isfile(ruta_anterior):
+                    os.remove(ruta_anterior)
+
+        super(CatalogoPartes, self).save(*args, **kwargs)
+
 class MantenimientoPartes(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fecha_mantenimiento = models.DateField(auto_now_add=True)

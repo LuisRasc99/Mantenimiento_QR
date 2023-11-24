@@ -2,9 +2,9 @@ import os
 from django.contrib.auth.decorators import user_passes_test,login_required
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from appmantenimiento import settings
-from .forms import MaquinaForm
+from .forms import MaquinaForm, CatalogoPartesForm
 from mantenimientoSLOGIN.models import Usuario  # Asegúrate de importar tu modelo de usuario
-from .models import Maquina
+from .models import Maquina, CatalogoPartes
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.files.storage import default_storage
 from django.contrib import messages
@@ -79,3 +79,57 @@ def eliminar_maquina(request, maquina_id):
     maquinas = Maquina.objects.filter(user=request.user)  # Agrega esto para obtener la lista actualizada de máquinas
     context = {'maquinas': maquinas}
     return render(request, 'panel.html', context)
+
+@login_required
+def partes(request):
+    partes = CatalogoPartes.objects.filter(user=request.user)
+    nombre_usuario = request.user.username
+
+    if request.method == 'POST':
+        form = CatalogoPartesForm(request.POST, request.FILES)
+        if form.is_valid():
+            parte = form.save(commit=False)
+            parte.user = request.user
+            parte.save()
+            return redirect('partes')
+    else:
+        form = CatalogoPartesForm()
+
+    context = {'form': form, 'partes': partes, 'nombre_usuario': nombre_usuario}
+    return render(request, 'partes.html', context)
+
+
+
+@login_required
+def modificar_partes(request, parte_id):
+    parte = get_object_or_404(CatalogoPartes, pk=parte_id)
+
+    if request.method == "POST":
+        form = CatalogoPartesForm(request.POST, request.FILES, instance=parte)
+        if form.is_valid():
+            form.save()
+            parte.refresh_from_db()
+            return redirect('partes')
+    else:
+        form = CatalogoPartesForm(instance=parte)
+
+    return render(request, 'modificar_partes.html', {'form': form, 'parte': parte})
+
+@login_required
+def eliminar_partes(request, parte_id):
+    try:
+        parte = CatalogoPartes.objects.get(id=parte_id)
+    except CatalogoPartes.DoesNotExist:
+        raise Http404("La parte que intentas eliminar no existe.")
+
+    if request.method == 'POST':
+        if parte.foto_partes:
+            if os.path.isfile(parte.foto_partes.path):
+                os.remove(parte.foto_partes.path)
+        parte.delete()
+        messages.success(request, 'La parte ha sido eliminada exitosamente.')
+        return redirect('partes')
+
+    partes = CatalogoPartes.objects.filter(user=request.user)
+    context = {'partes': partes}
+    return render(request, 'partes.html', context)

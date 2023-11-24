@@ -24,13 +24,13 @@
                             <h6 class="card-text">{{ maquina.horas_maquina }} </h6>
                         </div>
                         <div class="btn-group" role="group" aria-label="Botones de acción">
-                            <a href="#" class="btn btn-primary">
-                                <i class="fa-solid fa-key" style="color: #ffffff;"></i>
+                            <a href="#" class="btn btn-primary" style="background-color: green; border-color: green;">
+                                <i class="fa-solid fa-wrench" style="color: #ffffff;"></i>
                             </a>
                             <button type="button" class="btn btn-modificar" data-bs-toggle="modal" data-bs-target="#modificarMaquinaModal{{ maquina.id }}">
                                 <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                             </button>
-                            <a href="#" class="btn btn-info">
+                            <a href="#" class="btn btn-info" style="background-color: black; border-color: black;">
                                 <i class="fa-solid fa-qrcode" style="color: #ffffff;"></i>
                             </a>
                             <p></p>
@@ -164,4 +164,4 @@
 </main>   
 
     
-    {% endblock %}
+{% endblock %}
