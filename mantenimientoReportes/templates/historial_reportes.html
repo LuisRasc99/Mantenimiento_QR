@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <main class="container py-5">
+    <section class="card card-body text-center">
+      <h1>Historial de modificaciones</h1>
+    </section>
+    <p></p>
+    <button class="btn btn-primary" onclick="regresar()">
+      <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+    </button>
+    <p></p>
+    <section class="card card-body">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Nombre de la Máquina</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Número de Parte</th>
+            <th scope="col">Piezas</th>
+            <th scope="col">Costo</th>
+            <th scope="col">Horas</th>
+            <th scope="col">Fecha de Reemplazo</th>
+            <th scope="col">Fecha de Modificación</th>
+            <th scope="col">QR</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for historial in historiales %}
+          <tr>
+            <td>{{ historial.nombre_maquina_anterior|default:"" }}</td>
+            <td>{{ historial.descripcion_anterior|default:"" }}</td>
+            <td>{{ historial.numero_parte_anterior|default:"" }}</td>
+            <td>{{ historial.piezas_anterior|default:"" }}</td>
+            <td>{{ historial.costo_anterior|default:"" }}</td>
+            <td>{{ historial.horas_anterior|default:"" }}</td>
+            <td>{{ historial.fecha_reemplazo_anterior|default:"" }}</td>
+            <td>{{ historial.fecha_modificacion|default:"" }}</td>
+            <td>
+              {% if historial.qr_anterior %}
+                <img src="{{ historial.qr_anterior.url }}" alt="QR" width="100" height="100">
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'imprimir_qr_anterior' id_historial=historial.id formato='png' %}" class="btn btn-info">
+                <i class="fa-solid fa-download" style="color: #ffffff;"></i>
+              </a>
+              <form action="{% url 'eliminar_historial' id_historial=historial.id %}" method="post" id="eliminarHistorialForm_{{ historial.id }}">
+                {% csrf_token %}
+                <button type="button" onclick="mostrarConfirmacionHistorial('{{ historial.id }}')" class="btn btn-danger">
+                  <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </main>
+  
+  <script>
+    // Función para mostrar el cuadro de diálogo de confirmación antes de enviar el formulario
+    function mostrarConfirmacionHistorial(id_historial) {
+      if (confirm("¿Estás seguro de que deseas eliminar este historial?")) {
+        // Si el usuario hace clic en "Aceptar", enviar el formulario de eliminación
+        const form = document.getElementById(`eliminarHistorialForm_${id_historial}`);
+        form.submit();
+      }
+    }
+  </script>
+
+<script>
+  function regresar() {
+    window.history.back(); // Regresar a la página anterior
+  }
+</script>
+  
+{% endblock %}
+
+

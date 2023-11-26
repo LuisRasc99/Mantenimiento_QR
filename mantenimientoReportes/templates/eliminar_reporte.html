@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Eliminas reporte</h1>
+  <p>¿Estás seguro de que deseas eliminar el reporte "{{ reporte.titulo }}"?</p>
+  
+  <form method="POST" action="{% url 'eliminar_reporte' reporte.id_reporte %}">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-danger" value="Sí">
+    <a class="btn btn-primary" href="{% url 'reportes' %}">No</a>
+  </form>
+{% endblock %}
+
+

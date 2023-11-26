@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container py-5">
+  <section class="card card-body text-center">
+    {% csrf_token %} 
+    {% if user.is_authenticated %}
+      <h1>Reportes de {{ user.username }}</h1>
+    {% endif %}
+  </section>
+  <p></p>
+  <div class="row mb-3">
+    <div class="col">
+      <!-- Botón "Buscar" -->
+      <form method="GET">
+        <div class="input-group">
+          <input type="text" class="form-control" name="search" placeholder="Buscar por nombre de máquina o descripción" value="{{ request.GET.search }}">
+          <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+      </form>
+    </div>
+    <div class="col">
+      <!-- Botón "Añadir nuevo reporte" -->
+      <a href="{% url 'nuevo_reporte' %}" class="btn btn-primary">Añadir nuevo reporte</a>
+    </div>
+    <div class="col d-flex align-items-center justify-content-end">
+      <!-- Botón "Seleccionar reportes" -->
+      <button class="btn btn-primary" id="seleccionar-reportes">Seleccionar reportes</button>
+    </div>
+  </div>
+
+  <p></p>
+  <section class="card card-body">
+    <table>
+      <thead>
+        <tr> 
+          <th></th>
+          <th>Foto de la maquina</th>
+          <th>Foto del filtro</th>
+          <th>Nombre de la máquina</th>
+          <th>Descripción</th>
+          <th>Número de parte</th>
+          <th>Piezas</th>
+          <th>Costo</th>
+          <th>Horas</th>
+          <th>Fecha de reemplazo</th>
+          <th>Fecha de reporte</th>
+          <th>Código QR</th> 
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reporte in reportes %}
+        <tr class="reporte-row">
+          <td>
+            <input type="checkbox" class="reporte-checkbox" value="{{ reporte.id_reporte }}">
+          </td>
+          {% if reporte.foto %}
+            <td><img src="{{ reporte.foto.url }}" alt="Foto del reporte" width="100" height="100"></td>
+          {% else %}
+            <td>No hay foto</td>
+          {% endif %}
+          {% if reporte.foto_filtro %}
+            <td><img src="{{ reporte.foto_filtro.url }}" alt="Foto del filtro" width="100" height="100"></td>
+          {% else %}
+            <td>No hay foto de filtro</td>
+          {% endif %}
+          <td>{{ reporte.nombre_maquina|default:"" }}</td>
+          <td>{{ reporte.descripcion|default:"" }}</td>
+          <td>{{ reporte.numero_parte|default:"" }}</td>
+          <td>{{ reporte.piezas|default:"" }}</td>
+          <td>
+            {% if reporte.costo %}
+              ${{ reporte.costo|floatformat:2 }}
+            {% else %}
+              {{ reporte.costo|floatformat:2 }}
+            {% endif %}
+          </td>
+          <td>{{ reporte.horas|default:"" }}</td>
+          <td>{{ reporte.fecha_reemplazo|date:"d-m-Y" }}</td>
+          <td>{{ reporte.fecha_reporte|date:"d-m-Y" }}</td>
+          {% if reporte.qr %}
+          <td><img src="{{ reporte.qr.url }}" alt="Código QR" width="100" height="100"></td>
+          {% else %}
+            <td>No hay Codigo QR</td>
+          {% endif %}
+          <td>
+            <form id="eliminarreporteForm_{{ reporte.id_reporte }}" method="POST" action="{% url 'eliminar_reporte' id_reporte=reporte.id_reporte %}">
+              {% csrf_token %}
+              <button type="button" class="btn btn-danger" onclick="mostrarConfirmacion('{{ reporte.id_reporte }}')">
+                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+              </button>
+            </form>
+            <a href="{% url 'modificar_reporte' id_reporte=reporte.id_reporte %}" class="btn btn-modificar" >
+              <i class="fa-solid fa-pen" style="color: #ffffff;"></i>
+            </a>
+            <a href="{% url 'imprimir_qr' id_reporte=reporte.id_reporte formato='png' %}" class="btn btn-info">
+              <i class="fa-solid fa-download" style="color: #ffffff;"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="seleccion-buttons" style="display: none;">
+      <button class="btn btn-success" id="duplicar-reporte">Duplicar reporte seleccionado</button>
+      <button class="btn btn-danger" id="eliminar-reportes">Eliminar reportes seleccionados</button>
+      <button class="btn btn-secondary" id="cancelar-seleccion">Cancelar selección</button>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Función para mostrar el cuadro de diálogo de confirmación antes de enviar el formulario
+  function mostrarConfirmacion(id_reporte) {
+    if (confirm("¿Estás seguro de que deseas eliminar este reporte?")) {
+      // Si el usuario hace clic en "Aceptar", enviar el formulario de eliminación
+      const form = document.getElementById(`eliminarreporteForm_${id_reporte}`);
+      form.submit();
+    }
+  }
+</script>
+
+<script>
+  const seleccionarBtn = document.getElementById('seleccionar-reportes');
+  const seleccionButtons = document.querySelector('.seleccion-buttons');
+  const reporteRows = document.querySelectorAll('.reporte-row');
+  const reporteCheckboxes = document.querySelectorAll('.reporte-checkbox');
+  const duplicarBtn = document.getElementById('duplicar-reporte');
+  const eliminarBtn = document.getElementById('eliminar-reportes');
+  const cancelarBtn = document.getElementById('cancelar-seleccion');
+
+  let seleccionActiva = false; // Variable para controlar el estado de selección
+
+  seleccionarBtn.addEventListener('click', function() {
+    seleccionActiva = !seleccionActiva; // Alterna el estado de selección al hacer clic
+
+    if (seleccionActiva) {
+      reporteRows.forEach(row => row.classList.add('seleccionable'));
+      seleccionButtons.style.display = 'block';
+    } else {
+      cancelarSeleccion();
+    }
+  });
+
+  duplicarBtn.addEventListener('click', function() {
+    const reportesSeleccionados = Array.from(reporteCheckboxes).filter(checkbox => checkbox.checked);
+    const ids = reportesSeleccionados.map(checkbox => checkbox.value).join(',');
+    if (ids) {
+      window.location.href = `{% url 'duplicar_reportes' %}?ids=${ids}`;
+    } else {
+      alert('Por favor, selecciona al menos un reporte para duplicar.');
+    }
+  });
+
+  eliminarBtn.addEventListener('click', function() {
+    const reportesSeleccionados = Array.from(reporteCheckboxes).filter(checkbox => checkbox.checked);
+    const ids = reportesSeleccionados.map(checkbox => checkbox.value).join(',');
+    if (ids) {
+      if (confirm('¿Estás seguro de que deseas eliminar los reportes seleccionados?')) {
+        window.location.href = `{% url 'eliminar_reporte_multiple' %}?ids=${ids}`;
+      }
+    } else {
+      alert('Por favor, selecciona al menos un reporte para eliminar.');
+    }
+  });
+
+  cancelarBtn.addEventListener('click', cancelarSeleccion);
+
+  function cancelarSeleccion() {
+    seleccionActiva = false;
+    reporteRows.forEach(row => row.classList.remove('seleccionable'));
+    reporteCheckboxes.forEach(checkbox => checkbox.checked = false);
+    seleccionButtons.style.display = 'none';
+  }
+</script>
+
+{% endblock %}
+
+
