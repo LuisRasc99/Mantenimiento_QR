@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mantenimientoSLOGIN', 
-    'mantenimientoReportes',
+    'mantenimientoReportes',    
 ]
 
 MIDDLEWARE = [

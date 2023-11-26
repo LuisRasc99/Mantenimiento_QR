@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabla Responsiva</title>
+  <!-- Agrega enlaces a tus estilos CSS aquí si es necesario -->
+  <style>
+    /* Estilos para la tabla */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 2px solid black;
+      padding: 10px;
+      text-align: center; /* Centrar el contenido de las celdas */
+    }
+
+    thead tr {
+      background-color: #fcee21f7; /* Fondo azul */
+      color: #2E8B57; /* Color de letra blanca */
+    }
+
+    tbody tr {
+      background-color: #f2f2f2; /* Fondo gris claro para las filas de datos */
+      color: black; /* Color de letra negra */
+    }
+
+    td {
+      font-weight: bold; /* Hace que el texto de los encabezados sea negrita */
+    }
+
+    /* Estilos de la tabla en pantallas pequeñas */
+    @media screen and (max-width: 600px) {
+      table, th, td {
+        display: block;
+      }
+
+      th, td {
+        text-align: left; /* Alinear el texto a la izquierda */
+      }
+
+      /* Ajustar el ancho de las celdas */
+      th, td {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Ocultar las celdas de encabezado que no son necesarias en pantallas pequeñas */
+      th:nth-child(4),
+      td:nth-child(4),
+      th:nth-child(5),
+      td:nth-child(5),
+      th:nth-child(6),
+      td:nth-child(6) {
+        display: none;
+      }
+    }
+
+    /* Agrega más estilos según sea necesario */
+  </style>
+</head>
+<body>
+  <main class="container py-5">
+    <section class="card card-body">
+      <h1 class="text-center mt-4">Tabla Responsiva</h1>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Edad</th>
+              <th>Ciudad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in datos_tabla %}
+              <tr>
+                <td>{{ fila.Nombre }}</td>
+                <td>{{ fila.Edad }}</td>
+                <td>{{ fila.Ciudad }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

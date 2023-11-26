@@ -129,14 +129,29 @@
     {% endif %}
 
     <script>
-        // Función para eliminar parte
         function eliminarParte(parteId) {
-            var confirmar = confirm("¿Estás seguro de que deseas eliminar esta parte?");
-            if (confirmar) {
-                // Agrega aquí la lógica para enviar el formulario de eliminación
-            }
+        var confirmar = confirm("¿Estás seguro de que deseas eliminar esta máquina?");
+        if (confirmar) {
+            // Agregamos un campo oculto para enviar el maquina_id en el formulario POST
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = "{% url 'eliminar_partes' parte_id=0 %}".replace('0', parteId);
+            form.style.display = 'none';
+            
+            var csrfTokenInput = document.createElement('input');
+            csrfTokenInput.type = 'hidden';
+            csrfTokenInput.name = 'csrfmiddlewaretoken';
+            csrfTokenInput.value = "{{ csrf_token }}";
+            
+            form.appendChild(csrfTokenInput);
+            document.body.appendChild(form);
+            
+            form.submit();
+        }
         }
     </script>
+
+    
 </main>
 
 {% endblock %}

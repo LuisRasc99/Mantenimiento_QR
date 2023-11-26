@@ -11,4 +11,8 @@ urlpatterns = [
     path('partes', views.partes, name='partes'), 
     path('partes/modificar_partes/<int:parte_id>/', views.modificar_partes, name='modificar_partes'),
     path('partes/eliminar_partes/<int:parte_id>/', views.eliminar_partes, name='eliminar_partes'),
+
+    path('mantenimiento_partes/', views.mantenimiento_partes, name='mantenimiento_partes'),
+
+    path('tabla_responsiva/', views.tabla_responsiva, name='tabla_responsiva'),
 ]

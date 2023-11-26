@@ -2,9 +2,9 @@ import os
 from django.contrib.auth.decorators import user_passes_test,login_required
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from appmantenimiento import settings
-from .forms import MaquinaForm, CatalogoPartesForm
+from .forms import MantenimientoPartesForm, MaquinaForm, CatalogoPartesForm
 from mantenimientoSLOGIN.models import Usuario  # Asegúrate de importar tu modelo de usuario
-from .models import Maquina, CatalogoPartes
+from .models import MantenimientoPartes, Maquina, CatalogoPartes
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.files.storage import default_storage
 from django.contrib import messages
@@ -133,3 +133,37 @@ def eliminar_partes(request, parte_id):
     partes = CatalogoPartes.objects.filter(user=request.user)
     context = {'partes': partes}
     return render(request, 'partes.html', context)
+
+@login_required
+def mantenimiento_partes(request):
+    mantenimientos = MantenimientoPartes.objects.all()
+
+    if request.method == 'POST':
+        form = MantenimientoPartesForm(request.POST)
+        if form.is_valid():
+            mantenimiento = form.save(commit=False)
+            mantenimiento.user = request.user
+            mantenimiento.save()
+
+            return redirect('mantenimiento_partes')
+    else:
+        form = MantenimientoPartesForm()
+
+    # Obtener todas las máquinas y partes para cargarlas en los campos de autocompletar
+    maquinas = Maquina.objects.all()
+    partes = CatalogoPartes.objects.all()
+
+    context = {'form': form, 'mantenimientos': mantenimientos, 'maquinas': maquinas, 'partes': partes}
+    return render(request, 'mantenimiento_partes.html', context)
+
+
+
+def tabla_responsiva(request):
+    # Puedes agregar lógica para obtener los datos de la tabla desde tu modelo o cualquier otra fuente
+    datos_tabla = [
+        {"Nombre": "John Doe", "Edad": 30, "Ciudad": "Ciudad Ejemplo"},
+        {"Nombre": "Jane Smith", "Edad": 25, "Ciudad": "Otra Ciudad"},
+        # Agrega más datos según sea necesario
+    ]
+
+    return render(request, 'tabla_responsiva.html', {'datos_tabla': datos_tabla})
