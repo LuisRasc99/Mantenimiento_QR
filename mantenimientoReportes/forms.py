@@ -17,4 +17,5 @@ class CatalogoPartesForm(forms.ModelForm):
 class MantenimientoPartesForm(forms.ModelForm):
     class Meta:
         model = MantenimientoPartes
-        fields = ['maquina', 'partes', 'piezas_salida']
+        fields = ['maquina', 'partes', 'piezas_salida', 'hrs']
+    

@@ -145,6 +145,10 @@ def mantenimiento_partes(request):
             mantenimiento.user = request.user
             mantenimiento.save()
 
+            maquina = get_object_or_404(Maquina, id=mantenimiento.maquina.id)
+            maquina.horas_maquina = mantenimiento.hrs
+            maquina.save()
+
             return redirect('mantenimiento_partes')
     else:
         form = MantenimientoPartesForm()
@@ -158,12 +162,3 @@ def mantenimiento_partes(request):
 
 
 
-def tabla_responsiva(request):
-    # Puedes agregar lógica para obtener los datos de la tabla desde tu modelo o cualquier otra fuente
-    datos_tabla = [
-        {"Nombre": "John Doe", "Edad": 30, "Ciudad": "Ciudad Ejemplo"},
-        {"Nombre": "Jane Smith", "Edad": 25, "Ciudad": "Otra Ciudad"},
-        # Agrega más datos según sea necesario
-    ]
-
-    return render(request, 'tabla_responsiva.html', {'datos_tabla': datos_tabla})

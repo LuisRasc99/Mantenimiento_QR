@@ -59,6 +59,7 @@ class MantenimientoPartes(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fecha_mantenimiento = models.DateField(auto_now_add=True)
     piezas_salida = models.IntegerField()
+    hrs = models.DecimalField(max_digits=10, decimal_places=2)
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos')
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE, related_name='mantenimientos')
 

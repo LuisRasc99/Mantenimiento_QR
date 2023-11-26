@@ -24,44 +24,6 @@ td {
   font-weight: bold; /* Hace que el texto de los encabezados sea negrita */
 }
 
-/* Estilos de la tabla en pantallas pequeñas */
-@media screen and (max-width: 600px) {
-    table {
-      display: block;
-      overflow-x: auto;
-    }
-  
-    th, td {
-      display: block;
-      text-align: center;
-    }
-  
-    /* Ajustar el ancho de las celdas */
-    th:nth-child(1),
-    td:nth-child(1) {
-      width: 30%;
-    }
-  
-    th:nth-child(2),
-    td:nth-child(2) {
-      width: 30%;
-    }
-  
-    th:nth-child(3),
-    td:nth-child(3) {
-      width: 40%;
-    }
-  
-    /* Ocultar las celdas de encabezado que no son necesarias en pantallas pequeñas */
-    th:nth-child(4),
-    td:nth-child(4),
-    th:nth-child(5),
-    td:nth-child(5),
-    th:nth-child(6),
-    td:nth-child(6) {
-      display: none;
-    }
-  }
   
 /* CSS personalizado para cambiar el color de los bordes de los botones */
 .btn-primary {

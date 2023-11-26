@@ -14,5 +14,4 @@ urlpatterns = [
 
     path('mantenimiento_partes/', views.mantenimiento_partes, name='mantenimiento_partes'),
 
-    path('tabla_responsiva/', views.tabla_responsiva, name='tabla_responsiva'),
 ]
