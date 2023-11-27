@@ -4,124 +4,171 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1>Inventario</h1>
+        <h1 class="text-center mt-4">Inventario</h1>
     </section>
-    <p></p>
-    <section class="card card-body">
-        <form method="get" class="form-inline">
-            <div class="mb-3">
-                <label for="nombre_partes">Nombre de la parte:</label>
-                <input type="text" name="nombre_partes" class="form-control" id="nombre_partes">
-            </div>
-            <div class="mb-3">
-                <label for="numero_partes">Numero de la parte:</label>
-                <input type="text" name="numero_partes" class="form-control" id="numero_partes">
-                </div>
-            <button type="submit" class="btn btn-primary btn-sm">
-                <i class="fa-solid fa-search" style="color: #ffffff;"></i> Buscar
-            </button>
-        </form>
-    </section>
-    <p></p>
     <p></p>
     <div class="col">
-        <a href="{% url 'nuevo_inventario' %}" class="btn btn-primary btn-sm">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" >
             <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
-        </a>
+        </button>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" style="background-color: green; border-color: green;">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        </button>
     </div>
     <p></p>
-    {% if inventario %}
-    
     <section class="card card-body">
-        <h2>Inventario Actual:</h2>
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-bordered">
                 <thead>
-                    <tr>
-                        <th>Foto de la parte</th>
-                        <th>Nombre de la Parte</th>
-                        <th>Numero de la Parte</th>
-                        <th>Cantidad</th>
-                        <th>Costo aproximado</th>
-                        <th>Horas de Uso</th>
-                        <th>Máquinas Asociadas</th>  <!-- Nueva columna -->
-                        <th class="d-none d-sm-table-cell">Acciones</th>
-                    </tr>
+                <tr>
+                    <th>Foto Parte</th>
+                    <th>ID</th>
+                    <th>Nombre de Parte</th>
+                    <th>Numero de Parte</th>
+                    <th>Cantidad de Piezas</th>
+                    <th>Costo Aproximado</th>
+                    <th>Acciones</th>
+                </tr>
                 </thead>
                 <tbody>
-                {% for item in inventario %}
+                {% for inventario in inventarios %}
                     <tr>
-                        <td>
-                            <img src="{{ item.foto_partes.url }}" alt="Imagen de la parte" style="max-width: 100px;">
-                        </td>
-                        <td>{{ item.nombre_partes }}</td>
-                        <td>{{ item.numero_partes }}</td>
-                        <td>{{ item.cantidad_partes }}</td>
-                        <td>{{ item.costo_aproximado }}</td>
-                        <td>{{ item.horas_uso }}</td>
-                        <td>
-                            {% if maquinas_asociadas %}
-                                {{ maquinas_asociadas.nombre_maquina }} - {{ maquinas_asociadas.marca }} - {{ maquinas_asociadas.modelo }}
-                            {% else %}
-                                Sin máquinas asociadas
-                            {% endif %}
-                        </td>
-                        
-                        <td class="d-none d-sm-table-cell">
-                            <a href="{% url 'modificar_inventario' inventario_id=item.id %}" class="btn btn-warning btn-sm" >
-                                <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
-                            </a>
-                            <form method="post" action="{% url 'eliminar_inventario' inventario_id=item.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="inventario_id" value="{{ item.id }}">
-                                <button type="button" class="btn btn-danger btn-sm eliminar-item" data-inventario-id="{{ item.id }}">
-                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                    <td>
+                        {% if inventario.partes.foto_partes %}
+                        <img src="{{ inventario.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                        {% else %}
+                        No disponible
+                        {% endif %}
+                    </td>
+                    <td>{{ inventario.id }}</td>
+                    <td>{{ inventario.partes.nombre_partes }}</td>
+                    <td>{{ inventario.partes.numero_partes }}</td>
+                    <td>{{ inventario.piezas_entrada}}</td>
+                    <td>{{ inventario.costo_aproximado }}</td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Acciones">
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarInventarioModal{{ inventario.id }}" >
+                                    <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                                 </button>
-                            </form>
-                        </td>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarInventarioModal{{ inventario.id }}">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> 
+                                </button>
+                        </div>
+                    </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% if inventario.has_other_pages %}
-            <div class="pagination">
-                <span class="step-links">
-                    {% if inventario.has_previous %}
-                        <a href="?page=1">&laquo; primera</a>
-                        <a href="?page={{ inventario.previous_page_number }}">anterior</a>
-                    {% endif %}
-
-                    <span class="current">
-                        Página {{ inventario.number }} de {{ inventario.paginator.num_pages }}.
-                    </span>
-
-                    {% if inventario.has_next %}
-                        <a href="?page={{ inventario.next_page_number }}">siguiente</a>
-                        <a href="?page={{ inventario.paginator.num_pages }}">última &raquo;</a>
-                    {% endif %}
-                </span>
-            </div>
-        {% endif %}
     </section>
-    {% else %}
-        <p>No hay elementos en el inventario.</p>
+
+    <div class="modal fade" id="nuevoInventarioModal" tabindex="-1" aria-labelledby="nuevoInventarioModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="nuevoInventarioModalLabel">Nueva Inventario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="SelectMaquinaInventario">Maquina:</label>
+                        <select class="form-control " name="maquina" id="SelectMaquinaInventario"required>
+                            <option></option>
+                            {% for maquina in maquinas %}
+                                <option value="{{ maquina.id }}">{{ maquina.nombre_maquina }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="PartesInventario">Parte:</label>
+                        <select class="form-control " name="partes" id="PartesInventario" required>
+                            <option></option>
+                            {% for parte in partes %}
+                                <option value="{{ parte.id }}">{{ parte.nombre_partes }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="piezas_entrada">Piezas de entrada:</label>
+                        <input type="number" id="piezas_entrada" class="form-control" name="piezas_entrada"  >
+                    </div>
+                    <div class="mb-3">
+                        <label for="costo_aproximado">Costo Aproximado:</label>
+                        <input type="number" id="costo_aproximado" class="form-control"name="costo_aproximado" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+                
+            </div>
+            
+        </div>
+        </div>
+    </div>
+
+
+    {% if inventarios %}
+    {% for inventario in inventarios %}
+    <div class="modal fade" id="editarInventarioModal{{ inventario.id }}" tabindex="-1" aria-labelledby="editarInventarioModalLabel{{ inventario.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="editarInventarioModal{{ inventario.id }}">Modificar Inventario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'editar_inventario' inventario_id=inventario.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ inventario.id }}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="SelectMaquinaInventario">Maquina:</label>
+                    <select class="form-control" name="maquina" id="SelectMaquinaInventario" required>
+                        <option value="" {% if not inventario.maquina %}selected{% endif %}></option>
+                        {% for maquina in maquinas %}
+                            <option value="{{ maquina.id }}" {% if inventario.maquina and inventario.maquina.id == maquina.id %}selected{% endif %}>
+                                {{ maquina.nombre_maquina }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="PartesInventario">Parte:</label>
+                    <select class="form-control" name="partes" id="PartesInventario" required>
+                        <option value="" {% if not inventario.partes %}selected{% endif %}></option>
+                        {% for parte in partes %}
+                            <option value="{{ parte.id }}" {% if inventario.partes and inventario.partes.id == parte.id %}selected{% endif %}>
+                                {{ parte.nombre_partes }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="piezas_entrada">Piezas de entrada:</label>
+                    <input type="number" id="piezas_entrada" class="form-control" name="piezas_entrada"  value="{{ inventario.piezas_entrada }}">
+                </div>
+                <div class="mb-3">
+                    <label for="costo_aproximado">Costo Aproximado:</label>
+                    <input type="number" id="costo_aproximado" class="form-control"name="costo_aproximado" required value="{{ inventario.costo_aproximado }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endfor %}
     {% endif %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const eliminarBotones = document.querySelectorAll(".eliminar-item");
+
+
     
-            eliminarBotones.forEach(function (boton) {
-                boton.addEventListener("click", function () {
-                    if (confirm("¿Estás seguro de que deseas eliminar este elemento del inventario?")) {
-                        // Si se confirma, envía el formulario.
-                        boton.closest("form").submit();
-                    }
-                });
-            });
-        });
-    </script>
+
+    
 </main>
 {% endblock %}
-
-

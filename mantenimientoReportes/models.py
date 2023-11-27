@@ -58,7 +58,7 @@ class CatalogoPartes(models.Model):
 class MantenimientoPartes(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fecha_mantenimiento = models.DateField(auto_now_add=True)
-    piezas_salida = models.IntegerField()
+    piezas_salida = models.IntegerField(default=0)
     hrs = models.DecimalField(max_digits=10, decimal_places=2)
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos')
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE, related_name='mantenimientos')
@@ -66,8 +66,8 @@ class MantenimientoPartes(models.Model):
 class Inventario(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fecha_entrada = models.DateField(auto_now_add=True)
-    piezas_entrada = models.IntegerField()
+    cantidad_piezas = models.IntegerField(default=0)
+    piezas_entrada = models.IntegerField(default=0)
     costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='inventario')
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE, related_name='inventario')
-    mantenimiento = models.ForeignKey(MantenimientoPartes, on_delete=models.CASCADE, related_name='inventario')

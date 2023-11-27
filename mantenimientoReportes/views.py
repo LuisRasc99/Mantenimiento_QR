@@ -2,9 +2,9 @@ import os
 from django.contrib.auth.decorators import user_passes_test,login_required
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from appmantenimiento import settings
-from .forms import MantenimientoPartesForm, MaquinaForm, CatalogoPartesForm
+from .forms import InventarioForm, MantenimientoPartesForm, MaquinaForm, CatalogoPartesForm
 from mantenimientoSLOGIN.models import Usuario  # Asegúrate de importar tu modelo de usuario
-from .models import MantenimientoPartes, Maquina, CatalogoPartes
+from .models import Inventario, MantenimientoPartes, Maquina, CatalogoPartes
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.files.storage import default_storage
 from django.contrib import messages
@@ -146,19 +146,98 @@ def mantenimiento_partes(request):
             mantenimiento.save()
 
             maquina = get_object_or_404(Maquina, id=mantenimiento.maquina.id)
-            maquina.horas_maquina = mantenimiento.hrs
-            maquina.save()
+            
+            # Verifica si el campo 'hrs' existe en el formulario antes de asignarlo
+            if 'hrs' in form.cleaned_data:
+                maquina.horas_maquina = mantenimiento.hrs
+                maquina.save()
 
             return redirect('mantenimiento_partes')
     else:
         form = MantenimientoPartesForm()
 
-    # Obtener todas las máquinas y partes para cargarlas en los campos de autocompletar
     maquinas = Maquina.objects.all()
     partes = CatalogoPartes.objects.all()
 
     context = {'form': form, 'mantenimientos': mantenimientos, 'maquinas': maquinas, 'partes': partes}
     return render(request, 'mantenimiento_partes.html', context)
 
+@login_required
+def editar_mantenimiento(request, mantenimiento_id):
+    mantenimiento = get_object_or_404(MantenimientoPartes, id=mantenimiento_id)
 
+    if request.method == 'POST':
+        form = MantenimientoPartesForm(request.POST, instance=mantenimiento)
+        if form.is_valid():
+            mantenimiento = form.save(commit=False)
+            mantenimiento.user = request.user
+            mantenimiento.save()
 
+            maquina = get_object_or_404(Maquina, id=mantenimiento.maquina.id)
+            maquina.horas_maquina = mantenimiento.hrs
+            maquina.save()
+
+            return redirect('mantenimiento_partes')
+    else:
+        form = MantenimientoPartesForm(instance=mantenimiento)
+
+    maquinas = Maquina.objects.all()
+    partes = CatalogoPartes.objects.all()
+    context = {'form': form, 'maquinas': maquinas, 'partes': partes}
+    return render(request, 'editar_mantenimiento.html', context)
+
+@login_required
+def eliminar_mantenimiento(request, mantenimiento_id):
+    mantenimiento = get_object_or_404(MantenimientoPartes, id=mantenimiento_id)
+    mantenimiento.delete()
+    return redirect('mantenimiento_partes')
+
+@login_required
+def inventario(request):
+    inventarios = Inventario.objects.all()
+
+    if request.method == 'POST':
+        form = InventarioForm(request.POST)
+        if form.is_valid():
+            inventario = form.save(commit=False)
+            inventario.user = request.user
+            inventario.save()
+            return redirect('inventario')
+        else:
+            print(form.errors)  # Imprime los errores del formulario en la consola
+    else:
+        form = InventarioForm()
+
+    maquinas = Maquina.objects.all()
+    partes = CatalogoPartes.objects.all()
+    mantenimientos = MantenimientoPartes.objects.all()
+
+    context = {'form': form, 'inventarios': inventarios, 'maquinas': maquinas, 'partes': partes, 'mantenimientos': mantenimientos}
+    return render(request, 'inventario.html', context)
+
+@login_required
+def editar_inventario(request, inventario_id):
+    inventario = get_object_or_404(Inventario, id=inventario_id)
+
+    if request.method == 'POST':
+        form = InventarioForm(request.POST, instance=inventario)
+        if form.is_valid():
+            inventario = form.save(commit=False)
+            inventario.user = request.user
+            inventario.save()
+            return redirect('inventario')
+    else:
+        form = InventarioForm(instance=inventario)
+
+    maquinas = Maquina.objects.all()
+    partes = CatalogoPartes.objects.all()
+    mantenimientos = MantenimientoPartes.objects.all()
+
+    context = {'form': form, 'maquinas': maquinas, 'partes': partes, 'mantenimientos': mantenimientos}
+    return render(request, 'editar_inventario.html', context)
+
+@login_required
+def eliminar_inventario(request, inventario_id):
+    inventario = get_object_or_404(Inventario, id=inventario_id)
+    inventario.delete()
+    return redirect('inventario')

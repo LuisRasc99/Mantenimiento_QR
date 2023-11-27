@@ -4,14 +4,29 @@ function regresar() {
 
 $(document).ready(function() {
     // Inicializa Select2
-    $('#maquinaSelect').select2({
+    $('#SelectMaquinaMantenimiento').select2({
         dropdownParent: $('#nuevoMantenimientoModal'),
         placeholder: 'Selecciona una máquina',
         allowClear: true,
         width: '100%'
     });
-    $('#partes').select2({
+
+    $('#SelectMaquinaInventario').select2({
+        dropdownParent: $('#nuevoInventarioModal'),
+        placeholder: 'Selecciona una máquina',
+        allowClear: true,
+        width: '100%'
+    });
+    
+    $('#PartesMantenimiento').select2({
         dropdownParent: $('#nuevoMantenimientoModal'),
+        placeholder: 'Selecciona una parte',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#PartesInventario').select2({
+        dropdownParent: $('#nuevoInventarioModal'),
         placeholder: 'Selecciona una parte',
         allowClear: true,
         width: '100%'

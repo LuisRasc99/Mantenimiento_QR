@@ -27,6 +27,7 @@
                     <th>Piezas Salida</th>
                     <th>Horas de Máquina</th>
                     <th>Foto Parte</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -46,6 +47,16 @@
                         No disponible
                         {% endif %}
                     </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Acciones">
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarMantenimientoModal{{ mantenimiento.id }}" >
+                                    <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarMantenimientoModal{{ mantenimiento.id }}">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> 
+                                </button>
+                        </div>
+                    </td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -64,8 +75,8 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="maquinaSelect">Maquina:</label>
-                        <select class="form-control " name="maquina" id="maquinaSelect">
+                        <label for="SelectMaquinaMantenimiento">Maquina:</label>
+                        <select class="form-control " name="maquina" id="SelectMaquinaMantenimiento">
                             <option></option>
                             {% for maquina in maquinas %}
                                 <option value="{{ maquina.id }}">{{ maquina.nombre_maquina }}</option>
@@ -73,8 +84,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="partes">Parte:</label>
-                        <select class="form-control " name="partes" id="partes">
+                        <label for="PartesMantenimiento">Parte:</label>
+                        <select class="form-control " name="partes" id="PartesMantenimiento">
                             <option></option>
                             {% for parte in partes %}
                                 <option value="{{ parte.id }}">{{ parte.nombre_partes }}</option>
@@ -99,7 +110,58 @@
         </div>
         </div>
     </div>
-
+    {% if mantenimientos %}
+    {% for mantenimiento in mantenimientos %}
+    <div class="modal fade" id="editarMantenimientoModal{{ mantenimiento.id }}" tabindex="-1" aria-labelledby="editarMantenimientoModalLabel{{ mantenimiento.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="editarMantenimientoModal{{ mantenimiento.id }}">Modificar Mantenimiento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'editar_mantenimiento' mantenimiento_id=mantenimiento.id%}" enctype="multipart/form-data" id="editarMantenimientoForm{{ mantenimiento.id }}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="SelectMaquinaMantenimiento">Maquina:</label>
+                    <select class="form-control" name="maquina" id="SelectMaquinaMantenimiento" required>
+                        <option value="" {% if not mantenimiento.maquina %}selected{% endif %}></option>
+                        {% for maquina in maquinas %}
+                            <option value="{{ maquina.id }}" {% if mantenimiento.maquina and mantenimiento.maquina.id == maquina.id %}selected{% endif %}>
+                                {{ maquina.nombre_maquina }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="PartesMantenimiento">Parte:</label>
+                    <select class="form-control" name="partes" id="PartesMantenimiento" required>
+                        <option value="" {% if not mantenimiento.partes %}selected{% endif %}></option>
+                        {% for parte in partes %}
+                            <option value="{{ parte.id }}" {% if mantenimiento.partes and mantenimiento.partes.id == parte.id %}selected{% endif %}>
+                                {{ parte.nombre_partes }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="piezas_salida">Piezas de salida:</label>
+                    <input type="number" id="piezas_salida" class="form-control" name="piezas_salida" required value="{{ mantenimiento.piezas_salida }}">
+                </div>
+                <div class="mb-3">
+                    <label for="hrs">Horas de maquina:</label>
+                    <input type="number" id="hrs" class="form-control"name="hrs" required value="{{ mantenimiento.hrs }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endfor %}
+    {% endif %}
     
 
     

@@ -22,36 +22,31 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <!-- Los usuarios deben crearse por superusuario por lo que iniciar sesion sera la pagina principal -->
-                    {% if user.is_authenticated %}
+                    {% if user.is_authenticated and user.tipo_usuario == 'administrador' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'panel' %}">Maquinas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Inventario</a>
+                            <a class="nav-link" href="{% url 'partes' %}">Catalogo de partes</a>
+                        </li>    
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'inventario' %}">Inventario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'mantenimiento_partes' %}">Mantenimiento</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'registrar' %}">Registrar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'iniciar' %}">Iniciar Sesion</a>
-                        </li>
-                    {% endif %}
-                    <!-- Agregar enlaces para la sección de técnicos -->
-                    {% if user.is_authenticated and user.tipo_usuario == 'administrador' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'partes' %}">Catalogo de partes</a>
-                    </li>    
-                    <li class="nav-item">
                             <a class="nav-link" href="{% url 'tecnicos' %}">Técnicos</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'registrar_tecnico' %}">Registrar Técnico</a>
                         </li>
-                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
