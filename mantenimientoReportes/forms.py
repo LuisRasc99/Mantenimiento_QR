@@ -12,7 +12,7 @@ class MaquinaForm(forms.ModelForm):
 class CatalogoPartesForm(forms.ModelForm):
     class Meta:
         model = CatalogoPartes
-        fields = ['nombre_partes', 'numero_partes', 'horas_vida', 'foto_partes']
+        fields = ['nombre_partes', 'numero_partes', 'horas_vida', 'foto_partes', 'costo_aproximado']
 
 class MantenimientoPartesForm(forms.ModelForm):
     class Meta:
@@ -22,5 +22,5 @@ class MantenimientoPartesForm(forms.ModelForm):
 class InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
-        fields = ['maquina', 'partes', 'piezas_entrada', 'costo_aproximado']
+        fields = ['maquina', 'partes', 'piezas_entrada']
         exclude = ['cantidad_piezas', 'fecha_entrada']

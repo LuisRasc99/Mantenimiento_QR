@@ -43,6 +43,7 @@ class CatalogoPartes(models.Model):
     nombre_partes = models.TextField(max_length=100)
     numero_partes = models.TextField(max_length=20)
     horas_vida = models.DecimalField(max_digits=10, decimal_places=2)
+    costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
     maquinas = models.ManyToManyField(Maquina, related_name='partes')
 
@@ -70,16 +71,14 @@ class Inventario(models.Model):
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE)
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)
     piezas_entrada = models.PositiveIntegerField()
-    costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad_piezas = models.PositiveIntegerField(default=0)  # Nuevo campo
     costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Nuevo campo
 
     def save(self, *args, **kwargs):
-        # Filtrar por "maquina", "partes" y "costo_aproximado"
+        # Filtrar por "maquina" y "partes"
         inventarios_similares = Inventario.objects.filter(
             maquina=self.maquina,
-            partes=self.partes,
-            costo_aproximado=self.costo_aproximado
+            partes=self.partes
         )
 
         # Sumar las piezas de entrada de los inventarios similares
@@ -87,5 +86,5 @@ class Inventario(models.Model):
 
         # Actualizar cantidad_piezas y costo_total antes de guardar
         self.cantidad_piezas = total_piezas
-        self.costo_total = self.costo_aproximado * total_piezas
+        self.costo_total = self.partes.costo_aproximado * total_piezas
         super().save(*args, **kwargs)
