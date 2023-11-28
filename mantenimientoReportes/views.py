@@ -174,7 +174,7 @@ def editar_mantenimiento(request, mantenimiento_id):
             mantenimiento.save()
 
             maquina = get_object_or_404(Maquina, id=mantenimiento.maquina.id)
-            maquina.horas_maquina = mantenimiento.hrs
+            maquina.horas_maquina += mantenimiento.hrs
             maquina.save()
 
             return redirect('mantenimiento_partes')
@@ -188,9 +188,20 @@ def editar_mantenimiento(request, mantenimiento_id):
 
 @login_required
 def eliminar_mantenimiento(request, mantenimiento_id):
-    mantenimiento = get_object_or_404(MantenimientoPartes, id=mantenimiento_id)
-    mantenimiento.delete()
-    return redirect('mantenimiento_partes')
+    try:
+        mantenimiento = MantenimientoPartes.objects.get(id=mantenimiento_id)
+    except MantenimientoPartes.DoesNotExist:
+        raise Http404("El mantenimiento que intentas eliminar no existe.")
+
+    if request.method == 'POST':
+        mantenimiento.delete()
+        messages.success(request, 'El mantenimiento ha sido eliminada exitosamente.')
+        return redirect('mantenimiento_partes')
+
+    mantenimientos = MantenimientoPartes.objects.filter(user=request.user)
+    context = {'mantenimientos': mantenimientos}
+    return render(request, 'mantenimiento_partes.html', context)
+
 
 @login_required
 def inventario(request):
@@ -238,6 +249,23 @@ def editar_inventario(request, inventario_id):
 
 @login_required
 def eliminar_inventario(request, inventario_id):
-    inventario = get_object_or_404(Inventario, id=inventario_id)
-    inventario.delete()
-    return redirect('inventario')
+    try:
+        inventario = Inventario.objects.get(id=inventario_id)
+    except Inventario.DoesNotExist:
+        raise Http404("El inventario que intentas eliminar no existe.")
+
+    if request.method == 'POST':
+        inventario.delete()
+        messages.success(request, 'El inventario ha sido eliminada exitosamente.')
+        return redirect('inventario')
+
+    inventarios = Inventario.objects.filter(user=request.user)
+    context = {'inventarios': inventarios}
+    return render(request, 'inventario.html', context)
+
+@login_required
+def inventario_stock(request):
+    inventarios = Inventario.objects.all()
+    
+    context = {'inventarios': inventarios}
+    return render(request, 'inventario_stock.html', context)

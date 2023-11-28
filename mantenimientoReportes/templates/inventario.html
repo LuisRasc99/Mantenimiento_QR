@@ -11,10 +11,13 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" >
             <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
         </button>
-        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" style="background-color: green; border-color: green;">
+        <a class="btn btn-primary" href="{% url 'inventario_stock' %}" style="background-color: brown; border-color: brown;">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        </a>
+        <button type="button" class="btn btn-info" href="{% url 'inventario_stock' %}" style="background-color: brown; border-color: brown;">
             <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
         </button>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal">
+        <button type="button" class="btn btn-danger" href="">
             <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
         </button>
     </div>
@@ -53,9 +56,9 @@
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarInventarioModal{{ inventario.id }}" >
                                     <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                                 </button>
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarInventarioModal{{ inventario.id }}">
-                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> 
-                                </button>
+                                <a href="#" class="btn btn-danger" onclick="eliminarInventario('{{ inventario.id }}')">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                </a>
                         </div>
                     </td>
                     </tr>
@@ -167,8 +170,28 @@
     {% endif %}
 
 
-    
-
+    <script>
+        function eliminarInventario(inventarioId) {
+        var confirmar = confirm("¿Estás seguro de que deseas eliminar este inventario?");
+        if (confirmar) {
+            // Agregamos un campo oculto para enviar el maquina_id en el formulario POST
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = "{% url 'eliminar_inventario' inventario_id=0 %}".replace('0', inventarioId);
+            form.style.display = 'none';
+            
+            var csrfTokenInput = document.createElement('input');
+            csrfTokenInput.type = 'hidden';
+            csrfTokenInput.name = 'csrfmiddlewaretoken';
+            csrfTokenInput.value = "{{ csrf_token }}";
+            
+            form.appendChild(csrfTokenInput);
+            document.body.appendChild(form);
+            
+            form.submit();
+        }
+        }
+    </script>
     
 </main>
 {% endblock %}

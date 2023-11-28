@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container py-5">
+    <section class="card card-body text-center">
+        <h1 class="text-center mt-4">Stock de inventario</h1>
+    </section>
+    <p></p>
+    <div class="col">
+        <a class="btn btn-primary" href="{% url 'inventario' %}">
+            <i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i>
+        </a>
+        <a class="btn btn-danger" href="">
+            <i class="fa-solid fa-clipboard-left" style="color: #ffffff;"></i>
+        </a>
+        <button type="button" class="btn btn-info" href="{% url 'inventario' %}" style="background-color: green; border-color: green;">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        </button>
+        <button type="button" class="btn btn-danger" href="">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        </button>
+    </div>
+    <p></p>
+    <section class="card card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Foto Parte</th>
+                    <th>ID</th>
+                    <th>Nombre de Parte</th>
+                    <th>Numero de Parte</th>
+                    <th>Total de Piezas</th>
+                    <th>Costo Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for inventario in inventarios %}
+                    <tr>
+                    <td>
+                        {% if inventario.partes.foto_partes %}
+                        <img src="{{ inventario.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                        {% else %}
+                        No disponible
+                        {% endif %}
+                    </td>
+                    <td>{{ inventario.id }}</td>
+                    <td>{{ inventario.partes.nombre_partes }}</td>
+                    <td>{{ inventario.partes.numero_partes }}</td>
+                    <td>{{ inventario.cantidad_piezas}}</td>
+                    <td>{{ inventario.costo_total }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+{% endblock %}
