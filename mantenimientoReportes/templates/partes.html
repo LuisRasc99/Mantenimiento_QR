@@ -29,6 +29,7 @@
                             <h5 class="card-title">{{ parte.nombre_partes }}</h5>
                             <h6 class="card-text">Número: {{ parte.numero_partes }}</h6>
                             <h6 class="card-text">Horas de vida: {{ parte.horas_vida }}</h6>
+                            <h6 class="card-text">${{ parte.costo_aproximado }}</h6>
                         </div>
                         <div class="btn-group" role="group" aria-label="Botones de acción">
                             <div class="btn-group" role="group" aria-label="Botones de acción">
@@ -118,7 +119,7 @@
             </div>
             <div class="mb-3">
                 <label for="costo_aproximado">Costo aproximado:</label>
-                <input type="number" name="costo_aproximado" class="form-control" id="costo_aproximado" value="{{ parte.horas_vida }}">
+                <input type="number" name="costo_aproximado" class="form-control" id="costo_aproximado" value="{{ parte.costo_aproximado }}">
             </div>
             <div class="mb-3">
                 <label for="foto_partes">Foto del Filtro:</label>

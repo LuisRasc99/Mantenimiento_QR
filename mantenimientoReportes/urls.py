@@ -21,5 +21,6 @@ urlpatterns = [
     path('inventario/eliminar_inventario/<int:inventario_id>/', views.eliminar_inventario, name='eliminar_inventario'),
 
     path('inventario_stock/', views.inventario_stock, name='inventario_stock'),
+    path('inventario_salida/', views.inventario_salida, name='inventario_salida'),
     
 ]

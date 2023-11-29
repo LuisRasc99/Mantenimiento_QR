@@ -4,15 +4,15 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1 class="text-center mt-4">Stock de inventario</h1>
+        <h1 class="text-center mt-4">Salida de Inventario</h1>
     </section>
     <p></p>
     <div class="col">
         <a class="btn btn-primary" href="{% url 'inventario' %}" style="background-color: green; border-color: green;">
             <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i> Inventario
         </a>
-        <a class="btn btn-danger" href="{% url 'inventario_salida' %}"> Salidas
-            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        <a class="btn btn-primary" href="{% url 'inventario_stock' %}" style="background-color: brown; border-color: brown;">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i> Stock
         </a>
     </div>
     <p></p>
@@ -25,25 +25,25 @@
                     <th>ID</th>
                     <th>Nombre de Parte</th>
                     <th>Numero de Parte</th>
-                    <th>Total de Piezas</th>
-                    <th>Costo Total</th>
+                    <th>Piezas de Salida</th>
+                    <th>Fecha de Salida</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for item in inventarios_stock %}
+                {% for inventario in inventarios %}
                     <tr>
                     <td>
-                        {% if item.partes.foto_partes %}
-                        <img src="{{ item.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                        {% if inventarios.partes.foto_partes %}
+                        <img src="{{ inventario.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
                         {% else %}
                         No disponible
                         {% endif %}
                     </td>
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.partes.nombre_partes }}</td>
-                    <td>{{ item.partes.numero_partes }}</td>
-                    <td>{{ item.cantidad_piezas}}</td>
-                    <td>{{ item.costo_total }}</td>
+                    <td>{{ inventario.id }}</td>
+                    <td>{{ inventario.partes.nombre_partes }}</td>
+                    <td>{{ inventario.partes.numero_partes }}</td>
+                    <td>{{ inventario.mantenimientos.piezas_salida}}</td>
+                    <td>{{ inventario.mantenimientos.fecha_salida }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

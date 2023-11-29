@@ -11,12 +11,6 @@ $(document).ready(function() {
         width: '100%'
     });
 
-    $('#SelectMaquinaInventario').select2({
-        dropdownParent: $('#nuevoInventarioModal'),
-        placeholder: 'Selecciona una máquina',
-        allowClear: true,
-        width: '100%'
-    });
     
     $('#PartesMantenimiento').select2({
         dropdownParent: $('#nuevoMantenimientoModal'),

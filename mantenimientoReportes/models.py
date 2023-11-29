@@ -11,7 +11,7 @@ from decimal import Decimal
 from django.core.files.storage import default_storage
 from appmantenimiento import settings
 from mantenimientoSLOGIN.models import Usuario 
-from django.db.models import Sum
+
 
 
 class Maquina(models.Model):
@@ -68,23 +68,17 @@ class MantenimientoPartes(models.Model):
 
 class Inventario(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE)
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)
+    mantenimiento = models.OneToOneField(MantenimientoPartes, on_delete=models.CASCADE, null=True, blank=True)
     piezas_entrada = models.PositiveIntegerField()
-    cantidad_piezas = models.PositiveIntegerField(default=0)  # Nuevo campo
-    costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Nuevo campo
+    fecha_entrada = models.DateField(auto_now_add=True)
+    inventario_stock = models.OneToOneField('InventarioStock', related_name='inventarios', on_delete=models.CASCADE, null=True, blank=True)
+    
+class InventarioStock(models.Model):
+    partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)
+    inventario = models.OneToOneField(Inventario, on_delete=models.CASCADE, related_name='inventarios_stock')
+    cantidad_piezas = models.PositiveIntegerField(default=0)
+    costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    def save(self, *args, **kwargs):
-        # Filtrar por "maquina" y "partes"
-        inventarios_similares = Inventario.objects.filter(
-            maquina=self.maquina,
-            partes=self.partes
-        )
 
-        # Sumar las piezas de entrada de los inventarios similares
-        total_piezas = inventarios_similares.aggregate(Sum('piezas_entrada'))['piezas_entrada__sum'] or 0
 
-        # Actualizar cantidad_piezas y costo_total antes de guardar
-        self.cantidad_piezas = total_piezas
-        self.costo_total = self.partes.costo_aproximado * total_piezas
-        super().save(*args, **kwargs)

@@ -4,10 +4,12 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonRespo
 from appmantenimiento import settings
 from .forms import InventarioForm, MantenimientoPartesForm, MaquinaForm, CatalogoPartesForm
 from mantenimientoSLOGIN.models import Usuario  # Asegúrate de importar tu modelo de usuario
-from .models import Inventario, MantenimientoPartes, Maquina, CatalogoPartes
+from .models import Inventario, InventarioStock, MantenimientoPartes, Maquina, CatalogoPartes
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.files.storage import default_storage
 from django.contrib import messages
+from django.db.models import Sum
+from django.db.models import F
 
 # Decorador para permitir solo a los administradores
 @user_passes_test(lambda u: u.is_authenticated and u.tipo_usuario == 'administrador', login_url='/iniciar_sesion/')
@@ -210,21 +212,38 @@ def inventario(request):
     if request.method == 'POST':
         form = InventarioForm(request.POST)
         if form.is_valid():
-            inventario = form.save(commit=False)
-            inventario.user = request.user
-            inventario.save()
+            inventario_nuevo = form.save(commit=False)
+            inventario_nuevo.user = request.user
+            inventario_nuevo.save()
+
+            # Obtén o crea un objeto InventarioStock asociado a este Inventario
+            inventario_stock, created = InventarioStock.objects.get_or_create(
+                partes=inventario_nuevo.partes,
+                defaults={'inventario': inventario_nuevo}
+            )
+
+            # Obtén el objeto antes de realizar la operación de guardado
+            inventario_stock.refresh_from_db()
+
+            # Actualiza la cantidad_piezas y costo_total en InventarioStock
+            inventario_stock.cantidad_piezas = F('cantidad_piezas') + inventario_nuevo.piezas_entrada
+            inventario_stock.costo_total = F('costo_total') + inventario_nuevo.partes.costo_aproximado * inventario_nuevo.piezas_entrada
+            inventario_stock.save()
+
             return redirect('inventario')
         else:
             print(form.errors)  # Imprime los errores del formulario en la consola
     else:
         form = InventarioForm()
 
-    maquinas = Maquina.objects.all()
     partes = CatalogoPartes.objects.all()
     mantenimientos = MantenimientoPartes.objects.all()
 
-    context = {'form': form, 'inventarios': inventarios, 'maquinas': maquinas, 'partes': partes, 'mantenimientos': mantenimientos}
+    context = {'form': form, 'inventarios': inventarios, 'partes': partes, 'mantenimientos': mantenimientos}
     return render(request, 'inventario.html', context)
+
+
+    
 
 @login_required
 def editar_inventario(request, inventario_id):
@@ -240,23 +259,39 @@ def editar_inventario(request, inventario_id):
     else:
         form = InventarioForm(instance=inventario)
 
-    maquinas = Maquina.objects.all()
     partes = CatalogoPartes.objects.all()
     mantenimientos = MantenimientoPartes.objects.all()
 
-    context = {'form': form, 'maquinas': maquinas, 'partes': partes, 'mantenimientos': mantenimientos}
+    context = {'form': form, 'partes': partes, 'mantenimientos': mantenimientos}
     return render(request, 'editar_inventario.html', context)
 
 @login_required
 def eliminar_inventario(request, inventario_id):
-    try:
-        inventario = Inventario.objects.get(id=inventario_id)
-    except Inventario.DoesNotExist:
-        raise Http404("El inventario que intentas eliminar no existe.")
+    inventario = get_object_or_404(Inventario, id=inventario_id)
 
     if request.method == 'POST':
+        # Guarda la información antes de eliminar el inventario
+
+        partes = inventario.partes
+
+        # Elimina el inventario
         inventario.delete()
-        messages.success(request, 'El inventario ha sido eliminada exitosamente.')
+        messages.success(request, 'El inventario ha sido eliminado exitosamente.')
+
+        # Actualiza la cantidad_piezas en InventarioStock
+        inventario_stock = InventarioStock.objects.filter(
+            partes=partes
+        ).first()
+
+        if inventario_stock:
+            total_piezas = Inventario.objects.filter(
+                partes=partes
+            ).aggregate(Sum('piezas_entrada'))['piezas_entrada__sum'] or 0
+
+            inventario_stock.cantidad_piezas = total_piezas
+            inventario_stock.costo_total = partes.costo_aproximado * total_piezas
+            inventario_stock.save()
+
         return redirect('inventario')
 
     inventarios = Inventario.objects.filter(user=request.user)
@@ -265,7 +300,18 @@ def eliminar_inventario(request, inventario_id):
 
 @login_required
 def inventario_stock(request):
+    inventarios_stock = InventarioStock.objects.all()
     inventarios = Inventario.objects.all()
+    partes = CatalogoPartes.objects.all()
     
-    context = {'inventarios': inventarios}
+    context = {'inventarios_stock': inventarios_stock, 'inventarios': inventarios, 'partes': partes}
     return render(request, 'inventario_stock.html', context)
+
+
+@login_required
+def inventario_salida(request):
+    inventarios = Inventario.objects.all()
+    mantenimientos = MantenimientoPartes.objects.all()
+    
+    context = {'inventarios': inventarios, 'mantenimientos': mantenimientos}
+    return render(request, 'inventario_salida.html', context)

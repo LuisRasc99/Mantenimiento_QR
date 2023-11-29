@@ -9,16 +9,13 @@
     <p></p>
     <div class="col">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" >
-            <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
+            <i class="fa-solid fa-plus" style="color: #ffffff;"></i> Nueva Entrada
         </button>
         <a class="btn btn-primary" href="{% url 'inventario_stock' %}" style="background-color: brown; border-color: brown;">
-            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i> Stock
         </a>
-        <button type="button" class="btn btn-info" href="{% url 'inventario_stock' %}" style="background-color: brown; border-color: brown;">
-            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
-        </button>
-        <button type="button" class="btn btn-danger" href="">
-            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i>
+        <button type="button" class="btn btn-danger" href="{% url 'inventario_salida' %}">
+            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i> Salidas
         </button>
     </div>
     <p></p>
@@ -31,8 +28,8 @@
                     <th>ID</th>
                     <th>Nombre de Parte</th>
                     <th>Numero de Parte</th>
-                    <th>Cantidad de Piezas</th>
-                    <th>Costo Aproximado</th>
+                    <th>Piezas de Entrada</th>
+                    <th>Fecha de Entrada</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
@@ -50,7 +47,7 @@
                     <td>{{ inventario.partes.nombre_partes }}</td>
                     <td>{{ inventario.partes.numero_partes }}</td>
                     <td>{{ inventario.piezas_entrada}}</td>
-                    <td>{{ inventario.costo_aproximado }}</td>
+                    <td>{{ inventario.fecha_entrada}}</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarInventarioModal{{ inventario.id }}" >
@@ -79,15 +76,6 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="SelectMaquinaInventario">Maquina:</label>
-                        <select class="form-control " name="maquina" id="SelectMaquinaInventario"required>
-                            <option></option>
-                            {% for maquina in maquinas %}
-                                <option value="{{ maquina.id }}">{{ maquina.nombre_maquina }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
                         <label for="PartesInventario">Parte:</label>
                         <select class="form-control " name="partes" id="PartesInventario" required>
                             <option></option>
@@ -99,10 +87,6 @@
                     <div class="mb-3">
                         <label for="piezas_entrada">Piezas de entrada:</label>
                         <input type="number" id="piezas_entrada" class="form-control" name="piezas_entrada"  >
-                    </div>
-                    <div class="mb-3">
-                        <label for="costo_aproximado">Costo Aproximado:</label>
-                        <input type="number" id="costo_aproximado" class="form-control"name="costo_aproximado" required>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -129,17 +113,6 @@
             <form method="post" action="{% url 'editar_inventario' inventario_id=inventario.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ inventario.id }}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="SelectMaquinaInventario">Maquina:</label>
-                    <select class="form-control" name="maquina" id="SelectMaquinaInventario" required>
-                        <option value="" {% if not inventario.maquina %}selected{% endif %}></option>
-                        {% for maquina in maquinas %}
-                            <option value="{{ maquina.id }}" {% if inventario.maquina and inventario.maquina.id == maquina.id %}selected{% endif %}>
-                                {{ maquina.nombre_maquina }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="mb-3">
                     <label for="PartesInventario">Parte:</label>
                     <select class="form-control" name="partes" id="PartesInventario" required>
                         <option value="" {% if not inventario.partes %}selected{% endif %}></option>
@@ -153,10 +126,6 @@
                 <div class="mb-3">
                     <label for="piezas_entrada">Piezas de entrada:</label>
                     <input type="number" id="piezas_entrada" class="form-control" name="piezas_entrada"  value="{{ inventario.piezas_entrada }}">
-                </div>
-                <div class="mb-3">
-                    <label for="costo_aproximado">Costo Aproximado:</label>
-                    <input type="number" id="costo_aproximado" class="form-control"name="costo_aproximado" required value="{{ inventario.costo_aproximado }}">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Guardar</button>
