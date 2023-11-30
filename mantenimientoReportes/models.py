@@ -72,13 +72,7 @@ class Inventario(models.Model):
     mantenimiento = models.OneToOneField(MantenimientoPartes, on_delete=models.CASCADE, null=True, blank=True)
     piezas_entrada = models.PositiveIntegerField()
     fecha_entrada = models.DateField(auto_now_add=True)
-    inventario_stock = models.OneToOneField('InventarioStock', related_name='inventarios', on_delete=models.CASCADE, null=True, blank=True)
-    
-class InventarioStock(models.Model):
-    partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)
-    inventario = models.OneToOneField(Inventario, on_delete=models.CASCADE, related_name='inventarios_stock')
     cantidad_piezas = models.PositiveIntegerField(default=0)
     costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
 
 

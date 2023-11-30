@@ -23,4 +23,4 @@ class InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario
         fields = ['partes', 'piezas_entrada']
-        exclude = ['cantidad_piezas', 'fecha_entrada']
+        exclude = ['cantidad_piezas', 'fecha_entrada','costo_total']
