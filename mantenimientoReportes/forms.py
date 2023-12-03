@@ -18,6 +18,7 @@ class MantenimientoPartesForm(forms.ModelForm):
     class Meta:
         model = MantenimientoPartes
         fields = ['maquina', 'partes', 'piezas_salida', 'hrs']
+        exclude = ['inventario']
 
 class InventarioForm(forms.ModelForm):
     class Meta:

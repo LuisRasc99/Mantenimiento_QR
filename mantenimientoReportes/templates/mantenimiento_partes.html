@@ -20,13 +20,12 @@
                 <thead>
                 <tr>
                     <th>Fecha de Mantenimiento</th>
-                    <th>ID de Máquina</th>
+                    <th>Foto Maquina</th>
                     <th>Nombre de Máquina</th>
-                    <th>ID de Parte</th>
+                    <th>Foto Parte</th>
                     <th>Nombre de Parte</th>
                     <th>Piezas Salida</th>
                     <th>Horas de Máquina</th>
-                    <th>Foto Parte</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
@@ -34,12 +33,14 @@
                 {% for mantenimiento in mantenimientos %}
                     <tr>
                     <td>{{ mantenimiento.fecha_mantenimiento }}</td>
-                    <td>{{ mantenimiento.maquina.id }}</td>
+                    <td>
+                        {% if mantenimiento.maquina.foto_maquina %}
+                        <img src="{{ mantenimiento.maquina.foto_maquina.url }}" alt="Foto de Maquina" style="max-width: 100px; max-height: 100px;">
+                        {% else %}
+                        No disponible
+                        {% endif %}
+                    </td>
                     <td>{{ mantenimiento.maquina.nombre_maquina }}</td>
-                    <td>{{ mantenimiento.partes.id }}</td>
-                    <td>{{ mantenimiento.partes.nombre_partes }}</td>
-                    <td>{{ mantenimiento.piezas_salida }}</td>
-                    <td>{{ mantenimiento.hrs }}</td>
                     <td>
                         {% if mantenimiento.partes.foto_partes %}
                         <img src="{{ mantenimiento.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
@@ -47,6 +48,10 @@
                         No disponible
                         {% endif %}
                     </td>
+                    <td>{{ mantenimiento.partes.nombre_partes }}</td>
+                    <td>{{ mantenimiento.piezas_salida }}</td>
+                    <td>{{ mantenimiento.hrs }}</td>
+
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarMantenimientoModal{{ mantenimiento.id }}" >

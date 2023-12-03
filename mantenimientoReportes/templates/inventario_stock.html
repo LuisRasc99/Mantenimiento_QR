@@ -1,3 +1,4 @@
+<!-- inventario_stock.html -->
 {% extends 'base.html' %}
 {% load static %}
 
@@ -30,20 +31,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for item in inventarios %}
+                {% for total in totales_list %}
                     <tr>
-                    <td>
-                        {% if item.partes.foto_partes %}
-                        <img src="{{ item.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
-                        {% else %}
-                        No disponible
-                        {% endif %}
-                    </td>
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.partes.nombre_partes }}</td>
-                    <td>{{ item.partes.numero_partes }}</td>
-                    <td>{{ item.cantidad_piezas}}</td>
-                    <td>{{ item.costo_total }}</td>
+                        <td>
+                            {% if total.parte.foto_partes %}
+                                <img src="{{ total.parte.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </td>
+                        <td>{{ total.parte.id }}</td>
+                        <td>{{ total.parte.nombre_partes }}</td>
+                        <td>{{ total.parte.numero_partes }}</td>
+                        <td>{{ total.total_piezas }}</td>
+                        <td>{{ total.costo_total }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

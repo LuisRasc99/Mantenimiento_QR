@@ -217,15 +217,7 @@ def inventario(request):
             inventario_nuevo.user = request.user
             inventario_nuevo.save()
 
-            # Actualiza la cantidad_piezas y costo_total en Inventario
-            total_piezas = Inventario.objects.filter(
-                partes=inventario_nuevo.partes
-            ).aggregate(Sum('piezas_entrada'))['piezas_entrada__sum'] or 0
-
-            inventario_nuevo.cantidad_piezas = total_piezas
-            inventario_nuevo.costo_total = inventario_nuevo.partes.costo_aproximado * total_piezas
-            inventario_nuevo.save()
-
+            messages.success(request, 'Inventario agregado exitosamente.')
             return redirect('inventario')
         else:
             print(form.errors)  # Imprime los errores del formulario en la consola
@@ -237,6 +229,7 @@ def inventario(request):
 
     context = {'form': form, 'inventarios': inventarios, 'partes': partes, 'mantenimientos': mantenimientos}
     return render(request, 'inventario.html', context)
+
 
 @login_required
 def editar_inventario(request, inventario_id):
@@ -270,49 +263,63 @@ def editar_inventario(request, inventario_id):
 @login_required
 def eliminar_inventario(request, inventario_id):
     inventario = get_object_or_404(Inventario, id=inventario_id)
+    partes = inventario.partes
 
-    if request.method == 'POST':
-        # Guarda la información antes de eliminar el inventario
-        partes = inventario.partes
+    # Guarda la información antes de eliminar el inventario
+    cantidad_piezas = inventario.piezas_entrada
+    costo_aproximado = partes.costo_aproximado
+    costo_total_eliminado = cantidad_piezas * costo_aproximado
 
-        # Elimina el inventario
-        inventario.delete()
-        messages.success(request, 'El inventario ha sido eliminado exitosamente.')
+    # Elimina el inventario
+    inventario.delete()
+    messages.success(request, 'El inventario ha sido eliminado exitosamente.')
 
+    # Actualiza la cantidad_piezas y costo_total en Inventario
+    total_piezas = Inventario.objects.filter(partes=partes).aggregate(Sum('piezas_entrada'))['piezas_entrada__sum'] or 0
+
+    inventario_stock = Inventario.objects.filter(partes=partes).first()
+
+    if inventario_stock:
         # Actualiza la cantidad_piezas y costo_total en Inventario
-        total_piezas = Inventario.objects.filter(
-            partes=partes
-        ).aggregate(Sum('piezas_entrada'))['piezas_entrada__sum'] or 0
+        inventario_stock.cantidad_piezas = total_piezas
+        inventario_stock.costo_total = partes.costo_aproximado * total_piezas
+        inventario_stock.save()
 
-        inventario_stock = Inventario.objects.filter(
-            partes=partes
-        ).first()
+    return redirect('inventario') 
 
-        if inventario_stock:
-            # Actualiza la cantidad_piezas y costo_total en Inventario
-            inventario_stock.cantidad_piezas = total_piezas
-            inventario_stock.costo_total = partes.costo_aproximado * total_piezas
-            inventario_stock.save()
-
-        return redirect('inventario')
-
-    inventarios = Inventario.objects.filter(user=request.user)
-    context = {'inventarios': inventarios}
-    return render(request, 'inventario.html', context)
 
 @login_required
 def inventario_stock(request):
     inventarios = Inventario.objects.all()
-    partes = CatalogoPartes.objects.all()
-    
-    context = {'inventarios': inventarios, 'partes': partes}
+
+    # Diccionario para almacenar totales por parte
+    totales_por_parte = {}
+
+    # Calcula totales por parte y actualiza en el modelo Inventario
+    for inventario in inventarios:
+        if inventario.partes.id in totales_por_parte:
+            totales_por_parte[inventario.partes.id]['total_piezas'] += inventario.piezas_entrada
+        else:
+            totales_por_parte[inventario.partes.id] = {
+                'parte': inventario.partes,
+                'total_piezas': inventario.piezas_entrada,
+                'costo_total': 0  # Puedes inicializarlo aquí o en otro lugar según tu lógica
+            }
+
+        # Actualizar el total de piezas y costo total en el modelo Inventario
+        inventario.total_piezas = totales_por_parte[inventario.partes.id]['total_piezas']
+        inventario.costo_total = inventario.partes.costo_aproximado * inventario.total_piezas
+        inventario.save()
+
+        # Actualizar el costo total en el diccionario
+        totales_por_parte[inventario.partes.id]['costo_total'] = inventario.costo_total
+
+    context = {'totales_list': totales_por_parte.values()}
     return render(request, 'inventario_stock.html', context)
+
 
 
 @login_required
 def inventario_salida(request):
-    inventarios = Inventario.objects.all()
-    mantenimientos = MantenimientoPartes.objects.all()
-    
-    context = {'inventarios': inventarios, 'mantenimientos': mantenimientos}
-    return render(request, 'inventario_salida.html', context)
+
+    return render(request, 'inventario_salida.html')
