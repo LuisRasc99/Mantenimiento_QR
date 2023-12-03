@@ -145,16 +145,19 @@ def mantenimiento_partes(request):
         if form.is_valid():
             mantenimiento = form.save(commit=False)
             mantenimiento.user = request.user
-            mantenimiento.save()
+            # Calcula la cantidad disponible de piezas
+            inventario_parte = Inventario.objects.filter(partes=mantenimiento.partes).first()
+            if inventario_parte:
+                mantenimiento.total_piezas_disponibles = inventario_parte.total_piezas
+            else:
+                mantenimiento.total_piezas_disponibles = 0
 
-            maquina = get_object_or_404(Maquina, id=mantenimiento.maquina.id)
-            
-            # Verifica si el campo 'hrs' existe en el formulario antes de asignarlo
-            if 'hrs' in form.cleaned_data:
-                maquina.horas_maquina = mantenimiento.hrs
-                maquina.save()
-
-            return redirect('mantenimiento_partes')
+            # Verifica si la cantidad ingresada es válida
+            if mantenimiento.piezas_salida > mantenimiento.total_piezas_disponibles:
+                messages.error(request, 'La cantidad ingresada es mayor que la cantidad disponible en el inventario.')
+            else:
+                mantenimiento.save()
+                return redirect('mantenimiento_partes')
     else:
         form = MantenimientoPartesForm()
 
@@ -163,6 +166,18 @@ def mantenimiento_partes(request):
 
     context = {'form': form, 'mantenimientos': mantenimientos, 'maquinas': maquinas, 'partes': partes}
     return render(request, 'mantenimiento_partes.html', context)
+
+@login_required
+def obtener_total_piezas(request, partes_id):
+    try:
+        inventario = Inventario.objects.filter(partes__id=partes_id).first()
+        if inventario:
+            total_piezas = inventario.total_piezas
+        else:
+            total_piezas = 0
+        return JsonResponse({'total_piezas': total_piezas})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
 def editar_mantenimiento(request, mantenimiento_id):

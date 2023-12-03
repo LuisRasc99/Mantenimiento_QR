@@ -46,6 +46,7 @@ class CatalogoPartes(models.Model):
     costo_aproximado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     foto_partes = models.ImageField(upload_to='partes/', null=True, blank=True)
     maquinas = models.ManyToManyField(Maquina, related_name='partes')
+    
 
     def save(self, *args, **kwargs):
         # Elimina la imagen anterior si ha cambiado
@@ -64,9 +65,9 @@ class MantenimientoPartes(models.Model):
     piezas_salida = models.IntegerField(default=0)
     hrs = models.DecimalField(max_digits=10, decimal_places=2)
     maquina = models.ForeignKey(Maquina, on_delete=models.CASCADE, related_name='mantenimientos')
-    partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE, related_name='mantenimientos')
+    partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE,)
     inventario = models.ForeignKey('Inventario', on_delete=models.CASCADE, null=True, blank=True, related_name='mantenimiento_inventario')
-
+    
 class Inventario(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)

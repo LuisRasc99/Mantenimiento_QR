@@ -98,8 +98,12 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="piezas_salida">Piezas de salida:</label>
-                        <input type="number" id="piezas_salida" class="form-control" name="piezas_salida">
+                        <label for="id_piezas_salida">Piezas de salida:</label>
+                        <input type="number" id="id_piezas_salida" class="form-control" name="piezas_salida">
+                        {% if form.errors.piezas_salida %}
+                            <small class="text-danger">{{ form.errors.piezas_salida.0 }}</small>
+                        {% endif %}
+                        <small id="total_piezas_disponibles" class="text-muted">Disponibles: 0</small>
                     </div>
                     <div class="mb-3">
                         <label for="hrs">Horas de maquina:</label>
@@ -139,15 +143,14 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="PartesMantenimiento">Parte:</label>
-                    <select class="form-control" name="partes" id="PartesMantenimiento" required>
-                        <option value="" {% if not mantenimiento.partes %}selected{% endif %}></option>
-                        {% for parte in partes %}
-                            <option value="{{ parte.id }}" {% if mantenimiento.partes and mantenimiento.partes.id == parte.id %}selected{% endif %}>
-                                {{ parte.nombre_partes }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                    <label for="id_piezas_salida">Piezas de salida:</label>
+                    <input type="number" id="id_piezas_salida" class="form-control" name="piezas_salida">
+                    {% if form.errors.piezas_salida %}
+                        <small class="text-danger">{{ form.errors.piezas_salida.0 }}</small>
+                    {% endif %}
+                    {% if form.instance.inventario %}
+                        <small class="text-info">Cantidad disponible: {{ form.instance.inventario.total_piezas }}</small>
+                    {% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="piezas_salida">Piezas de salida:</label>
