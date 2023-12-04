@@ -10,6 +10,8 @@ from django.core.files.storage import default_storage
 from django.contrib import messages
 from django.db.models import Sum
 from django.db.models import F
+from django.db.models import Max
+from django.db import transaction
 
 # Decorador para permitir solo a los administradores
 @user_passes_test(lambda u: u.is_authenticated and u.tipo_usuario == 'administrador', login_url='/iniciar_sesion/')
@@ -136,6 +138,10 @@ def eliminar_partes(request, parte_id):
     context = {'partes': partes}
     return render(request, 'partes.html', context)
 
+
+
+
+@transaction.atomic
 @login_required
 def mantenimiento_partes(request):
     mantenimientos = MantenimientoPartes.objects.all()
@@ -145,18 +151,34 @@ def mantenimiento_partes(request):
         if form.is_valid():
             mantenimiento = form.save(commit=False)
             mantenimiento.user = request.user
-            # Calcula la cantidad disponible de piezas
-            inventario_parte = Inventario.objects.filter(partes=mantenimiento.partes).first()
-            if inventario_parte:
-                mantenimiento.total_piezas_disponibles = inventario_parte.total_piezas
-            else:
-                mantenimiento.total_piezas_disponibles = 0
+            print("Guardando mantenimiento:", mantenimiento)
+            try:
+                mantenimiento.save()
+                print("Mantenimiento guardado exitosamente.")
+            except Exception as e:
+                print(f"Error al guardar mantenimiento: {e}")
+
+            # Guardar las relaciones después de guardar el objeto principal
+            for parte in form.cleaned_data['partes']:
+                inventario_parte = Inventario.objects.filter(partes=parte).first()
+                if inventario_parte:
+                    mantenimiento.total_piezas_disponibles = inventario_parte.total_piezas
+                    mantenimiento.inventario.add(inventario_parte)
+                else:
+                    mantenimiento.total_piezas_disponibles = 0
 
             # Verifica si la cantidad ingresada es válida
             if mantenimiento.piezas_salida > mantenimiento.total_piezas_disponibles:
                 messages.error(request, 'La cantidad ingresada es mayor que la cantidad disponible en el inventario.')
             else:
+                # Actualizar el inventario
+                for inventario_parte in mantenimiento.inventario.all():
+                    total_piezas_utilizadas = MantenimientoPartes.objects.filter(inventario=inventario_parte).aggregate(Sum('piezas_salida'))['piezas_salida__sum'] or 0
+                    inventario_parte.total_piezas = F('piezas_entrada') - total_piezas_utilizadas
+                    inventario_parte.save()
+
                 mantenimiento.save()
+
                 return redirect('mantenimiento_partes')
     else:
         form = MantenimientoPartesForm()
@@ -167,17 +189,24 @@ def mantenimiento_partes(request):
     context = {'form': form, 'mantenimientos': mantenimientos, 'maquinas': maquinas, 'partes': partes}
     return render(request, 'mantenimiento_partes.html', context)
 
+
 @login_required
-def obtener_total_piezas(request, partes_id):
+def obtener_inventario_disponible(request, parte_id):
     try:
-        inventario = Inventario.objects.filter(partes__id=partes_id).first()
-        if inventario:
-            total_piezas = inventario.total_piezas
-        else:
-            total_piezas = 0
+        # Convertir parte_id a entero si es necesario
+        parte_id = int(parte_id)
+
+        # Obtener el total_piezas de la última entrada en el inventario para la parte específica
+        inventario_parte = Inventario.objects.filter(partes_id=parte_id).order_by('-fecha_entrada').first()
+
+        total_piezas = inventario_parte.total_piezas if inventario_parte else 0
+
         return JsonResponse({'total_piezas': total_piezas})
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        # Registra el error para revisión
+        print(f"Error en la vista obtener_inventario_disponible: {str(e)}")
+        return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+
 
 @login_required
 def editar_mantenimiento(request, mantenimiento_id):
@@ -336,5 +365,15 @@ def inventario_stock(request):
 
 @login_required
 def inventario_salida(request):
+    mantenimientos = MantenimientoPartes.objects.all()
 
-    return render(request, 'inventario_salida.html')
+    for mantenimiento in mantenimientos:
+        for inventario_parte in mantenimiento.inventario.all():
+            if mantenimiento.piezas_salida > inventario_parte.total_piezas:
+                messages.error(request, f"Error en mantenimiento {mantenimiento.id}: La cantidad de piezas de salida es mayor que las disponibles.")
+            else:
+                inventario_parte.total_piezas = F('total_piezas') - mantenimiento.piezas_salida
+                inventario_parte.save()
+
+    context = {'mantenimientos': mantenimientos}
+    return render(request, 'inventario_salida.html', context)

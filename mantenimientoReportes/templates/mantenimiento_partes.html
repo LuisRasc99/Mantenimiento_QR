@@ -90,25 +90,28 @@
                     </div>
                     <div class="mb-3">
                         <label for="PartesMantenimiento">Parte:</label>
-                        <select class="form-control " name="partes" id="PartesMantenimiento">
+                        <select class="form-control" name="partes" id="PartesMantenimiento" data-obtener-inventario-url="{% url 'obtener_inventario_disponible' parte_id=0 %}">
                             <option></option>
                             {% for parte in partes %}
                                 <option value="{{ parte.id }}">{{ parte.nombre_partes }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="id_piezas_salida">Piezas de salida:</label>
-                        <input type="number" id="id_piezas_salida" class="form-control" name="piezas_salida">
-                        {% if form.errors.piezas_salida %}
-                            <small class="text-danger">{{ form.errors.piezas_salida.0 }}</small>
-                        {% endif %}
-                        <small id="total_piezas_disponibles" class="text-muted">Disponibles: 0</small>
-                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label for="piezas_salida">Piezas de salida:</label>
+                            <input type="number" id="piezas_salida" class="form-control form-control-sm" name="piezas_salida">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="inventario_disponible">Inventario disponible:</label>
+                            <input type="text" id="inventario_disponible" class="form-control form-control-sm" readonly>
+                        </div>
+                    </div>                   
                     <div class="mb-3">
                         <label for="hrs">Horas de maquina:</label>
                         <input type="number" id="hrs" class="form-control"name="hrs">
                     </div>
+                    
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Guardar</button>
                     </div>

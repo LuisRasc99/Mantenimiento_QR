@@ -2,23 +2,6 @@ function regresar() {
     window.history.back(); // Regresar a la página anterior
 }
 
-function obtenerTotalPiezas(partesId) {
-    $.ajax({
-        url: `/obtener_total_piezas/${partesId}/`,
-        type: 'GET',
-        success: function(data) {
-            $('#id_piezas_salida').attr('max', data.total_piezas);
-            $('#total_piezas_disponibles').text(`Disponibles: ${data.total_piezas}`);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.log('Error al obtener total_piezas:');
-            console.log(`Status: ${textStatus}`);
-            console.log(`Error: ${errorThrown}`);
-            console.log(jqXHR.responseText);  // Muestra la respuesta del servidor
-        }
-    });
-}
-
 $(document).ready(function() {
     // Inicializa Select2
     $('#SelectMaquinaMantenimiento').select2({
@@ -28,17 +11,11 @@ $(document).ready(function() {
         width: '100%'
     });
 
-    
     $('#PartesMantenimiento').select2({
         dropdownParent: $('#nuevoMantenimientoModal'),
         placeholder: 'Selecciona una parte',
         allowClear: true,
         width: '100%'
-    }).on('change', function() {
-        var partesId = $(this).val();
-        if (partesId) {
-            obtenerTotalPiezas(partesId);
-        }
     });
 
     $('#PartesInventario').select2({
@@ -48,7 +25,57 @@ $(document).ready(function() {
         width: '100%'
     });
 
-    
-});
+    $('#PartesMantenimiento').on('change', function() {
+        var parteSeleccionada = $(this).val();
+        if (parteSeleccionada) {
+            var obtenerInventarioUrl = $(this).data('obtener-inventario-url').replace('0', parteSeleccionada);
 
+            $.ajax({
+                url: obtenerInventarioUrl,
+                type: 'GET',
+                success: function(data) {
+                    $('#inventario_disponible').val(data.total_piezas);
+                },
+                error: function() {
+                    console.error('Error al obtener el inventario disponible');
+                }
+            });
+        } else {
+            $('#inventario_disponible').val('');
+        }
+    });
+
+    $('#PartesMantenimiento').on('change', function() {
+        var parteSeleccionada = $(this).val();
+        
+        if (parteSeleccionada) {
+            var obtenerInventarioUrl = $(this).data('obtener-inventario-url');
+    
+            // Verificar si la URL está presente
+            if (!obtenerInventarioUrl) {
+                console.error('Error: La URL para obtener el inventario no está definida.');
+                return;
+            }
+    
+            // Reemplazar el marcador de posición en la URL
+            obtenerInventarioUrl = obtenerInventarioUrl.replace('0', parteSeleccionada);
+    
+            $.ajax({
+                url: obtenerInventarioUrl,
+                type: 'GET',
+                success: function(data) {
+                    $('#inventario_disponible').val(data.total_piezas);
+                },
+                error: function() {
+                    console.error('Error al obtener el inventario disponible');
+                }
+            });
+        } else {
+            $('#inventario_disponible').val('');
+        }
+    });
+    
+    
+
+});
 
