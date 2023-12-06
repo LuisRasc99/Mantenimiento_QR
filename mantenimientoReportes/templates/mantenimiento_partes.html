@@ -146,16 +146,6 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="id_piezas_salida">Piezas de salida:</label>
-                    <input type="number" id="id_piezas_salida" class="form-control" name="piezas_salida">
-                    {% if form.errors.piezas_salida %}
-                        <small class="text-danger">{{ form.errors.piezas_salida.0 }}</small>
-                    {% endif %}
-                    {% if form.instance.inventario %}
-                        <small class="text-info">Cantidad disponible: {{ form.instance.inventario.total_piezas }}</small>
-                    {% endif %}
-                </div>
-                <div class="mb-3">
                     <label for="piezas_salida">Piezas de salida:</label>
                     <input type="number" id="piezas_salida" class="form-control" name="piezas_salida" required value="{{ mantenimiento.piezas_salida }}">
                 </div>

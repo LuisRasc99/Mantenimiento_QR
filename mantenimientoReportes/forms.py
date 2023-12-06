@@ -20,17 +20,6 @@ class MantenimientoPartesForm(forms.ModelForm):
         model = MantenimientoPartes
         fields = ['maquina', 'partes', 'inventario', 'piezas_salida', 'hrs']
 
-    def clean_piezas_salida(self):
-        piezas_salida = self.cleaned_data['piezas_salida']
-        inventario = self.cleaned_data['inventario']
-
-        if inventario and piezas_salida > inventario.total_piezas:
-            raise forms.ValidationError(
-                f"La cantidad de piezas de salida no puede ser mayor que el total disponible ({inventario.total_piezas})."
-            )
-
-        return piezas_salida
-
 class InventarioForm(forms.ModelForm):
     class Meta:
         model = Inventario

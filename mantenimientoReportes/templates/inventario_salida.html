@@ -33,8 +33,8 @@
                 {% for inventario in inventarios %}
                     <tr>
                     <td>
-                        {% if inventario.partes.foto_parte %}
-                        <img src="{{ inventario.partes.foto_parte.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                        {% if inventario.partes.foto_partes %}
+                        <img src="{{ inventario.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
                         {% else %}
                         No disponible
                         {% endif %}
@@ -43,7 +43,7 @@
                     <td>{{ inventario.partes.nombre_partes }}</td>
                     <td>{{ inventario.partes.numero_partes }}</td>
                     <td>{{ inventario.mantenimiento.piezas_salida }}</td>
-                    <td>{{ inventario.mantenimiento.fecha_salida }}</td>
+                    <td>{{ inventario.mantenimiento.fecha_mantenimiento }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

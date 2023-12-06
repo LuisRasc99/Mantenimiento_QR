@@ -66,12 +66,13 @@ class MantenimientoPartes(models.Model):
     hrs = models.DecimalField(max_digits=10, decimal_places=2)
     maquina = models.ManyToManyField(Maquina, related_name='mantenimientos')
     partes = models.ManyToManyField(CatalogoPartes)
-    inventario = models.ManyToManyField('Inventario', null=True, blank=True, related_name='mantenimiento_inventario')
+    inventario = models.ManyToManyField('Inventario', related_name='mantenimiento_inventario')
+
 
 class Inventario(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)
-    mantenimiento = models.ForeignKey(MantenimientoPartes, on_delete=models.CASCADE, null=True, blank=True, related_name='inventario_mantenimiento')
+    mantenimiento = models.ForeignKey(MantenimientoPartes, on_delete=models.CASCADE, null=True, blank=True, related_name='mantenimiento')
     piezas_entrada = models.PositiveIntegerField()
     fecha_entrada = models.DateTimeField(auto_now_add=True)
     costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)

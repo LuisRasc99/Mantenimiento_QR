@@ -11,12 +11,6 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" >
             <i class="fa-solid fa-plus" style="color: #ffffff;"></i> Nueva Entrada
         </button>
-        <a class="btn btn-primary" href="{% url 'inventario_stock' %}" style="background-color: brown; border-color: brown;">
-            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i> Stock
-        </a>
-        <button type="button" class="btn btn-danger" href="{% url 'inventario_salida' %}">
-            <i class="fa-solid fa-clipboard" style="color: #ffffff;"></i> Salidas
-        </button>
     </div>
     <p></p>
     <section class="card card-body">
@@ -34,26 +28,26 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for inventario in inventarios %}
+                {% for item in inventario %}
                     <tr>
                     <td>
-                        {% if inventario.partes.foto_partes %}
-                        <img src="{{ inventario.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                        {% if item.partes.foto_partes %}
+                        <img src="{{ item.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
                         {% else %}
                         No disponible
                         {% endif %}
                     </td>
-                    <td>{{ inventario.id }}</td>
-                    <td>{{ inventario.partes.nombre_partes }}</td>
-                    <td>{{ inventario.partes.numero_partes }}</td>
-                    <td>{{ inventario.piezas_entrada}}</td>
-                    <td>{{ inventario.fecha_entrada}}</td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.partes.nombre_partes }}</td>
+                    <td>{{ item.partes.numero_partes }}</td>
+                    <td>{{ item.piezas_entrada}}</td>
+                    <td>{{ item.fecha_entrada}}</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
-                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarInventarioModal{{ inventario.id }}" >
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarInventarioModal{{ item.id }}" >
                                     <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                                 </button>
-                                <a href="#" class="btn btn-danger" onclick="eliminarInventario('{{ inventario.id }}')">
+                                <a href="#" class="btn btn-danger" onclick="eliminarInventario('{{ item.id }}')">
                                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
                                 </a>
                         </div>
@@ -100,17 +94,17 @@
     </div>
 
 
-    {% if inventarios %}
-    {% for inventario in inventarios %}
-    <div class="modal fade" id="editarInventarioModal{{ inventario.id }}" tabindex="-1" aria-labelledby="editarInventarioModalLabel{{ inventario.id }}" aria-hidden="true">
+    {% if inventario %}
+    {% for item in inventario %}
+    <div class="modal fade" id="editarInventarioModal{{ item.id }}" tabindex="-1" aria-labelledby="editarInventarioModalLabel{{ item.id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="editarInventarioModal{{ inventario.id }}">Modificar Inventario</h5>
+            <h5 class="modal-title" id="editarInventarioModal{{ item.id }}">Modificar Inventario</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form method="post" action="{% url 'editar_inventario' inventario_id=inventario.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ inventario.id }}">
+            <form method="post" action="{% url 'editar_inventario' inventario_id=item.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ item.id }}">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="PartesInventario">Parte:</label>
@@ -125,7 +119,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="piezas_entrada">Piezas de entrada:</label>
-                    <input type="number" id="piezas_entrada" class="form-control" name="piezas_entrada"  value="{{ inventario.piezas_entrada }}">
+                    <input type="number" id="piezas_entrada" class="form-control" name="piezas_entrada"  value="{{ item.piezas_entrada }}">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Guardar</button>
@@ -140,13 +134,13 @@
 
 
     <script>
-        function eliminarInventario(inventarioId) {
+        function eliminarInventario(itemId) {
         var confirmar = confirm("¿Estás seguro de que deseas eliminar este inventario?");
         if (confirmar) {
             // Agregamos un campo oculto para enviar el maquina_id en el formulario POST
             var form = document.createElement('form');
             form.method = 'post';
-            form.action = "{% url 'eliminar_inventario' inventario_id=0 %}".replace('0', inventarioId);
+            form.action = "{% url 'eliminar_inventario' inventario_id=0 %}".replace('0', itemId);
             form.style.display = 'none';
             
             var csrfTokenInput = document.createElement('input');
