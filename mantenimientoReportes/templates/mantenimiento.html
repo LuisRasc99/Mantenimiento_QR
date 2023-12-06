@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container py-5">
+    <section class="card card-body text-center">
+        <h1 class="text-center mt-4">Mantenimiento de Maquinas</h1>
+    </section>
+    <p></p>
+    <div class="col">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoMantenimientoModal" >
+            <i class="fa-solid fa-plus" style="color: #ffffff;"></i> Nueva Mantenimiento
+        </button>
+    </div>
+    <p></p>
+    <section class="card card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Foto Parte</th>
+                    <th>Nombre de Maquina</th>
+                    <th>Nueva hora de Maquina</th>
+                    <th>Foto Parte</th>
+                    <th>Nombre de Parte</th>
+                    <th>Numero de Parte</th>
+                    <th>Piezas de Salida</th>
+                    <th>Fecha de Salida</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in mantenimiento_items %}
+                    <tr>
+                    <td>
+                        {% if item.maquinas.foto_maquina %}
+                        <img src="{{ item.maquinas.foto_maquina.url }}" alt="Foto de Maquina" style="max-width: 100px; max-height: 100px;">
+                        {% else %}
+                        No disponible
+                        {% endif %}
+                    </td>
+                    <td>{{ item.maquinas.nombre_maquina }}</td>
+                    <td>{{ item.new_horas_maquina}}</td>
+                    <td>
+                        {% if item.partes.foto_partes %}
+                        <img src="{{ item.partes.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                        {% else %}
+                        No disponible
+                        {% endif %}
+                    </td>
+                    <td>{{ item.partes.nombre_partes }}</td>
+                    <td>{{ item.partes.numero_partes }}</td>
+                    <td>{{ item.piezas_salida}}</td>
+                    <td>{{ item.fecha_salida}}</td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Acciones">
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarMantenimientoModal{{ item.id }}" >
+                                    <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
+                                </button>
+                                <a href="#" class="btn btn-danger" onclick="eliminarInventario('{{ item.id }}')">
+                                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                                </a>
+                        </div>
+                    </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination justify-content-center">
+            <span class="step-links">
+                {% if mantenimiento_pagina.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ mantenimiento_pagina.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ mantenimiento_pagina.number }} de {{ mantenimiento_pagina.paginator.num_pages }}.
+                </span>
+
+                {% if mantenimiento_pagina.has_next %}
+                    <a href="?page={{ mantenimiento_pagina.next_page_number }}">next</a>
+                    <a href="?page={{ mantenimiento_pagina.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </section>
+
+    <div class="modal fade" id="nuevoMantenimientoModal" tabindex="-1" aria-labelledby="nuevoMantenimientoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="nuevoMantenimientoModalLabel">Nueva Inventario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="maquinas">Maquina:</label>
+                        <select class="form-control " name="maquinas" id="maquinas" required>
+                            <option></option>
+                            {% for maquina in maquinas %}
+                                <option value="{{ maquina.id }}">{{ maquina.nombre_maquina }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="PartesMantenimiento">Parte:</label>
+                        <select class="form-control" name="partes" id="PartesMantenimiento" required>
+                            <option></option>
+                            {% for parte in partes %}
+                                <option value="{{ parte.id }}" {% if parte.id == parte_seleccionada.id %}selected{% endif %}>
+                                    {{ parte.nombre_partes }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="piezas_salida">Piezas de salida:</label>
+                        <input type="number" id="piezas_salida" class="form-control" name="piezas_salida"  >
+                    </div>
+                    <div class="mb-3">
+                        <label for="cantidad_disponible">Cantidad disponible:</label>
+                        <span id="cantidad_disponible">{{ cantidad_disponible }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_horas_maquina">Nueva hora:</label>
+                        <input type="number" id="new_horas_maquina" class="form-control" name="new_horas_maquina"  >
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+                
+            </div>
+            
+        </div>
+        </div>
+    </div>
+
+
+    {% if mantenimiento %}
+    {% for item in mantenimiento %}
+    <div class="modal fade" id="editarMantenimientoModal{{ item.id }}" tabindex="-1" aria-labelledby="editarMantenimientoModalLabel{{ item.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="editarMantenimientoModal{{ item.id }}">Modificar Mantenimiento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'editar_mantenimiento' mantenimiento_id=item.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ item.id }}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="maquinas">Maquina:</label>
+                    <select class="form-control" name="maquinas" id="maquinas" required>
+                        <option value="" {% if not item.partes %}selected{% endif %}></option>
+                        {% for maquina in maquinas %}
+                            <option value="{{ maquina.id }}" {% if item.partes and item.partes.id == maquina.id %}selected{% endif %}>
+                                {{ maquina.nombre_maquina }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="PartesMantenimiento">Parte:</label>
+                    <select class="form-control" name="partes" id="PartesMantenimiento" required>
+                        <option value="" {% if not item.partes %}selected{% endif %}></option>
+                        {% for parte in partes %}
+                            <option value="{{ parte.id }}" {% if item.partes and item.partes.id == parte.id %}selected{% endif %}>
+                                {{ parte.nombre_partes }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="piezas_salida">Piezas de salida:</label>
+                    <input type="number" id="piezas_salida" class="form-control" name="piezas_salida"  value="{{ item.piezas_salida }}">
+                </div>
+                <div class="mb-3">
+                    <label for="new_horas_maquina">Nueva hora:</label>
+                    <input type="number" id="new_horas_maquina" class="form-control" name="new_horas_maquina"  value="{{ item.new_horas_maquina }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+
+    <script>
+        function eliminarInventario(itemId) {
+        var confirmar = confirm("¿Estás seguro de que deseas eliminar este inventario?");
+        if (confirmar) {
+            // Agregamos un campo oculto para enviar el maquina_id en el formulario POST
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = "{% url 'eliminar_mantenimiento' mantenimiento_id=0 %}".replace('0', itemId);
+            form.style.display = 'none';
+            
+            var csrfTokenInput = document.createElement('input');
+            csrfTokenInput.type = 'hidden';
+            csrfTokenInput.name = 'csrfmiddlewaretoken';
+            csrfTokenInput.value = "{{ csrf_token }}";
+            
+            form.appendChild(csrfTokenInput);
+            document.body.appendChild(form);
+            
+            form.submit();
+        }
+        }
+    </script>
+    
+</main>
+{% endblock %}

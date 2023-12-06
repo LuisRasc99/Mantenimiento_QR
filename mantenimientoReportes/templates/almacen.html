@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container py-5">
+    <section class="card card-body text-center">
+        <h1 class="text-center mt-4">Almacen de Partes</h1>
+    </section>
+    <p></p>
+    <div class="col">
+
+    </div>
+    <p></p>
+    <section class="card card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Foto Parte</th>
+                        <th>Nombre de Parte</th>
+                        <th>Numero de Parte</th>
+                        <th>Total de piezas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in partes %}
+                        <tr>
+                            <td>
+                                {% if item.foto_partes %}
+                                    <img src="{{ item.foto_partes.url }}" alt="Foto de Parte" style="max-width: 100px; max-height: 100px;">
+                                {% else %}
+                                    No disponible
+                                {% endif %}
+                            </td>
+                            <td>{{ item.nombre_partes }}</td>
+                            <td>{{ item.numero_partes }}</td>
+                            <td>{{ item.inventario.total_piezas }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination justify-content-center">
+            <span class="step-links">
+                {% if almacen_pagina.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ almacen_pagina.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ almacen_pagina.number }} de {{ almacen_pagina.paginator.num_pages }}.
+                </span>
+
+                {% if almacen_pagina.has_next %}
+                    <a href="?page={{ almacen_pagina.next_page_number }}">next</a>
+                    <a href="?page={{ almacen_pagina.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </section>
+
+</main>
+{% endblock %}

@@ -1,6 +1,6 @@
 import qrcode
 from django import forms
-from .models import CatalogoPartes, MantenimientoPartes, Maquina, Inventario
+from .models import CatalogoPartes, Maquina, MovimientoInventario
 from django.core.files import File
 from io import BytesIO
 
@@ -14,14 +14,12 @@ class CatalogoPartesForm(forms.ModelForm):
         model = CatalogoPartes
         fields = ['nombre_partes', 'numero_partes', 'horas_vida', 'foto_partes', 'costo_aproximado']
         
-
-class MantenimientoPartesForm(forms.ModelForm):
+class InventarioEntradaForm(forms.ModelForm):
     class Meta:
-        model = MantenimientoPartes
-        fields = ['maquina', 'partes', 'inventario', 'piezas_salida', 'hrs']
-
-class InventarioForm(forms.ModelForm):
-    class Meta:
-        model = Inventario
+        model = MovimientoInventario
         fields = ['partes', 'piezas_entrada']
-        exclude = ['cantidad_piezas', 'fecha_entrada','costo_total']
+
+class InventarioSalidaForm(forms.ModelForm):
+    class Meta:
+        model = MovimientoInventario
+        fields = ['maquinas', 'partes', 'piezas_salida', 'new_horas_maquina']

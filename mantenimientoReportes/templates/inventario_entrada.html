@@ -4,11 +4,11 @@
 {% block content %}
 <main class="container py-5">
     <section class="card card-body text-center">
-        <h1 class="text-center mt-4">Inventario</h1>
+        <h1 class="text-center mt-4">Entrada de Partes</h1>
     </section>
     <p></p>
     <div class="col">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoInventarioModal" >
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoEntradaModal" >
             <i class="fa-solid fa-plus" style="color: #ffffff;"></i> Nueva Entrada
         </button>
     </div>
@@ -19,7 +19,6 @@
                 <thead>
                 <tr>
                     <th>Foto Parte</th>
-                    <th>ID</th>
                     <th>Nombre de Parte</th>
                     <th>Numero de Parte</th>
                     <th>Piezas de Entrada</th>
@@ -37,14 +36,13 @@
                         No disponible
                         {% endif %}
                     </td>
-                    <td>{{ item.id }}</td>
                     <td>{{ item.partes.nombre_partes }}</td>
                     <td>{{ item.partes.numero_partes }}</td>
                     <td>{{ item.piezas_entrada}}</td>
                     <td>{{ item.fecha_entrada}}</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Acciones">
-                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarInventarioModal{{ item.id }}" >
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarEntradaModal{{ item.id }}" >
                                     <i class="fa-solid fa-pencil" style="color: #ffffff;"></i>
                                 </button>
                                 <a href="#" class="btn btn-danger" onclick="eliminarInventario('{{ item.id }}')">
@@ -57,21 +55,38 @@
                 </tbody>
             </table>
         </div>
+        <div class="pagination justify-content-center">
+            <span class="step-links">
+                {% if inventario_pagina.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ inventario_pagina.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ inventario_pagina.number }} de {{ inventario_pagina.paginator.num_pages }}.
+                </span>
+
+                {% if inventario_pagina.has_next %}
+                    <a href="?page={{ inventario_pagina.next_page_number }}">next</a>
+                    <a href="?page={{ inventario_pagina.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
     </section>
 
-    <div class="modal fade" id="nuevoInventarioModal" tabindex="-1" aria-labelledby="nuevoInventarioModalLabel" aria-hidden="true">
+    <div class="modal fade" id="nuevoEntradaModal" tabindex="-1" aria-labelledby="nuevoEntradaModalLabel" aria-hidden="true">
         <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="nuevoInventarioModalLabel">Nueva Inventario</h5>
+            <h5 class="modal-title" id="nuevoEntradaModalLabel">Nueva Entrada</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="PartesInventario">Parte:</label>
-                        <select class="form-control " name="partes" id="PartesInventario" required>
+                        <label for="PartesInventario_Entrada">Parte:</label>
+                        <select class="form-control " name="partes" id="PartesInventario_Entrada" required>
                             <option></option>
                             {% for parte in partes %}
                                 <option value="{{ parte.id }}">{{ parte.nombre_partes }}</option>
@@ -96,22 +111,22 @@
 
     {% if inventario %}
     {% for item in inventario %}
-    <div class="modal fade" id="editarInventarioModal{{ item.id }}" tabindex="-1" aria-labelledby="editarInventarioModalLabel{{ item.id }}" aria-hidden="true">
+    <div class="modal fade" id="editarEntradaModal{{ item.id }}" tabindex="-1" aria-labelledby="editarEntradaModalLabel{{ item.id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="editarInventarioModal{{ item.id }}">Modificar Inventario</h5>
+            <h5 class="modal-title" id="editarEntradaModal{{ item.id }}">Modificar Inventario</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form method="post" action="{% url 'editar_inventario' inventario_id=item.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ item.id }}">
+            <form method="post" action="{% url 'editar_inventario_entrada' inventario_id=item.id%}" enctype="multipart/form-data" id="editarInventarioForm{{ item.id }}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="PartesInventario">Parte:</label>
-                    <select class="form-control" name="partes" id="PartesInventario" required>
-                        <option value="" {% if not inventario.partes %}selected{% endif %}></option>
+                    <label for="PartesInventario_Entrada">Parte:</label>
+                    <select class="form-control" name="partes" id="PartesInventario_Entrada" required>
+                        <option value="" {% if not item.partes %}selected{% endif %}></option>
                         {% for parte in partes %}
-                            <option value="{{ parte.id }}" {% if inventario.partes and inventario.partes.id == parte.id %}selected{% endif %}>
+                            <option value="{{ parte.id }}" {% if item.partes and item.partes.id == parte.id %}selected{% endif %}>
                                 {{ parte.nombre_partes }}
                             </option>
                         {% endfor %}
@@ -135,12 +150,12 @@
 
     <script>
         function eliminarInventario(itemId) {
-        var confirmar = confirm("¿Estás seguro de que deseas eliminar este inventario?");
+        var confirmar = confirm("¿Estás seguro de que deseas eliminar esta entrada?");
         if (confirmar) {
             // Agregamos un campo oculto para enviar el maquina_id en el formulario POST
             var form = document.createElement('form');
             form.method = 'post';
-            form.action = "{% url 'eliminar_inventario' inventario_id=0 %}".replace('0', itemId);
+            form.action = "{% url 'eliminar_inventario_entrada' inventario_id=0 %}".replace('0', itemId);
             form.style.display = 'none';
             
             var csrfTokenInput = document.createElement('input');

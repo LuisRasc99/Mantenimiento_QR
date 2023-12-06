@@ -59,21 +59,20 @@ class CatalogoPartes(models.Model):
 
         super(CatalogoPartes, self).save(*args, **kwargs)
 
-class MantenimientoPartes(models.Model):
+class MovimientoInventario(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    fecha_mantenimiento = models.DateTimeField(auto_now_add=True)
-    piezas_salida = models.IntegerField(default=0)
-    hrs = models.DecimalField(max_digits=10, decimal_places=2)
-    maquina = models.ManyToManyField(Maquina, related_name='mantenimientos')
-    partes = models.ManyToManyField(CatalogoPartes)
-    inventario = models.ManyToManyField('Inventario', related_name='mantenimiento_inventario')
-
-
-class Inventario(models.Model):
-    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    maquinas = models.ForeignKey(Maquina, on_delete=models.CASCADE, null=True, blank=True)
     partes = models.ForeignKey(CatalogoPartes, on_delete=models.CASCADE)
-    mantenimiento = models.ForeignKey(MantenimientoPartes, on_delete=models.CASCADE, null=True, blank=True, related_name='mantenimiento')
-    piezas_entrada = models.PositiveIntegerField()
+    piezas_entrada = models.PositiveIntegerField(null=True, blank=True)
+    piezas_salida = models.PositiveIntegerField(blank=True, null=True)
     fecha_entrada = models.DateTimeField(auto_now_add=True)
+    fecha_salida = models.DateTimeField(auto_now_add=True)
     costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_piezas = models.IntegerField(default=0)
+    new_horas_maquina = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    movimiento = models.BooleanField(default=True)
+
+    def __str__(self):
+        tipo_movimiento = "Entrada" if self.movimiento else "Salida"
+        return f"{self.maquina} - {self.parte.nombre_partes} - {tipo_movimiento}: {self.piezas_entrada}"
+

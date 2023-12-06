@@ -1,10 +1,12 @@
+from datetime import datetime, timezone
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import os
 from django.contrib.auth.decorators import user_passes_test,login_required
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from appmantenimiento import settings
-from .forms import InventarioForm, MantenimientoPartesForm, MaquinaForm, CatalogoPartesForm
+from .forms import InventarioEntradaForm, InventarioSalidaForm,MaquinaForm, CatalogoPartesForm
 from mantenimientoSLOGIN.models import Usuario  # Asegúrate de importar tu modelo de usuario
-from .models import Inventario, MantenimientoPartes, Maquina, CatalogoPartes
+from .models import Maquina, CatalogoPartes, MovimientoInventario
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.files.storage import default_storage
 from django.contrib import messages
@@ -140,46 +142,140 @@ def eliminar_partes(request, parte_id):
 
 
 @login_required
-def inventario(request):
-    inventario = Inventario.objects.filter(user=request.user)
+def inventario_entrada(request):
+    inventario = MovimientoInventario.objects.filter(user=request.user, movimiento=True)
     partes = CatalogoPartes.objects.all()
 
     if request.method == 'POST':
-        form = InventarioForm(request.POST)
+        form = InventarioEntradaForm(request.POST)
         if form.is_valid():
             inventario_item = form.save(commit=False)
-            inventario_item.user = request.user  # Asigna el usuario actual al inventario
+            inventario_item.user = request.user
+            inventario_item.movimiento = True  # Indicar que es un movimiento de entrada
+            inventario_item.entrada = datetime.now(timezone.utc)
             inventario_item.save()
-            return redirect('inventario')
+            MovimientoInventario.objects.filter(id=inventario_item.id).update(total_piezas=F('total_piezas') + inventario_item.piezas_entrada)
+            return redirect('inventario_entrada')
     else:
-        form = InventarioForm()
+        form = InventarioEntradaForm()
 
-    context = {'inventario': inventario, 'form': form, 'partes': partes}
-    return render(request, 'inventario.html', context)
+        # Agregar paginación
+    paginator = Paginator(inventario, 10)  # Muestra 10 entradas por página
+    page = request.GET.get('page')
+
+    try:
+        inventario_pagina = paginator.page(page)
+    except PageNotAnInteger:
+        inventario_pagina = paginator.page(1)
+    except EmptyPage:
+        inventario_pagina = paginator.page(paginator.num_pages)
+
+    context = {'inventario': inventario, 'form': form, 'partes': partes, 'inventario_pagina': inventario_pagina}
+    return render(request, 'inventario_entrada.html', context)
 
 @login_required
-def editar_inventario(request, inventario_id):
-    inventario = get_object_or_404(Inventario, pk=inventario_id, user=request.user)
+def editar_inventario_entrada(request, inventario_id):
+    inventario = get_object_or_404(MovimientoInventario, pk=inventario_id, user=request.user, movimiento=True)
 
     if request.method == "POST":
-        form = InventarioForm(request.POST, instance=inventario)
+        form = InventarioEntradaForm(request.POST, instance=inventario)
         if form.is_valid():
-            form.save()
-            return redirect('inventario')
+            inventario = form.save(commit=False)
+            inventario.movimiento = True  # Asegurarse de que se mantiene como un movimiento de entrada
+            inventario.save()
+            return redirect('inventario_entrada')
 
     else:
-        form = InventarioForm(instance=inventario)
+        form = InventarioEntradaForm(instance=inventario)
 
     return render(request, 'editar_inventario.html', {'form': form, 'inventario_item': inventario})
 
-
 @login_required
-def eliminar_inventario(request, inventario_id):
-    inventario = get_object_or_404(Inventario, id=inventario_id, user=request.user)
+def eliminar_inventario_entrada(request, inventario_id):
+    inventario = get_object_or_404(MovimientoInventario, id=inventario_id, user=request.user, movimiento=True)
     
     if request.method == 'POST':
         inventario.delete()
-        return redirect('inventario')
+        return redirect('inventario_entrada')
 
     return render(request, 'eliminar_inventario.html', {'inventario': inventario})
 
+@login_required
+def mantenimiento(request):
+    mantenimiento_items = MovimientoInventario.objects.filter(user=request.user, movimiento=False)
+    partes = CatalogoPartes.objects.all()
+    maquinas = Maquina.objects.all()
+
+    if request.method == 'POST':
+        form = InventarioSalidaForm(request.POST)
+        if form.is_valid():
+            mantenimiento_item = form.save(commit=False)
+            mantenimiento_item.user = request.user
+            mantenimiento_item.movimiento = False  # Indicar que es un movimiento de salida (mantenimiento)
+            mantenimiento_item.fecha_salida = datetime.now(timezone.utc)# Actualizar la fecha de entrada
+            mantenimiento_item.save()
+            MovimientoInventario.objects.filter(id=mantenimiento_item.id).update(total_piezas=F('total_piezas') - mantenimiento_item.piezas_salida)
+            return redirect('mantenimiento')
+    else:
+        form = InventarioSalidaForm()
+
+    # Agregar paginación
+    paginator = Paginator(mantenimiento_items, 10)  # Muestra 10 entradas por página
+    page = request.GET.get('page')
+
+    try:
+        mantenimiento_pagina = paginator.page(page)
+    except PageNotAnInteger:
+        mantenimiento_pagina = paginator.page(1)
+    except EmptyPage:
+        mantenimiento_pagina = paginator.page(paginator.num_pages)
+
+
+    context = {'mantenimiento_items': mantenimiento_items, 'form': form, 'partes': partes, 'maquinas': maquinas, 'mantenimiento_pagina': mantenimiento_pagina}
+    return render(request, 'mantenimiento.html', context)
+
+@login_required
+def editar_mantenimiento(request, mantenimiento_id):
+    mantenimiento_item = get_object_or_404(MovimientoInventario, pk=mantenimiento_id, user=request.user, movimiento=False)
+
+    if request.method == "POST":
+        form = InventarioSalidaForm(request.POST, instance=mantenimiento_item)
+        if form.is_valid():
+            mantenimiento_item = form.save(commit=False)
+            mantenimiento_item.movimiento = False  # Asegurarse de que se mantiene como un movimiento de salida (mantenimiento)
+            mantenimiento_item.save()
+            return redirect('mantenimiento')
+
+    else:
+        form = InventarioSalidaForm(instance=mantenimiento_item)
+
+    return render(request, 'editar_inventario.html', {'form': form, 'mantenimiento_item': mantenimiento_item})
+
+@login_required
+def eliminar_mantenimiento(request, mantenimiento_id):
+    mantenimiento_item = get_object_or_404(MovimientoInventario, id=mantenimiento_id, user=request.user, movimiento=False)
+    
+    if request.method == 'POST':
+        mantenimiento_item.delete()
+        return redirect('mantenimiento')
+
+    return render(request, 'eliminar_inventario.html', {'inventario': mantenimiento_item})
+
+@login_required
+def almacen(request):
+    inventario = MovimientoInventario.objects.all()
+    partes = CatalogoPartes.objects.all()
+
+    # Agregar paginación
+    paginator = Paginator(inventario, 10)  # Muestra 10 entradas por página
+    page = request.GET.get('page')
+
+    try:
+        almacen_pagina = paginator.page(page)
+    except PageNotAnInteger:
+        almacen_pagina = paginator.page(1)
+    except EmptyPage:
+        almacen_pagina = paginator.page(paginator.num_pages)
+
+    context = {'almacen_pagina': almacen_pagina, 'partes': partes}
+    return render(request, 'almacen.html', context)
