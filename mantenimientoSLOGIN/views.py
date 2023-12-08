@@ -27,7 +27,7 @@ def IniciarSesion(request):
 
             # Redirige según el tipo de usuario
             if user.tipo_usuario == 'administrador':
-                return redirect('panel')
+                return redirect('mantenimiento')
             elif user.tipo_usuario == 'tecnico':
                 return redirect('panel_tecnico')
             elif user.is_superuser:

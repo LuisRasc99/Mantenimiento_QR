@@ -154,7 +154,24 @@ def inventario_entrada(request):
             inventario_item.movimiento = True  # Indicar que es un movimiento de entrada
             inventario_item.entrada = datetime.now(timezone.utc)
             inventario_item.save()
-            MovimientoInventario.objects.filter(id=inventario_item.id).update(total_piezas=F('total_piezas') + inventario_item.piezas_entrada)
+            # Recuperar el objeto después de guardarlo
+            inventario_item = get_object_or_404(MovimientoInventario, id=inventario_item.id)
+
+            # Obtener el objeto relacionado a través de partes
+            partes_obj = inventario_item.partes
+
+            # Obtener el último movimiento relacionado con la misma parte
+            ultimo_movimiento = MovimientoInventario.objects.filter(user=request.user, partes=partes_obj, movimiento=True).exclude(id=inventario_item.id).last()
+
+            # Obtener el total_piezas del último movimiento o establecerlo en 0 si no hay movimientos previos
+            total_piezas_anterior = ultimo_movimiento.total_piezas if ultimo_movimiento else 0
+
+            # Actualizar total_piezas
+            inventario_item.total_piezas = total_piezas_anterior + inventario_item.piezas_entrada
+            inventario_item.save()
+
+            print(f"partes: {inventario_item.partes}, piezas_entrada: {inventario_item.piezas_entrada}, total_piezas después del guardado: {inventario_item.total_piezas}")
+
             return redirect('inventario_entrada')
     else:
         form = InventarioEntradaForm()
@@ -214,7 +231,22 @@ def mantenimiento(request):
             mantenimiento_item.movimiento = False  # Indicar que es un movimiento de salida (mantenimiento)
             mantenimiento_item.fecha_salida = datetime.now(timezone.utc)# Actualizar la fecha de entrada
             mantenimiento_item.save()
-            MovimientoInventario.objects.filter(id=mantenimiento_item.id).update(total_piezas=F('total_piezas') - mantenimiento_item.piezas_salida)
+            
+            inventario_item = get_object_or_404(MovimientoInventario, id=inventario_item.id)
+
+            # Obtener el objeto relacionado a través de partes
+            partes_obj = inventario_item.partes
+
+            # Obtener el último movimiento relacionado con la misma parte
+            ultimo_movimiento = MovimientoInventario.objects.filter(user=request.user, partes=partes_obj, movimiento=True).exclude(id=inventario_item.id).last()
+
+            # Obtener el total_piezas del último movimiento o establecerlo en 0 si no hay movimientos previos
+            total_piezas_anterior = ultimo_movimiento.total_piezas if ultimo_movimiento else 0
+
+            # Actualizar total_piezas
+            inventario_item.total_piezas = total_piezas_anterior - inventario_item.piezas_salida
+            inventario_item.save()
+
             return redirect('mantenimiento')
     else:
         form = InventarioSalidaForm()
@@ -238,12 +270,24 @@ def mantenimiento(request):
 def editar_mantenimiento(request, mantenimiento_id):
     mantenimiento_item = get_object_or_404(MovimientoInventario, pk=mantenimiento_id, user=request.user, movimiento=False)
 
+    # Obtener el valor actual de piezas_entrada
+    piezas_entrada_anterior = mantenimiento_item.piezas_entrada
+
     if request.method == "POST":
         form = InventarioSalidaForm(request.POST, instance=mantenimiento_item)
         if form.is_valid():
             mantenimiento_item = form.save(commit=False)
             mantenimiento_item.movimiento = False  # Asegurarse de que se mantiene como un movimiento de salida (mantenimiento)
             mantenimiento_item.save()
+
+            # Obtener el nuevo valor de piezas_entrada
+            piezas_entrada_nueva = mantenimiento_item.piezas_entrada
+
+            # Actualizar total_piezas según la diferencia
+            diferencia_piezas = piezas_entrada_nueva - piezas_entrada_anterior
+            mantenimiento_item.total_piezas = mantenimiento_item.total_piezas + diferencia_piezas
+            mantenimiento_item.save()
+
             return redirect('mantenimiento')
 
     else:
@@ -254,9 +298,17 @@ def editar_mantenimiento(request, mantenimiento_id):
 @login_required
 def eliminar_mantenimiento(request, mantenimiento_id):
     mantenimiento_item = get_object_or_404(MovimientoInventario, id=mantenimiento_id, user=request.user, movimiento=False)
-    
+
+    # Obtener el valor de piezas_entrada antes de eliminar el registro
+    piezas_entrada_eliminado = mantenimiento_item.piezas_entrada
+
     if request.method == 'POST':
         mantenimiento_item.delete()
+
+        # Restar piezas_entrada al total_piezas
+        mantenimiento_item.total_piezas = mantenimiento_item.total_piezas - piezas_entrada_eliminado
+        mantenimiento_item.save()
+
         return redirect('mantenimiento')
 
     return render(request, 'eliminar_inventario.html', {'inventario': mantenimiento_item})

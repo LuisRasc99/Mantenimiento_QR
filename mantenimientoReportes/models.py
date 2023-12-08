@@ -74,5 +74,5 @@ class MovimientoInventario(models.Model):
 
     def __str__(self):
         tipo_movimiento = "Entrada" if self.movimiento else "Salida"
-        return f"{self.maquina} - {self.parte.nombre_partes} - {tipo_movimiento}: {self.piezas_entrada}"
+        return f"{self.maquinas} - {self.partes.nombre_partes} - {tipo_movimiento}: {self.piezas_entrada}"
 

@@ -34,7 +34,17 @@
                             </td>
                             <td>{{ item.nombre_partes }}</td>
                             <td>{{ item.numero_partes }}</td>
-                            <td>{{ item.inventario.total_piezas }}</td>
+                            <td>
+                                {% with total_piezas=0 %}
+                                    {% for movimiento in item.movimientoinventario_set.all %}
+                                        {% if not movimiento.movimiento %}
+                                            {% with total_piezas=total_piezas|add:movimiento.piezas_salida %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ total_piezas }}
+                                {% endwith %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
