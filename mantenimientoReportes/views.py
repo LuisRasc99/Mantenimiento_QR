@@ -232,20 +232,20 @@ def mantenimiento(request):
             mantenimiento_item.fecha_salida = datetime.now(timezone.utc)# Actualizar la fecha de entrada
             mantenimiento_item.save()
             
-            inventario_item = get_object_or_404(MovimientoInventario, id=inventario_item.id)
+            mantenimiento_item = get_object_or_404(MovimientoInventario, id=mantenimiento_item.id)
 
             # Obtener el objeto relacionado a través de partes
-            partes_obj = inventario_item.partes
+            partes_obj = mantenimiento_item.partes
 
             # Obtener el último movimiento relacionado con la misma parte
-            ultimo_movimiento = MovimientoInventario.objects.filter(user=request.user, partes=partes_obj, movimiento=True).exclude(id=inventario_item.id).last()
+            ultimo_movimiento = MovimientoInventario.objects.filter(user=request.user, partes=partes_obj, movimiento=True).exclude(id=mantenimiento_item.id).last()
 
             # Obtener el total_piezas del último movimiento o establecerlo en 0 si no hay movimientos previos
             total_piezas_anterior = ultimo_movimiento.total_piezas if ultimo_movimiento else 0
 
             # Actualizar total_piezas
-            inventario_item.total_piezas = total_piezas_anterior - inventario_item.piezas_salida
-            inventario_item.save()
+            mantenimiento_item.total_piezas = total_piezas_anterior - mantenimiento_item.piezas_salida
+            mantenimiento_item.save()
 
             return redirect('mantenimiento')
     else:
@@ -266,34 +266,37 @@ def mantenimiento(request):
     context = {'mantenimiento_items': mantenimiento_items, 'form': form, 'partes': partes, 'maquinas': maquinas, 'mantenimiento_pagina': mantenimiento_pagina}
     return render(request, 'mantenimiento.html', context)
 
-@login_required
+def obtener_inventario_disponible(request, parte_id):
+    try:
+        # Convertir parte_id a entero si es necesario
+        parte_id = int(parte_id)
+        # Obtener el total_piezas de la última entrada en el inventario para la parte específica
+        inventario_parte = MovimientoInventario.objects.filter(partes_id=parte_id).order_by('-fecha_salida').first()
+        total_piezas = inventario_parte.total_piezas if inventario_parte else 0
+        return JsonResponse({'total_piezas': total_piezas})
+    except Exception as e:
+        # Registra el error para revisión
+        print(f"Error en la vista obtener_inventario_disponible: {str(e)}")
+        return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+
 def editar_mantenimiento(request, mantenimiento_id):
-    mantenimiento_item = get_object_or_404(MovimientoInventario, pk=mantenimiento_id, user=request.user, movimiento=False)
-
-    # Obtener el valor actual de piezas_entrada
-    piezas_entrada_anterior = mantenimiento_item.piezas_entrada
-
-    if request.method == "POST":
-        form = InventarioSalidaForm(request.POST, instance=mantenimiento_item)
+    mantenimiento = get_object_or_404(InventarioSalidaForm, id=mantenimiento_id)
+    if request.method == 'POST':
+        form = InventarioSalidaForm(request.POST, instance=mantenimiento)
         if form.is_valid():
-            mantenimiento_item = form.save(commit=False)
-            mantenimiento_item.movimiento = False  # Asegurarse de que se mantiene como un movimiento de salida (mantenimiento)
-            mantenimiento_item.save()
-
-            # Obtener el nuevo valor de piezas_entrada
-            piezas_entrada_nueva = mantenimiento_item.piezas_entrada
-
-            # Actualizar total_piezas según la diferencia
-            diferencia_piezas = piezas_entrada_nueva - piezas_entrada_anterior
-            mantenimiento_item.total_piezas = mantenimiento_item.total_piezas + diferencia_piezas
-            mantenimiento_item.save()
-
-            return redirect('mantenimiento')
-
+            mantenimiento = form.save(commit=False)
+            mantenimiento.user = request.user
+            mantenimiento.save()
+            maquina = get_object_or_404(Maquina, id=mantenimiento.maquina.id)
+            maquina.horas_maquina += mantenimiento.hrs
+            maquina.save()
+            return redirect('mantenimiento_partes')
     else:
-        form = InventarioSalidaForm(instance=mantenimiento_item)
-
-    return render(request, 'editar_inventario.html', {'form': form, 'mantenimiento_item': mantenimiento_item})
+        form = InventarioSalidaForm(instance=mantenimiento)
+    maquinas = Maquina.objects.all()
+    partes = CatalogoPartes.objects.all()
+    context = {'form': form, 'maquinas': maquinas, 'partes': partes}
+    return render(request, 'editar_mantenimiento.html', context)
 
 @login_required
 def eliminar_mantenimiento(request, mantenimiento_id):

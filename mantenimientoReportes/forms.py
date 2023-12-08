@@ -18,6 +18,7 @@ class InventarioEntradaForm(forms.ModelForm):
     class Meta:
         model = MovimientoInventario
         fields = ['partes', 'piezas_entrada']
+        
 
 class InventarioSalidaForm(forms.ModelForm):
     class Meta:
